@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>NetGuard Dashboard</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+
+<body>
+
+
+<!-- ==================================================
+     SIDEBAR
+================================================== -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+
+        <div class="logo-icon">
+            NG
+        </div>
+
+        <div>
+
+            <h2>
+                NetGuard
+            </h2>
+
+            <span>
+                Smart Cabinet
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <nav>
+
+        <a
+            href="#dashboard"
+            class="nav-link active"
+        >
+            ▣ Dashboard
+        </a>
+
+
+        <a
+            href="#monitoring"
+            class="nav-link"
+        >
+            ◉ Monitoring
+        </a>
+
+
+        <a
+            href="#history"
+            class="nav-link"
+        >
+            ◷ History
+        </a>
+
+
+        <a
+            href="#system"
+            class="nav-link"
+        >
+            ⚙ System
+        </a>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="connection-box">
+
+            <span class="status-dot"></span>
+
+            <div>
+
+                <strong>
+                    System Online
+                </strong>
+
+                <small id="sidebarConnection">
+                    Blynk + Firebase
+                </small>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+
+<!-- ==================================================
+     MAIN
+================================================== -->
+
+<main class="main">
+
+
+<!-- ==================================================
+     TOPBAR
+================================================== -->
+
+<header class="topbar">
+
+    <div>
+
+        <h1 id="pageTitle">
+            Dashboard
+        </h1>
+
+        <p>
+            NetGuard Smart Network Cabinet Monitoring System
+        </p>
+
+    </div>
+
+
+    <div class="top-status">
+
+    <span class="status-dot"></span>
+
+    <span id="connectionText">
+        Connecting...
+    </span>
+
+    <button id="logoutButton" class="logout-button">
+        Logout
+    </button>
+
+</div>
+
+</header>
+
+
+
+<!-- ==================================================
+     DASHBOARD
+================================================== -->
+
+<section
+    id="dashboard"
+    class="page-section"
+>
+
+
+    <div class="section-title">
+
+        <div>
+
+            <h2>
+                System Overview
+            </h2>
+
+            <p>
+                Real-time monitoring from Blynk Cloud
+            </p>
+
+        </div>
+
+
+        <div class="last-update">
+
+            Last update:
+
+            <strong id="lastUpdate">
+                --
+            </strong>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- BLYNK CARDS -->
+
+    <div class="cards">
+
+
+        <!-- TEMPERATURE -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    🌡
+                </div>
+
+                <span class="pin">
+                    V0
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Temperature
+            </div>
+
+            <div class="value">
+
+                <span id="temperature">
+                    --
+                </span>
+
+                <small>
+                    °C
+                </small>
+
+            </div>
+
+            <div class="card-footer">
+                Cabinet Temperature
+            </div>
+
+        </div>
+
+
+
+        <!-- HUMIDITY -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    💧
+                </div>
+
+                <span class="pin">
+                    V1
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Humidity
+            </div>
+
+            <div class="value">
+
+                <span id="humidity">
+                    --
+                </span>
+
+                <small>
+                    %
+                </small>
+
+            </div>
+
+            <div class="card-footer">
+                Cabinet Humidity
+            </div>
+
+        </div>
+
+
+
+        <!-- DOOR -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    🚪
+                </div>
+
+                <span class="pin">
+                    V2
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Door Status
+            </div>
+
+            <div
+                class="status-value"
+                id="doorStatus"
+            >
+                --
+            </div>
+
+            <div class="card-footer">
+                Cabinet Door
+            </div>
+
+        </div>
+
+
+
+        <!-- RFID -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    🔑
+                </div>
+
+                <span class="pin">
+                    V3
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                RFID Access
+            </div>
+
+            <div class="value">
+
+                <span id="rfidAccess">
+                    --
+                </span>
+
+            </div>
+
+            <div class="card-footer">
+                Authorized RFID Access
+            </div>
+
+        </div>
+
+
+
+        <!-- UNAUTHORIZED -->
+
+        <div class="card warning-card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    ⚠
+                </div>
+
+                <span class="pin">
+                    V4
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Unauthorized Access
+            </div>
+
+            <div class="value">
+
+                <span id="unauthorizedAccess">
+                    --
+                </span>
+
+            </div>
+
+            <div class="card-footer">
+                Unauthorized Attempts
+            </div>
+
+        </div>
+
+
+
+        <!-- SECURITY -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    🛡
+                </div>
+
+                <span class="pin">
+                    V5
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Security Access
+            </div>
+
+            <div class="value">
+
+                <span id="securityAccess">
+                    --
+                </span>
+
+            </div>
+
+            <div class="card-footer">
+                Security Events
+            </div>
+
+        </div>
+     <!-- NETWORK SWITCH -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div class="icon">
+            🔌
+        </div>
+
+        <span class="pin">
+            V6
+        </span>
+
+    </div>
+
+    <div class="card-title">
+        Switch Status
+    </div>
+
+    <div class="value">
+
+        <span id="switchStatus">
+            --
+        </span>
+
+    </div>
+
+    <div class="card-footer">
+        Network Switch Status
+    </div>
+
+    </div>
+
+    </div>
+
+
+       
+
+
+    <!-- DOOR MONITOR -->
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h3>
+                    Door Monitoring
+                </h3>
+
+                <p>
+                    Current cabinet door condition
+                </p>
+
+            </div>
+
+            <span class="live">
+                LIVE
+            </span>
+
+        </div>
+
+
+        <div class="door-monitor">
+
+            <div
+                class="door-circle"
+                id="doorCircle"
+            >
+                🚪
+            </div>
+
+
+            <div>
+
+                <h2 id="doorStatusLarge">
+                    --
+                </h2>
+
+                <p id="doorDescription">
+                    Waiting for Blynk data...
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+</section>
+
+
+
+<!-- ==================================================
+     MONITORING / FIREBASE
+================================================== -->
+
+<section
+    id="monitoring"
+    class="page-section"
+    style="display:none;"
+>
+
+
+    <div class="section-title">
+
+        <div>
+
+            <h2>
+                Firebase Monitoring
+            </h2>
+
+            <p>
+                Current data stored in Firebase Realtime Database
+            </p>
+
+        </div>
+
+
+        <strong id="firebaseStatus">
+            Connecting...
+        </strong>
+
+    </div>
+
+
+
+    <!-- FIREBASE CARDS -->
+
+    <div class="cards">
+
+
+        <!-- TEMPERATURE -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    🌡
+                </div>
+
+                <span class="pin">
+                    FIREBASE
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Temperature
+            </div>
+
+            <div class="value">
+
+                <span id="firebaseTemperature">
+                    --
+                </span>
+
+                <small>
+                    °C
+                </small>
+
+            </div>
+
+            <div class="card-footer">
+                Firebase Temperature
+            </div>
+
+        </div>
+
+
+
+        <!-- HUMIDITY -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    💧
+                </div>
+
+                <span class="pin">
+                    FIREBASE
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Humidity
+            </div>
+
+            <div class="value">
+
+                <span id="firebaseHumidity">
+                    --
+                </span>
+
+                <small>
+                    %
+                </small>
+
+            </div>
+
+            <div class="card-footer">
+                Firebase Humidity
+            </div>
+
+        </div>
+
+
+
+        <!-- DOOR -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    🚪
+                </div>
+
+                <span class="pin">
+                    FIREBASE
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Door Status
+            </div>
+
+            <div
+                class="status-value"
+                id="firebaseDoor"
+            >
+                --
+            </div>
+
+            <div class="card-footer">
+                Firebase Door Status
+            </div>
+
+        </div>
+
+
+
+        <!-- RFID -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    🔑
+                </div>
+
+                <span class="pin">
+                    FIREBASE
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                RFID Access
+            </div>
+
+            <div class="value">
+
+                <span id="firebaseRfid">
+                    --
+                </span>
+
+            </div>
+
+            <div class="card-footer">
+                RFID Access
+            </div>
+
+        </div>
+
+
+
+        <!-- UNAUTHORIZED -->
+
+        <div class="card warning-card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    ⚠
+                </div>
+
+                <span class="pin">
+                    FIREBASE
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Unauthorized Access
+            </div>
+
+            <div class="value">
+
+                <span id="firebaseUnauthorized">
+                    --
+                </span>
+
+            </div>
+
+            <div class="card-footer">
+                Unauthorized Attempts
+            </div>
+
+        </div>
+
+
+
+        <!-- SECURITY -->
+
+        <div class="card">
+
+            <div class="card-header">
+
+                <div class="icon">
+                    🛡
+                </div>
+
+                <span class="pin">
+                    FIREBASE
+                </span>
+
+            </div>
+
+            <div class="card-title">
+                Security Access
+            </div>
+
+            <div class="value">
+
+                <span id="firebaseSecurity">
+                    --
+                </span>
+
+            </div>
+
+            <div class="card-footer">
+                Firebase Security
+            </div>
+
+        </div>
+    <!-- NETWORK SWITCH -->
+
+         <div class="card">
+
+        <div class="card-header">
+
+        <div class="icon">
+            🔌
+        </div>
+
+        <span class="pin">
+            Firebase
+        </span>
+
+    </div>
+
+    <div class="card-title">
+        Network Switch
+    </div>
+
+    <div class="value">
+
+        <span id="firebaseSwitch">
+            --
+        </span>
+
+    </div>
+
+    <div class="card-footer">
+        Network Switch Status
+    </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- FIREBASE INFORMATION -->
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h3>
+                    Firebase Information
+                </h3>
+
+                <p>
+                    Latest Firebase database information
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="info-list">
+
+
+            <div class="info-row">
+
+                <span>
+                    Connection
+                </span>
+
+                <strong id="firebaseConnection">
+                    Checking...
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Database
+                </span>
+
+                <strong>
+                    Firebase Realtime Database
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Project
+                </span>
+
+                <strong>
+                    netguard-814d7
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Current Path
+                </span>
+
+                <strong>
+                    /current
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Last Update
+                </span>
+
+                <strong id="firebaseTimestamp">
+                    --
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- ==================================================
+     HISTORY
+================================================== -->
+
+<section
+    id="history"
+    class="page-section"
+    style="display:none;"
+>
+
+
+    <div class="section-title">
+
+        <div>
+
+            <h2>
+                Firebase History
+            </h2>
+
+            <p>
+                History 
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="panel history-panel">
+
+        <div class="panel-header">
+
+    <div>
+
+        <h3>
+            Monitoring History
+        </h3>
+
+        <p>
+            Historical NetGuard sensor data
+        </p>
+
+    </div>
+
+    <span class="live">
+        LIVE
+    </span>
+
+</div>
+
+
+<!-- HISTORY FILTER -->
+
+<div class="history-filter">
+
+    <div class="filter-group">
+
+        <label for="historyDate">
+            Search Date
+        </label>
+
+        <input
+            type="date"
+            id="historyDate"
+        >
+
+    </div>
+
+    <button
+        type="button"
+        id="clearHistory"
+        class="clear-history-btn"
+    >
+        ↻ Clear
+    </button>
+
+    </div>
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Date & Time
+                        </th>
+
+                        <th>
+                            Temperature
+                        </th>
+
+                        <th>
+                            Humidity
+                        </th>
+
+                        <th>
+                            Door
+                        </th>
+
+                        <th>
+                            RFID
+                        </th>
+
+                        <th>
+                            Unauthorized
+                        </th>
+
+                        <th>
+                            Security
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="historyTable">
+
+                    <tr>
+
+                        <td colspan="7">
+                            Loading Firebase history...
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- ==================================================
+     SYSTEM
+================================================== -->
+
+<section
+    id="system"
+    class="page-section"
+    style="display:none;"
+>
+
+
+    <div class="section-title">
+
+        <div>
+
+            <h2>
+                System Information
+            </h2>
+
+            <p>
+                NetGuard system connection status
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h3>
+                    System Status
+                </h3>
+
+                <p>
+                    Connection and device information
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="info-list">
+
+
+            <div class="info-row">
+
+                <span>
+                    Blynk
+                </span>
+
+                <strong id="systemBlynk">
+                    Checking...
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Firebase
+                </span>
+
+                <strong id="systemFirebase">
+                    Checking...
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Firebase Database
+                </span>
+
+                <strong>
+                    Realtime Database
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Firebase Project
+                </span>
+
+                <strong>
+                    netguard-814d7
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Blynk Template ID
+                </span>
+
+                <strong>
+                    TMPL6XVFck0N2
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Platform
+                </span>
+
+                <strong>
+                    Blynk IoT
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Controller
+                </span>
+
+                <strong>
+                    ESP32
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Data Streams
+                </span>
+
+                <strong>
+                    6
+                </strong>
+
+            </div>
+
+
+            <div class="info-row">
+
+                <span>
+                    Update Interval
+                </span>
+
+                <strong>
+                    3 seconds
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+</section>
+
+
+
+<!-- ==================================================
+     FOOTER
+================================================== -->
+
+</main>
+
+<footer>
+
+    <p>
+        NetGuard Smart Network Cabinet Monitoring System
+    </p>
+
+    <span>
+        Final Year Project
+    </span>
+
+</footer>
+
+
+</main>
+
+
+<!-- ========================================
+     CHECK USER LOGIN
+======================================== -->
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+    getAuth, 
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyB5YrLceo2F3mwdmp9v9Nx67siV2DTp3Ao",
+
+    authDomain: "netguard-814d7.firebaseapp.com",
+
+    projectId: "netguard-814d7",
+
+    storageBucket: "netguard-814d7.firebasestorage.app",
+
+    messagingSenderId: "1083978438506",
+
+    appId: "1:1083978438506:web:6465e7d2f4b874deccb713"
+
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const logoutButton =
+    document.getElementById("logoutButton");
+
+if (logoutButton) {
+
+    logoutButton.addEventListener("click", async () => {
+
+        try {
+
+            await signOut(auth);
+
+            window.location.href = "login.html";
+
+        } catch (error) {
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+            alert("Logout failed.");
+        }
+
+    });
+
+}
+
+
+onAuthStateChanged(auth, (user) => {
+
+    if (!user) {
+
+        window.location.href = "/login.html";
+
+    }
+
+});
+
+</script>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
+
