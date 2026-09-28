@@ -30,20 +30,17 @@ let database = null;
 
 try {
 
-    const serviceAccount = require(
-        path.join(
-            __dirname,
-            "firebase-service-account.json"
-        )
-    );
+    const serviceAccount = JSON.parse(
+    process.env.FIREBASE_SERVICE_ACCOUNT
+);
 
-    admin.initializeApp({
+admin.initializeApp({
 
-        credential: admin.cert(serviceAccount),
+    credential: admin.cert(serviceAccount),
 
-        databaseURL: FIREBASE_DATABASE_URL
+    databaseURL: FIREBASE_DATABASE_URL
 
-    });
+});
 
     database = getDatabase();
 
@@ -430,7 +427,7 @@ app.get("/api/status", (req, res) => {
 // START SERVER
 // ==================================================
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
 
     console.log("");
 
