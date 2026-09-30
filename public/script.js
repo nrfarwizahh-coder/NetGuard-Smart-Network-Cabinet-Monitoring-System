@@ -47,7 +47,9 @@ const switchStatusElement =
     document.getElementById("switchStatus");
 
 
-// Firebase
+// ======================================================
+// FIREBASE ELEMENTS
+// ======================================================
 
 const firebaseTemperature =
     document.getElementById("firebaseTemperature");
@@ -149,6 +151,7 @@ function updateDoorStatus(status) {
             .trim()
             .toUpperCase();
 
+
     if (
         value === "OPEN" ||
         value === "1" ||
@@ -224,58 +227,92 @@ async function loadBlynkData() {
         const response =
             await fetch("/api/data");
 
+
         if (!response.ok) {
+
             throw new Error(
                 "Blynk API error"
             );
+
         }
+
 
         const result =
             await response.json();
 
+
         if (!result.success) {
+
             throw new Error(
                 result.message
             );
+
         }
+
 
         const data =
             result.data;
 
 
+        // Temperature
+
         if (temperatureElement)
             temperatureElement.textContent =
-                formatNumber(data.temperature);
+                formatNumber(
+                    data.temperature
+                );
 
+
+        // Humidity
 
         if (humidityElement)
             humidityElement.textContent =
-                formatNumber(data.humidity);
+                formatNumber(
+                    data.humidity
+                );
 
+
+        // RFID
 
         if (rfidAccessElement)
             rfidAccessElement.textContent =
                 data.rfidAccess ?? "--";
 
 
+        // Unauthorized Access
+
         if (unauthorizedAccessElement)
             unauthorizedAccessElement.textContent =
                 data.unauthorizedAccess ?? "--";
 
+
+        // Security
 
         if (securityAccessElement)
             securityAccessElement.textContent =
                 data.securityAccess ?? "--";
 
 
+        // Door
+
         updateDoorStatus(
             data.doorStatus
         );
-      
+
+
+        // Switch
+
         if (switchStatusElement) {
+
             switchStatusElement.textContent =
-        Number(data.switchStatus) === 1 ? "ON" : "OFF";
-}
+                Number(data.switchStatus) === 1
+                    ? "ON"
+                    : "OFF";
+
+        }
+
+
+        // Connection
 
         if (connectionText)
             connectionText.textContent =
@@ -287,15 +324,20 @@ async function loadBlynkData() {
                 "🟢 Connected";
 
 
+        // Last Update
+
         if (lastUpdate) {
 
             const time =
-                new Date(result.updatedAt);
+                new Date(
+                    result.updatedAt
+                );
 
             lastUpdate.textContent =
                 time.toLocaleTimeString();
 
         }
+
 
     } catch (error) {
 
@@ -304,13 +346,16 @@ async function loadBlynkData() {
             error
         );
 
+
         if (connectionText)
             connectionText.textContent =
                 "Blynk Connection Error";
 
+
         if (systemBlynk)
             systemBlynk.textContent =
                 "🔴 Disconnected";
+
     }
 }
 
@@ -326,20 +371,25 @@ async function loadFirebaseData() {
         const response =
             await fetch("/api/firebase");
 
+
         if (!response.ok) {
 
             const errorData =
                 await response.json()
                     .catch(() => ({}));
 
+
             throw new Error(
                 errorData.message ||
                 "Firebase API error"
             );
+
         }
+
 
         const result =
             await response.json();
+
 
         if (!result.success) {
 
@@ -348,6 +398,7 @@ async function loadFirebaseData() {
             );
 
         }
+
 
         const data =
             result.data;
@@ -368,12 +419,16 @@ async function loadFirebaseData() {
         );
 
 
+        // Temperature
+
         if (firebaseTemperature)
             firebaseTemperature.textContent =
                 formatNumber(
                     data.temperature
                 );
 
+
+        // Humidity
 
         if (firebaseHumidity)
             firebaseHumidity.textContent =
@@ -382,30 +437,47 @@ async function loadFirebaseData() {
                 );
 
 
+        // Door
+
         if (firebaseDoor)
             firebaseDoor.textContent =
                 data.doorStatus ?? "--";
 
+
+        // RFID
 
         if (firebaseRfid)
             firebaseRfid.textContent =
                 data.rfidAccess ?? "--";
 
 
+        // Unauthorized
+
         if (firebaseUnauthorized)
             firebaseUnauthorized.textContent =
                 data.unauthorizedAccess ?? "--";
 
 
+        // Security
+
         if (firebaseSecurity)
             firebaseSecurity.textContent =
                 data.securityAccess ?? "--";
 
-        if (firebaseSwitch) {
-             firebaseSwitch.textContent =
-                 Number(data.SwitchStatus) === 1 ? "ON" : "OFF";
-}
 
+        // Switch
+
+        if (firebaseSwitch) {
+
+            firebaseSwitch.textContent =
+                Number(data.SwitchStatus) === 1
+                    ? "ON"
+                    : "OFF";
+
+        }
+
+
+        // Timestamp
 
         if (firebaseTimestamp)
             firebaseTimestamp.textContent =
@@ -413,6 +485,8 @@ async function loadFirebaseData() {
                     data.timestamp
                 );
 
+
+        // Firebase Status
 
         if (firebaseStatus)
             firebaseStatus.textContent =
@@ -431,26 +505,34 @@ async function loadFirebaseData() {
             error
         );
 
+
         if (firebaseStatus)
             firebaseStatus.textContent =
                 "🔴 Error";
 
+
         if (systemFirebase)
             systemFirebase.textContent =
                 "🔴 Disconnected";
+
     }
 }
 
 
 // ======================================================
-// LOAD FIREBASE HISTORY
-// ======================================================
-
-// ======================================================
-// LOAD FIREBASE HISTORY
+// FIREBASE HISTORY
 // ======================================================
 
 let allHistoryRecords = [];
+
+
+// This remembers the date currently selected
+let selectedHistoryDate = "";
+
+
+// ======================================================
+// LOAD FIREBASE HISTORY
+// ======================================================
 
 async function loadFirebaseHistory() {
 
@@ -459,11 +541,13 @@ async function loadFirebaseHistory() {
         const response =
             await fetch("/api/history");
 
+
         if (!response.ok) {
 
             const errorData =
                 await response.json()
                     .catch(() => ({}));
+
 
             throw new Error(
                 errorData.message ||
@@ -472,8 +556,10 @@ async function loadFirebaseHistory() {
 
         }
 
+
         const result =
             await response.json();
+
 
         if (!result.success) {
 
@@ -483,8 +569,12 @@ async function loadFirebaseHistory() {
 
         }
 
+
         const history =
             result.data || {};
+
+
+        // Save all Firebase history
 
         allHistoryRecords =
             Object.entries(history)
@@ -494,7 +584,25 @@ async function loadFirebaseHistory() {
                         Number(a[0])
                 );
 
-        displayHistory(allHistoryRecords);
+
+        // ==================================================
+        // KEEP DATE FILTER AFTER AUTO REFRESH
+        // ==================================================
+
+        if (selectedHistoryDate) {
+
+            filterHistoryByDate(
+                selectedHistoryDate
+            );
+
+        } else {
+
+            displayHistory(
+                allHistoryRecords
+            );
+
+        }
+
 
     } catch (error) {
 
@@ -502,6 +610,7 @@ async function loadFirebaseHistory() {
             "Firebase History Error:",
             error
         );
+
 
         if (historyTable) {
 
@@ -517,6 +626,7 @@ async function loadFirebaseHistory() {
 
     }
 }
+
 
 // ======================================================
 // DISPLAY HISTORY
@@ -594,15 +704,27 @@ function displayHistory(records) {
 
 }
 
+
 // ======================================================
 // HISTORY DATE FILTER
 // ======================================================
 
 function filterHistoryByDate(selectedDate) {
 
+    // Remember selected date
+
+    selectedHistoryDate =
+        selectedDate;
+
+
+    // If no date selected,
+    // show all history
+
     if (!selectedDate) {
 
-        displayHistory(allHistoryRecords);
+        displayHistory(
+            allHistoryRecords
+        );
 
         return;
     }
@@ -654,9 +776,11 @@ function filterHistoryByDate(selectedDate) {
         );
 
 
-    displayHistory(filteredRecords);
+    displayHistory(
+        filteredRecords
+    );
 
-} 
+}
 
 
 // ======================================================
@@ -669,6 +793,7 @@ function setupNavigation() {
         document.querySelectorAll(
             ".nav-link"
         );
+
 
     const sections =
         document.querySelectorAll(
@@ -703,11 +828,14 @@ function setupNavigation() {
             }
         );
 
-        // Tukar tajuk page
+
+        // Page title
+
         const pageTitle =
             document.getElementById(
                 "pageTitle"
             );
+
 
         if (pageTitle) {
 
@@ -727,6 +855,7 @@ function setupNavigation() {
 
             };
 
+
             pageTitle.textContent =
                 titles[id] ||
                 "NetGuard Dashboard";
@@ -745,10 +874,12 @@ function setupNavigation() {
 
                     event.preventDefault();
 
+
                     const id =
                         this.getAttribute(
                             "href"
                         ).substring(1);
+
 
                     showSection(id);
 
@@ -760,7 +891,9 @@ function setupNavigation() {
 
 
     showSection("dashboard");
+
 }
+
 
 // ======================================================
 // HISTORY FILTER EVENTS
@@ -782,15 +915,29 @@ if (historyDate) {
 }
 
 
+// ======================================================
+// CLEAR HISTORY FILTER
+// ======================================================
+
 if (clearHistory) {
 
     clearHistory.addEventListener(
         "click",
         () => {
 
+            // Remove saved date filter
+
+            selectedHistoryDate = "";
+
+
+            // Clear date input
+
             if (historyDate) {
                 historyDate.value = "";
             }
+
+
+            // Show all records
 
             displayHistory(
                 allHistoryRecords
@@ -800,6 +947,7 @@ if (clearHistory) {
     );
 
 }
+
 
 // ======================================================
 // START
@@ -811,6 +959,9 @@ document.addEventListener(
 
         setupNavigation();
 
+
+        // Initial loading
+
         loadBlynkData();
 
         loadFirebaseData();
@@ -818,17 +969,34 @@ document.addEventListener(
         loadFirebaseHistory();
 
 
+        // ==================================================
+        // BLYNK REFRESH
+        // Every 30 seconds
+        // ==================================================
+
         setInterval(
             loadBlynkData,
             UPDATE_INTERVAL
         );
 
 
+        // ==================================================
+        // FIREBASE CURRENT REFRESH
+        // Every 30 seconds
+        // ==================================================
+
         setInterval(
             loadFirebaseData,
             UPDATE_INTERVAL
         );
 
+
+        // ==================================================
+        // FIREBASE HISTORY REFRESH
+        // Every 10 seconds
+        //
+        // The selected date will NOT disappear anymore.
+        // ==================================================
 
         setInterval(
             loadFirebaseHistory,
