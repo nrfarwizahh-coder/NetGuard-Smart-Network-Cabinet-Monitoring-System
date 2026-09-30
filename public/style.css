@@ -613,4 +613,29 @@ footer span {
     width: 150px;
     height: auto;
     display: block;
+}.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 14px;
+}
+
+.logo-image {
+    width: 55px;
+    height: 55px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.logo-text h2 {
+    margin: 0;
+    font-size: 22px;
+    color: white;
+}
+
+.logo-text span {
+    display: block;
+    font-size: 14px;
+    color: white;
+    margin-top: 2px;
 }
