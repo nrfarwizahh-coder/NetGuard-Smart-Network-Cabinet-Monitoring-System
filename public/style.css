@@ -605,15 +605,15 @@ footer span {
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 20px 24px;
+    gap: 6px;
+    padding: 18px 18px 8px;
 }
 
 .logo-icon {
-    width: 44px;
-    height: 44px;
+    width: 58px;
+    height: 58px;
     background: #2864e6;
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -622,21 +622,67 @@ footer span {
 }
 
 .logo-icon img {
-    width: 32px;
-    height: 32px;
+    width: 46px;
+    height: 46px;
     object-fit: contain;
 }
 
 .logo-text h2 {
     margin: 0;
-    font-size: 17px;
+    font-size: 20px;
     color: white;
-    line-height: 1.2;
+    line-height: 1.1;
 }
 
 .logo-text span {
     display: block;
     margin-top: 2px;
-    font-size: 11px;
+    font-size: 12px;
     color: #b8c0d0;
+}
+
+/* Reduce space before Dashboard */
+.sidebar nav {
+    margin-top: 5px;
+}
+
+.camera-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.camera-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.camera-header h3 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.camera-status {
+    color: #22c55e;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.camera-container {
+    width: 100%;
+    background: #111;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.camera-container img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    display: block;
 }
