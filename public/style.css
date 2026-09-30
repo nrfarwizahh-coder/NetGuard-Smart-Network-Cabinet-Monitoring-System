@@ -601,3 +601,16 @@ footer span {
 
     transform: translateY(-1px);
 }
+
+.logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.logo-image {
+    width: 150px;
+    height: auto;
+    display: block;
+}
