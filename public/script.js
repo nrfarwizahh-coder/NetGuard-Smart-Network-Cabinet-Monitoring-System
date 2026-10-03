@@ -134,7 +134,7 @@ function updateConnectionStatus() {
             connected
                 ? "Connected"
                 : "Disconnected";
-    }
+    } 
 }
 
 
