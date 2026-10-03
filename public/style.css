@@ -480,40 +480,39 @@ nav a.active {
 
 
 /* =========================================
-   LIVE CAMERA
+   LIVE CAMERA - WIDE HORIZONTAL
 ========================================= */
 
 .camera-card {
     width: 100%;
     margin-top: 30px;
-    padding: 30px;
+    padding: 25px;
     background: white;
     border-radius: 18px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
 .camera-header {
-    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .camera-header h3 {
-    font-size: 26px;
-    margin-bottom: 8px;
+    font-size: 24px;
+    margin-bottom: 5px;
 }
 
 .camera-header p {
-    font-size: 15px;
+    font-size: 14px;
     color: #6b7280;
 }
 
 .camera-actions {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .camera-status {
@@ -521,9 +520,11 @@ nav a.active {
     font-weight: bold;
 }
 
+/* WIDE CAMERA */
+
 .camera-container {
     width: 100%;
-    height: 500px;
+    height: 320px;
     border-radius: 14px;
     overflow: hidden;
     background: #111827;
@@ -534,6 +535,7 @@ nav a.active {
     height: 100%;
     display: block;
     object-fit: cover;
+}
 }
 
 /* =========================================================
