@@ -1,28 +1,29 @@
 /* =========================================================
    NETGUARD SMART NETWORK CABINET MONITORING SYSTEM
-   DESKTOP STYLE - NO MOBILE LAYOUT
+   COMPLETE STYLE
 ========================================================= */
 
-/* =========================
+
+/* =========================================================
    GLOBAL
-========================= */
+========================================================= */
 
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: #f5f7fb;
-    color: #172033;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
 }
 
 
-/* =========================
+/* =========================================================
    SIDEBAR
-========================= */
+========================================================= */
 
 .sidebar {
     position: fixed;
@@ -35,103 +36,103 @@ body {
     background: #111827;
     color: white;
 
-    padding: 20px 18px;
+    padding: 25px 18px;
+
+    display: flex;
+    flex-direction: column;
 
     z-index: 1000;
 }
 
 
-/* LOGO */
+/* =========================================================
+   LOGO
+========================================================= */
 
 .logo {
     display: flex;
     align-items: center;
 
-    gap: 6px;
+    gap: 10px;
 
-    padding: 18px 0 8px;
-
-    margin-bottom: 25px;
+    margin-bottom: 35px;
 }
 
 .logo-icon {
-    width: 58px;
-    height: 58px;
+    width: 48px;
+    height: 48px;
 
-    background: #2864e6;
-
-    border-radius: 12px;
+    border-radius: 50%;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     overflow: hidden;
-    flex-shrink: 0;
 }
 
 .logo-icon img {
-    width: 46px;
-    height: 46px;
+    width: 100%;
+    height: 100%;
 
     object-fit: contain;
 }
 
 .logo-text h2 {
-    font-size: 20px;
-    color: white;
-
-    line-height: 1.1;
+    font-size: 21px;
+    margin-bottom: 2px;
 }
 
 .logo-text span {
-    display: block;
-
-    margin-top: 2px;
-
     font-size: 12px;
-
-    color: #b8c0d0;
+    color: #9ca3af;
 }
 
 
-/* NAVIGATION */
+/* =========================================================
+   NAVIGATION
+========================================================= */
 
-nav {
+.sidebar nav {
     display: flex;
     flex-direction: column;
 
     gap: 8px;
 }
 
-nav a {
-    color: #cbd5e1;
+.nav-link {
+    display: flex;
+    align-items: center;
 
+    padding: 13px 14px;
+
+    color: #d1d5db;
     text-decoration: none;
 
-    padding: 13px;
+    border-radius: 9px;
 
-    border-radius: 8px;
+    font-size: 15px;
 
-    font-size: 16px;
+    transition: 0.2s;
 }
 
-nav a:hover,
-nav a.active {
+.nav-link:hover {
+    background: #1f2937;
+    color: white;
+}
+
+.nav-link.active {
     background: #2563eb;
     color: white;
 }
 
 
-/* SIDEBAR BOTTOM */
+/* =========================================================
+   SIDEBAR BOTTOM
+========================================================= */
 
 .sidebar-bottom {
-    position: absolute;
-
-    bottom: 25px;
-
-    left: 18px;
-    right: 18px;
+    margin-top: auto;
 }
 
 .connection-box {
@@ -140,22 +141,30 @@ nav a.active {
 
     gap: 10px;
 
+    padding: 14px;
+
     background: #1f2937;
-
-    padding: 12px;
-
     border-radius: 10px;
 }
 
 .connection-box strong {
     display: block;
-
     font-size: 13px;
 }
 
 .connection-box small {
+    display: block;
+
+    margin-top: 3px;
+
     color: #9ca3af;
+    font-size: 11px;
 }
+
+
+/* =========================================================
+   STATUS DOT
+========================================================= */
 
 .status-dot {
     width: 9px;
@@ -169,22 +178,22 @@ nav a.active {
 }
 
 
-/* =========================
-   MAIN CONTENT
-========================= */
+/* =========================================================
+   MAIN
+========================================================= */
 
 .main {
     margin-left: 240px;
 
-    padding: 30px;
-
     width: calc(100% - 240px);
+
+    padding: 30px;
 }
 
 
-/* =========================
+/* =========================================================
    TOP BAR
-========================= */
+========================================================= */
 
 .topbar {
     display: flex;
@@ -196,31 +205,63 @@ nav a.active {
 }
 
 .topbar h1 {
-    font-size: 30px;
+    font-size: 32px;
+    margin-bottom: 7px;
 }
 
 .topbar p {
     color: #6b7280;
-    margin-top: 5px;
+    font-size: 14px;
 }
 
 .top-status {
     display: flex;
     align-items: center;
 
-    gap: 8px;
+    gap: 10px;
 
-    background: white;
-
-    padding: 10px 15px;
-
-    border-radius: 20px;
+    font-size: 14px;
 }
 
 
-/* =========================
+/* =========================================================
+   LOGOUT BUTTON
+========================================================= */
+
+.logout-button {
+    border: none;
+
+    background: #ef4444;
+    color: white;
+
+    padding: 10px 17px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    margin-left: 15px;
+}
+
+.logout-button:hover {
+    background: #dc2626;
+}
+
+
+/* =========================================================
+   PAGE SECTION
+========================================================= */
+
+.page-section {
+    width: 100%;
+}
+
+
+/* =========================================================
    SECTION TITLE
-========================= */
+========================================================= */
 
 .section-title {
     display: flex;
@@ -228,25 +269,31 @@ nav a.active {
     justify-content: space-between;
     align-items: center;
 
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .section-title h2 {
-    font-size: 22px;
+    font-size: 24px;
+    margin-bottom: 6px;
 }
 
 .section-title p {
     color: #6b7280;
-    margin-top: 5px;
+    font-size: 14px;
 }
 
 .last-update {
+    font-size: 13px;
     color: #6b7280;
+}
+
+.last-update strong {
+    color: #111827;
 }
 
 
 /* =========================================================
-   CARDS
+   MAIN MONITORING CARDS
 ========================================================= */
 
 .cards {
@@ -257,39 +304,33 @@ nav a.active {
     gap: 25px;
 
     width: 100%;
-
-    margin-bottom: 25px;
 }
 
 
-/* INDIVIDUAL CARD */
+/* =========================================================
+   CARD
+========================================================= */
 
 .card {
     width: 100%;
-
-    min-height: 200px;
-
-    background: white;
-
-    border-radius: 15px;
+    min-height: 210px;
 
     padding: 28px;
 
-    box-shadow:
-        0 3px 15px rgba(0, 0, 0, 0.05);
+    background: white;
 
-    transition: 0.2s ease;
-}
+    border-radius: 16px;
 
-.card:hover {
-    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
 
-    box-shadow:
-        0 6px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
 }
 
 
-/* CARD HEADER */
+/* =========================================================
+   CARD HEADER
+========================================================= */
 
 .card-header {
     display: flex;
@@ -297,128 +338,243 @@ nav a.active {
     justify-content: space-between;
     align-items: center;
 
-    margin-bottom: 25px;
-
-    font-size: 28px;
+    margin-bottom: 22px;
 }
 
-
-/* CARD TITLE */
-
-.card-title {
-    color: #6b7280;
-
-    font-size: 16px;
-
-    margin-bottom: 12px;
-}
-
-
-/* CARD VALUE */
-
-.value {
-    font-size: 36px;
-
-    font-weight: bold;
-
-    color: #111827;
-}
-
-.value small {
-    font-size: 16px;
-
-    color: #6b7280;
-}
-
-.status-value {
+.icon {
     font-size: 30px;
-
-    font-weight: bold;
-
-    color: #111827;
 }
 
 
-/* CONNECTED */
-
-.status-value.connected {
-    color: #16a34a;
-}
-
-
-/* NOT CONNECTED */
-
-.status-value.not-connected {
-    color: #dc2626;
-}
-
-
-/* CARD FOOTER */
-
-.card-footer {
-    color: #9ca3af;
-
-    font-size: 13px;
-
-    margin-top: 15px;
-}
-
-
-/* WARNING */
-
-.warning-card {
-    border-left: 4px solid #f59e0b;
-}
-
-
-/* INFO BUTTON */
+/* =========================================================
+   INFO BUTTON
+========================================================= */
 
 .info-button {
-    width: 32px;
-    height: 32px;
-
-    border: 1px solid #dbe3f0;
-
-    background: #f8fafc;
-
-    color: #2563eb;
+    width: 28px;
+    height: 28px;
 
     border-radius: 50%;
 
-    font-size: 16px;
+    border: none;
+
+    background: #eef2f7;
+
+    color: #374151;
 
     font-weight: bold;
 
     cursor: pointer;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 }
 
 .info-button:hover {
-    background: #2563eb;
-
-    color: white;
+    background: #dbeafe;
+    color: #2563eb;
 }
 
 
 /* =========================================================
-   DOOR MONITOR
+   CARD TITLE
 ========================================================= */
 
-.panel {
-    background: white;
+.card-title {
+    font-size: 16px;
 
-    border-radius: 15px;
+    font-weight: 600;
+
+    color: #374151;
+
+    margin-bottom: 12px;
+}
+
+
+/* =========================================================
+   CARD VALUE
+========================================================= */
+
+.value {
+    font-size: 38px;
+
+    font-weight: 700;
+
+    color: #111827;
+
+    margin-bottom: auto;
+}
+
+.value small {
+    font-size: 18px;
+
+    font-weight: 500;
+
+    color: #6b7280;
+}
+
+.compact-value {
+    font-size: 30px;
+}
+
+
+/* =========================================================
+   STATUS VALUE
+========================================================= */
+
+.status-value {
+    font-size: 30px;
+
+    font-weight: 700;
+
+    color: #111827;
+
+    margin-bottom: auto;
+}
+
+
+/* =========================================================
+   CARD FOOTER
+========================================================= */
+
+.card-footer {
+    margin-top: 20px;
+
+    padding-top: 14px;
+
+    border-top: 1px solid #e5e7eb;
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+
+/* =========================================================
+   WARNING CARD
+========================================================= */
+
+.warning-card {
+    border-left: 5px solid #f59e0b;
+}
+
+
+/* =========================================================
+   NETWORK CARDS
+========================================================= */
+
+.network-cards {
+    display: grid;
+
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 25px;
+
+    width: 100%;
+
+    margin-top: 25px;
+}
+
+.network-cards .card {
+    min-height: 210px;
+}
+
+
+/* =========================================================
+   LIVE CAMERA
+========================================================= */
+
+.camera-card {
+    width: 100%;
+
+    margin-top: 30px;
 
     padding: 25px;
 
-    margin-bottom: 25px;
+    background: white;
 
-    box-shadow:
-        0 3px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 18px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================================
+   CAMERA HEADER
+========================================================= */
+
+.camera-header {
+    width: 100%;
+
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 18px;
+}
+
+.camera-header h3 {
+    font-size: 24px;
+
+    margin: 0;
+}
+
+.camera-status {
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: #16a34a;
+}
+
+
+/* =========================================================
+   CAMERA CONTAINER
+========================================================= */
+
+.camera-container {
+    width: 100%;
+
+    height: 300px;
+
+    background: #111827;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   CAMERA IMAGE
+========================================================= */
+
+.camera-container img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+
+/* =========================================================
+   PANELS
+========================================================= */
+
+.panel {
+    width: 100%;
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 25px;
+
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
 }
 
 .panel-header {
@@ -430,175 +586,24 @@ nav a.active {
     margin-bottom: 25px;
 }
 
+.panel-header h3 {
+    font-size: 20px;
+
+    margin-bottom: 5px;
+}
+
 .panel-header p {
     color: #6b7280;
 
-    margin-top: 5px;
+    font-size: 13px;
 }
 
 .live {
-    background: #dcfce7;
+    color: #16a34a;
 
-    color: #15803d;
-
-    padding: 6px 10px;
-
-    border-radius: 15px;
-
-    font-size: 11px;
+    font-size: 12px;
 
     font-weight: bold;
-}
-
-.door-monitor {
-    display: flex;
-
-    align-items: center;
-
-    gap: 25px;
-}
-
-.door-circle {
-    width: 100px;
-    height: 100px;
-
-    border-radius: 50%;
-
-    background: #dcfce7;
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    font-size: 40px;
-}
-
-.door-monitor h2 {
-    font-size: 30px;
-}
-
-/* =========================================
-   ESP32-CAM LIVE CAMERA
-========================================= */
-
-.camera-card {
-    width: 100%;
-    margin-top: 25px;
-    padding: 25px;
-
-    background: #ffffff;
-    border-radius: 18px;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-
-    box-sizing: border-box;
-}
-
-.camera-header {
-    width: 100%;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    margin-bottom: 18px;
-}
-
-.camera-header h3 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.camera-status {
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.camera-container {
-    width: 100%;
-    height: 280px;
-
-    background: #111827;
-
-    border-radius: 12px;
-    overflow: hidden;
-
-    box-sizing: border-box;
-}
-
-.camera-container img {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: cover;
-}
-
-/* =========================================================
-   HISTORY
-========================================================= */
-
-.info-list {
-    display: flex;
-
-    flex-direction: column;
-}
-
-.info-row {
-    display: flex;
-
-    justify-content: space-between;
-
-    padding: 15px 0;
-
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.info-row:last-child {
-    border-bottom: none;
-}
-
-.info-row span {
-    color: #6b7280;
-}
-
-.info-row strong {
-    color: #111827;
-}
-
-
-/* TABLE */
-
-.table-container {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-
-    border-collapse: collapse;
-}
-
-th,
-td {
-    padding: 14px;
-
-    text-align: left;
-
-    border-bottom: 1px solid #e5e7eb;
-}
-
-th {
-    background: #f9fafb;
-
-    font-size: 13px;
-}
-
-td {
-    font-size: 13px;
 }
 
 
@@ -614,19 +619,10 @@ td {
     gap: 15px;
 
     margin-bottom: 25px;
-
-    padding: 18px;
-
-    background: #f8fafc;
-
-    border-radius: 12px;
-
-    border: 1px solid #e5e7eb;
 }
 
 .filter-group {
     display: flex;
-
     flex-direction: column;
 
     gap: 7px;
@@ -635,7 +631,7 @@ td {
 .filter-group label {
     font-size: 13px;
 
-    font-weight: bold;
+    font-weight: 600;
 
     color: #374151;
 }
@@ -645,68 +641,104 @@ td {
 
     border: 1px solid #d1d5db;
 
-    border-radius: 8px;
+    border-radius: 7px;
 
-    background: white;
-
-    font-size: 14px;
-
-    color: #172033;
-
-    outline: none;
-}
-
-.filter-group input:focus {
-    border-color: #2563eb;
+    font-size: 13px;
 }
 
 .clear-history-btn {
+    padding: 10px 15px;
+
     border: none;
 
-    background: #2563eb;
+    border-radius: 7px;
 
-    color: white;
+    background: #e5e7eb;
 
-    padding: 10px 16px;
-
-    border-radius: 8px;
-
-    font-size: 14px;
-
-    font-weight: bold;
+    color: #374151;
 
     cursor: pointer;
 }
 
 .clear-history-btn:hover {
-    background: #1d4ed8;
+    background: #d1d5db;
 }
 
 
 /* =========================================================
-   LOGOUT
+   TABLE
 ========================================================= */
 
-.logout-button {
-    border: none;
+.table-container {
+    width: 100%;
 
-    background: #ef4444;
-
-    color: white;
-
-    padding: 10px 18px;
-
-    border-radius: 10px;
-
-    font-size: 14px;
-
-    font-weight: bold;
-
-    cursor: pointer;
+    overflow-x: auto;
 }
 
-.logout-button:hover {
-    background: #dc2626;
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 13px;
+}
+
+thead {
+    background: #f3f4f6;
+}
+
+th {
+    padding: 13px;
+
+    text-align: left;
+
+    font-weight: 600;
+
+    color: #374151;
+}
+
+td {
+    padding: 13px;
+
+    border-top: 1px solid #e5e7eb;
+
+    color: #4b5563;
+}
+
+
+/* =========================================================
+   SYSTEM INFORMATION
+========================================================= */
+
+.info-list {
+    width: 100%;
+}
+
+.info-row {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 17px 0;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row span {
+    color: #6b7280;
+
+    font-size: 14px;
+}
+
+.info-row strong {
+    color: #111827;
+
+    font-size: 14px;
 }
 
 
@@ -715,9 +747,11 @@ td {
 ========================================================= */
 
 footer {
-    text-align: center;
+    margin-top: 40px;
 
-    padding: 25px;
+    padding: 25px 0;
+
+    text-align: center;
 
     color: #6b7280;
 
@@ -728,149 +762,13 @@ footer span {
     display: block;
 
     margin-top: 5px;
+
+    font-size: 11px;
 }
 
 
 /* =========================================================
-   LOGIN PAGE
-========================================================= */
-
-.login-page {
-    margin: 0;
-
-    padding: 0;
-
-    min-height: 100vh;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-
-    background: #0f172a;
-
-    font-family: Arial, sans-serif;
-}
-
-.login-container {
-    width: 100%;
-
-    display: flex;
-
-    justify-content: center;
-
-    align-items: center;
-}
-
-.login-card {
-    width: 400px;
-
-    padding: 40px;
-
-    background: white;
-
-    border-radius: 16px;
-
-    box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.3);
-
-    text-align: center;
-}
-
-.login-logo {
-    font-size: 60px;
-
-    margin-bottom: 10px;
-}
-
-.login-card h1 {
-    margin: 0;
-
-    font-size: 32px;
-
-    color: #0f172a;
-}
-
-.login-subtitle {
-    margin-top: 10px;
-
-    margin-bottom: 30px;
-
-    color: #64748b;
-
-    font-size: 14px;
-}
-
-.input-group {
-    text-align: left;
-
-    margin-bottom: 20px;
-}
-
-.input-group label {
-    display: block;
-
-    margin-bottom: 8px;
-
-    font-weight: bold;
-
-    color: #334155;
-}
-
-.input-group input {
-    width: 100%;
-
-    padding: 13px;
-
-    border: 1px solid #cbd5e1;
-
-    border-radius: 8px;
-
-    font-size: 15px;
-
-    outline: none;
-}
-
-.input-group input:focus {
-    border-color: #2563eb;
-}
-
-.login-button {
-    width: 100%;
-
-    padding: 14px;
-
-    border: none;
-
-    border-radius: 8px;
-
-    background: #2563eb;
-
-    color: white;
-
-    font-size: 16px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-.login-button:hover {
-    background: #1d4ed8;
-}
-
-.error-message {
-    color: #dc2626;
-
-    font-size: 14px;
-
-    margin-top: 15px;
-}
-
-
-/* =========================================================
-   INFO MODAL
+   INFORMATION MODAL
 ========================================================= */
 
 .info-modal {
@@ -880,15 +778,14 @@ footer span {
 
     display: none;
 
-    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 5000;
 }
 
-.info-modal.open {
+.info-modal.show {
     display: flex;
-
-    align-items: center;
-
-    justify-content: center;
 }
 
 .info-modal-overlay {
@@ -896,123 +793,205 @@ footer span {
 
     inset: 0;
 
-    background: rgba(15, 23, 42, 0.60);
-
-    backdrop-filter: blur(3px);
+    background: rgba(0, 0, 0, 0.45);
 }
 
 .info-modal-box {
     position: relative;
 
-    z-index: 2;
+    width: 450px;
 
-    width: min(500px, calc(100% - 40px));
+    max-width: 90%;
 
     background: white;
 
-    border-radius: 18px;
+    border-radius: 16px;
 
     padding: 30px;
 
-    box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.25);
+    z-index: 1;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .modal-close {
     position: absolute;
 
     top: 15px;
-    right: 18px;
+    right: 15px;
+
+    width: 32px;
+    height: 32px;
 
     border: none;
 
-    background: transparent;
+    border-radius: 50%;
 
-    font-size: 28px;
+    background: #f3f4f6;
 
-    color: #64748b;
+    font-size: 22px;
 
     cursor: pointer;
 }
 
-.modal-close:hover {
-    color: #111827;
+.modal-icon {
+    font-size: 35px;
+
+    margin-bottom: 15px;
 }
 
-.modal-icon {
-    width: 55px;
-    height: 55px;
+.info-modal-box h2 {
+    font-size: 22px;
 
-    border-radius: 14px;
+    margin-bottom: 12px;
+}
 
-    background: #eef2ff;
+.info-modal-box p {
+    color: #6b7280;
+
+    line-height: 1.6;
+
+    font-size: 14px;
+}
+
+.modal-details {
+    margin-top: 15px;
+
+    color: #374151;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+.modal-done {
+    margin-top: 20px;
+
+    padding: 10px 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: white;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   LOGIN PAGE
+========================================================= */
+
+.login-page {
+    min-height: 100vh;
 
     display: flex;
 
     align-items: center;
     justify-content: center;
 
-    font-size: 28px;
-
-    margin-bottom: 18px;
+    background: #f4f7fb;
 }
 
-.info-modal-box h2 {
-    font-size: 24px;
+.login-container {
+    width: 420px;
 
-    margin-bottom: 12px;
+    padding: 35px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
 }
 
-.info-modal-box > p {
-    color: #64748b;
+.login-logo {
+    text-align: center;
 
-    line-height: 1.6;
-
-    font-size: 15px;
+    margin-bottom: 25px;
 }
 
-.modal-details {
-    margin-top: 18px;
+.login-logo img {
+    width: 75px;
+    height: 75px;
 
-    padding: 15px;
+    object-fit: contain;
+}
 
-    background: #f8fafc;
+.login-container h1 {
+    text-align: center;
 
-    border-radius: 10px;
+    font-size: 26px;
 
-    color: #374151;
+    margin-bottom: 8px;
+}
 
-    line-height: 1.8;
+.login-container p {
+    text-align: center;
+
+    color: #6b7280;
+
+    font-size: 13px;
+
+    margin-bottom: 25px;
+}
+
+.login-container label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+.login-container input {
+    width: 100%;
+
+    padding: 12px;
+
+    margin-bottom: 17px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
 
     font-size: 14px;
 }
 
-.modal-details strong {
-    color: #111827;
-}
-
-.modal-done {
+.login-container button {
     width: 100%;
 
-    margin-top: 20px;
+    padding: 12px;
 
     border: none;
+
+    border-radius: 8px;
 
     background: #2563eb;
 
     color: white;
 
-    padding: 12px;
+    font-size: 14px;
 
-    border-radius: 9px;
-
-    font-weight: bold;
+    font-weight: 600;
 
     cursor: pointer;
 }
 
-.modal-done:hover {
+.login-container button:hover {
     background: #1d4ed8;
 }
 
+/* =========================================================
+   FULL WIDTH CAMERA MODIFIER
+========================================================= */
+.full-width-camera {
+    grid-column: 1 / -1;
+    width: 100%;
+}
 
