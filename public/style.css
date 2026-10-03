@@ -659,30 +659,159 @@ footer span {
     }
 }
 
-/* Network Switch + G0/0 + G0/1 row */
-.network-port-row {
+/* ==================================================
+   NETWORK SWITCH + G0/0 + G0/1
+================================================== */
+
+.network-status-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
     width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
-/* Keep the cards normal size */
-.network-port-row .monitoring-card {
-    width: 100%;
-    min-width: 0;
+
+/* Individual card */
+
+.network-status-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 24px;
+    min-height: 180px;
     box-sizing: border-box;
+
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.06);
+
+    border: 1px solid #eef1f6;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-    .network-port-row {
-        grid-template-columns: 1fr 1fr;
+
+.network-status-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+
+/* Icon */
+
+.network-card-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+}
+
+
+/* Card title */
+
+.network-status-card h3 {
+    margin: 0 0 12px 0;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    color: #172033;
+}
+
+
+/* Status */
+
+.network-status-value {
+    font-size: 22px;
+    font-weight: 700;
+
+    margin-bottom: 10px;
+
+    color: #555f73;
+}
+
+
+/* Connected */
+
+.network-status-value.connected {
+    color: #16a34a;
+}
+
+
+/* Not connected */
+
+.network-status-value.not-connected {
+    color: #dc2626;
+}
+
+
+/* Description */
+
+.network-status-card p {
+    margin: 0;
+
+    font-size: 14px;
+
+    color: #8a94a6;
+}
+
+
+/* Information button */
+
+.network-status-card .info-btn {
+    position: absolute;
+
+    top: 18px;
+    right: 18px;
+
+    width: 34px;
+    height: 34px;
+
+    border-radius: 50%;
+
+    border: 1px solid #dce3ef;
+
+    background: #ffffff;
+
+    color: #2563eb;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.network-status-card .info-btn:hover {
+    background: #f1f5ff;
+}
+
+
+/* ==================================================
+   RESPONSIVE
+================================================== */
+
+@media (max-width: 1000px) {
+
+    .network-status-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
 }
 
-@media (max-width: 600px) {
-    .network-port-row {
+
+@media (max-width: 650px) {
+
+    .network-status-grid {
         grid-template-columns: 1fr;
+        gap: 16px;
     }
+
 }

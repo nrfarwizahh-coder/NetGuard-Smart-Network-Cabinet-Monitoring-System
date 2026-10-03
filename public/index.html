@@ -354,40 +354,96 @@
 
        <div class="network-port-row">
 
-    <!-- Network Switch -->
-    <div class="monitoring-card">
-        <!-- your existing Network Switch card -->
+<!-- ==================================================
+     NETWORK CONNECTION STATUS
+================================================== -->
+
+<div class="network-status-grid">
+
+    <!-- NETWORK SWITCH -->
+    <div class="network-status-card">
+
+        <button
+            class="info-btn"
+            onclick="showInfo('switch')"
+        >
+            i
+        </button>
+
+        <div class="network-card-icon">
+            🔌
+        </div>
+
+        <h3>Network Switch</h3>
+
+        <div
+            id="switchStatus"
+            class="network-status-value"
+        >
+            --
+        </div>
+
+        <p>Network Switch Status</p>
+
     </div>
 
-    <!-- G0/0 -->
-    <div class="monitoring-card">
-        <button class="info-btn" onclick="showInfo('g0_0')">i</button>
 
-        <div class="card-icon">🔗</div>
+    <!-- G0/0 -->
+    <div class="network-status-card">
+
+        <button
+            class="info-btn"
+            onclick="showInfo('g0_0')"
+        >
+            i
+        </button>
+
+        <div class="network-card-icon">
+            🔗
+        </div>
 
         <h3>G0/0</h3>
 
-        <div id="g0_0" class="port-status">--</div>
+        <div
+            id="g0_0"
+            class="network-status-value"
+        >
+            --
+        </div>
 
         <p>Network Port Status</p>
+
     </div>
 
-    <!-- G0/1 -->
-    <div class="monitoring-card">
-        <button class="info-btn" onclick="showInfo('g0_1')">i</button>
 
-        <div class="card-icon">🔗</div>
+    <!-- G0/1 -->
+    <div class="network-status-card">
+
+        <button
+            class="info-btn"
+            onclick="showInfo('g0_1')"
+        >
+            i
+        </button>
+
+        <div class="network-card-icon">
+            🔗
+        </div>
 
         <h3>G0/1</h3>
 
-        <div id="g0_1" class="port-status">--</div>
+        <div
+            id="g0_1"
+            class="network-status-value"
+        >
+            --
+        </div>
 
         <p>Network Port Status</p>
+
     </div>
 
 </div>
-
-
 
     <!-- LIVE CAMERA -->
 
