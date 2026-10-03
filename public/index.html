@@ -353,116 +353,129 @@
 
 <!-- NETWORK CARDS -->
 
-<div class="network-cards">
+<!-- ==================================================
+     NETWORK CARDS
+================================================== -->
 
-    <!-- NETWORK SWITCH -->
-    <div class="card">
+<div class="card">
 
-        <div class="card-header">
-            <div class="icon">🔌</div>
+    <div class="card-header">
 
-            <button class="info-button" data-info="switch">
-                i
-            </button>
+        <div class="icon">
+            🔌
         </div>
 
-        <div class="card-title">
-            Network Switch
-        </div>
-
-        <div class="status-value" id="switchStatus">
-            --
-        </div>
-
-        <div class="card-footer">
-            Network Switch Status
-        </div>
+        <button
+            class="info-button"
+            data-info="switch"
+        >
+            i
+        </button>
 
     </div>
 
-
-    <!-- G0/0 -->
-    <div class="card">
-
-        <div class="card-header">
-            <div class="icon">🔗</div>
-
-            <button class="info-button" data-info="g0/0">
-                i
-            </button>
-        </div>
-
-        <div class="card-title">
-            G0/0
-        </div>
-
-        <div class="status-value" id="g0/0">
-            --
-        </div>
-
-        <div class="card-footer">
-            Network Port Status
-        </div>
-
+    <div class="card-title">
+        Network Switch
     </div>
 
+    <div
+        class="status-value"
+        id="switchStatus"
+    >
+        --
+    </div>
 
-    <!-- G0/1 -->
-    <div class="card">
-
-        <div class="card-header">
-            <div class="icon">🔗</div>
-
-            <button class="info-button" data-info="g0/1">
-                i
-            </button>
-        </div>
-
-        <div class="card-title">
-            G0/1
-        </div>
-
-        <div class="status-value" id="g0/1">
-            --
-        </div>
-
-        <div class="card-footer">
-            Network Port Status
-        </div>
-
+    <div class="card-footer">
+        Network Switch Status
     </div>
 
 </div>
 
 
-<!-- LIVE CAMERA -->
+<!-- G0/0 -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div class="icon">
+            🔗
+        </div>
+
+        <button
+            class="info-button"
+            data-info="g0/0"
+        >
+            i
+        </button>
+
+    </div>
+
+    <div class="card-title">
+        G0/0
+    </div>
+
+    <div
+        class="status-value"
+        id="g0/0"
+    >
+        --
+    </div>
+
+    <div class="card-footer">
+        Network Port Status
+    </div>
+
+</div>
+
+
+<!-- G0/1 -->
+
+<div class="card">
+
+    <div class="card-header">
+
+        <div class="icon">
+            🔗
+        </div>
+
+        <button
+            class="info-button"
+            data-info="g0/1"
+        >
+            i
+        </button>
+
+    </div>
+
+    <div class="card-title">
+        G0/1
+    </div>
+
+    <div
+        class="status-value"
+        id="g0/1"
+    >
+        --
+    </div>
+
+    <div class="card-footer">
+        Network Port Status
+    </div>
+
+</div>
+
+<!-- ESP32-CAM Live Camera -->
 
 <div class="camera-card">
 
     <div class="camera-header">
 
-        <div>
-            <h3>Live Camera</h3>
+        <h3>Live Camera</h3>
 
-            <p>
-                Visual monitoring of the network cabinet
-            </p>
-        </div>
-
-        <div class="camera-actions">
-
-            <button
-                class="info-button"
-                data-info="camera"
-            >
-                i
-            </button>
-
-            <span class="camera-status">
-                ● LIVE
-            </span>
-
-        </div>
+        <span class="camera-status">
+            ● LIVE
+        </span>
 
     </div>
 
@@ -476,7 +489,6 @@
     </div>
 
 </div>
-
 
 <!-- ==================================================
      HISTORY
