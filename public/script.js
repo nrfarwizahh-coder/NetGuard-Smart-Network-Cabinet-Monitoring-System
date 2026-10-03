@@ -134,7 +134,7 @@ function updateConnectionStatus() {
             connected
                 ? "Connected"
                 : "Disconnected";
-    } 
+    }
 }
 
 
@@ -227,12 +227,16 @@ function updateMonitoringCards(data) {
     if (!data) return;
 
 
+    // TEMPERATURE
+
     if (temperatureElement) {
 
         temperatureElement.textContent =
             formatNumber(data.temperature);
     }
 
+
+    // HUMIDITY
 
     if (humidityElement) {
 
@@ -241,12 +245,16 @@ function updateMonitoringCards(data) {
     }
 
 
+    // RFID
+
     if (rfidAccessElement) {
 
         rfidAccessElement.textContent =
             data.rfidAccess ?? "--";
     }
 
+
+    // UNAUTHORIZED
 
     if (unauthorizedAccessElement) {
 
@@ -255,6 +263,8 @@ function updateMonitoringCards(data) {
     }
 
 
+    // SECURITY
+
     if (securityAccessElement) {
 
         securityAccessElement.textContent =
@@ -262,10 +272,14 @@ function updateMonitoringCards(data) {
     }
 
 
+    // DOOR
+
     updateDoorStatus(
         data.doorStatus
     );
 
+
+    // NETWORK SWITCH
 
     if (switchStatusElement) {
 
@@ -297,6 +311,82 @@ function updateMonitoringCards(data) {
                 "--";
         }
     }
+
+
+    // G0/0
+
+    const g00Element =
+        document.getElementById("g0/0");
+
+    if (g00Element) {
+
+        const g00Value =
+            data.g00 ??
+            data.G00 ??
+            data["g0/0"] ??
+            data.g0_0 ??
+            data.g0_0_status;
+
+        if (
+            String(g00Value) === "1" ||
+            String(g00Value).toUpperCase() === "ON"
+        ) {
+
+            g00Element.textContent =
+                "ON";
+
+        } else if (
+            String(g00Value) === "0" ||
+            String(g00Value).toUpperCase() === "OFF"
+        ) {
+
+            g00Element.textContent =
+                "OFF";
+
+        } else {
+
+            g00Element.textContent =
+                "--";
+        }
+    }
+
+
+    // G0/1
+
+    const g01Element =
+        document.getElementById("g0/1");
+
+    if (g01Element) {
+
+        const g01Value =
+            data.g01 ??
+            data.G01 ??
+            data["g0/1"] ??
+            data.g0_1 ??
+            data.g0_1_status;
+
+        if (
+            String(g01Value) === "1" ||
+            String(g01Value).toUpperCase() === "ON"
+        ) {
+
+            g01Element.textContent =
+                "ON";
+
+        } else if (
+            String(g01Value) === "0" ||
+            String(g01Value).toUpperCase() === "OFF"
+        ) {
+
+            g01Element.textContent =
+                "OFF";
+
+        } else {
+
+            g01Element.textContent =
+                "--";
+        }
+    }
 }
 
 
@@ -312,6 +402,7 @@ async function loadBlynkData() {
             await fetch("/api/data");
 
         if (!response.ok) {
+
             throw new Error(
                 "Current data API error"
             );
@@ -356,6 +447,7 @@ async function loadBlynkData() {
                     time.toLocaleTimeString();
             }
         }
+
 
     } catch (error) {
 
@@ -840,6 +932,8 @@ function setupNavigation() {
 
 const infoContent = {
 
+    // TEMPERATURE
+
     temperature: {
 
         icon: "🌡",
@@ -856,6 +950,8 @@ const infoContent = {
     },
 
 
+    // HUMIDITY
+
     humidity: {
 
         icon: "💧",
@@ -870,6 +966,8 @@ const infoContent = {
             "The value is updated automatically during monitoring."
     },
 
+
+    // DOOR
 
     door: {
 
@@ -886,6 +984,8 @@ const infoContent = {
     },
 
 
+    // RFID
+
     rfid: {
 
         icon: "🔑",
@@ -900,6 +1000,8 @@ const infoContent = {
     },
 
 
+    // UNAUTHORIZED
+
     unauthorized: {
 
         icon: "⚠",
@@ -913,6 +1015,8 @@ const infoContent = {
             "The value helps identify repeated unsuccessful access attempts and supports cabinet security monitoring."
     },
 
+
+    // SECURITY
 
     security: {
 
@@ -930,6 +1034,8 @@ const infoContent = {
     },
 
 
+    // NETWORK SWITCH
+
     switch: {
 
         icon: "🔌",
@@ -945,6 +1051,42 @@ const infoContent = {
     },
 
 
+    // G0/0
+
+    "g0/0": {
+
+        icon: "🔗",
+
+        title: "G0/0 Network Port",
+
+        text:
+            "Displays the current status of the G0/0 network port.",
+
+        details:
+            "<strong>ON:</strong> The G0/0 network port is active.<br>" +
+            "<strong>OFF:</strong> The G0/0 network port is inactive."
+    },
+
+
+    // G0/1
+
+    "g0/1": {
+
+        icon: "🔗",
+
+        title: "G0/1 Network Port",
+
+        text:
+            "Displays the current status of the G0/1 network port.",
+
+        details:
+            "<strong>ON:</strong> The G0/1 network port is active.<br>" +
+            "<strong>OFF:</strong> The G0/1 network port is inactive."
+    },
+
+
+    // CAMERA
+
     camera: {
 
         icon: "📷",
@@ -957,6 +1099,7 @@ const infoContent = {
         details:
             "The camera helps the user visually check the cabinet condition and observe activity around the monitored cabinet."
     }
+
 };
 
 
@@ -1037,6 +1180,7 @@ function setupInfoModal() {
         const content =
             infoContent[type];
 
+
         if (
             !content ||
             !modal
@@ -1045,17 +1189,32 @@ function setupInfoModal() {
         }
 
 
-        icon.textContent =
-            content.icon;
+        if (icon) {
 
-        title.textContent =
-            content.title;
+            icon.textContent =
+                content.icon;
+        }
 
-        text.textContent =
-            content.text;
 
-        details.innerHTML =
-            content.details;
+        if (title) {
+
+            title.textContent =
+                content.title;
+        }
+
+
+        if (text) {
+
+            text.textContent =
+                content.text;
+        }
+
+
+        if (details) {
+
+            details.innerHTML =
+                content.details;
+        }
 
 
         modal.classList.add(
@@ -1073,6 +1232,7 @@ function setupInfoModal() {
 
 
         if (closeButton) {
+
             closeButton.focus();
         }
     }
@@ -1130,6 +1290,7 @@ function setupInfoModal() {
             if (
                 event.key === "Escape"
             ) {
+
                 closeModal();
             }
         }
@@ -1165,7 +1326,9 @@ if (clearHistory) {
                 "";
 
             if (historyDate) {
-                historyDate.value = "";
+
+                historyDate.value =
+                    "";
             }
 
             displayHistory(
@@ -1211,5 +1374,6 @@ document.addEventListener(
             loadFirebaseHistory,
             10000
         );
+
     }
 );
