@@ -351,121 +351,91 @@
 
         </div>
 
-<!--==================================================
-     NETWORK CARDS
-================================================== -->
+<!-- NETWORK CARDS -->
 
-<div class="card">
+<div class="network-cards">
 
-    <div class="card-header">
+    <!-- NETWORK SWITCH -->
+    <div class="card">
 
-        <div class="icon">
-            🔌
+        <div class="card-header">
+            <div class="icon">🔌</div>
+
+            <button class="info-button" data-info="switch">
+                i
+            </button>
         </div>
 
-        <button
-            class="info-button"
-            data-info="switch"
-        >
-            i
-        </button>
+        <div class="card-title">
+            Network Switch
+        </div>
+
+        <div class="status-value" id="switchStatus">
+            --
+        </div>
+
+        <div class="card-footer">
+            Network Switch Status
+        </div>
 
     </div>
 
-    <div class="card-title">
-        Network Switch
+
+    <!-- G0/0 -->
+    <div class="card">
+
+        <div class="card-header">
+            <div class="icon">🔗</div>
+
+            <button class="info-button" data-info="g0/0">
+                i
+            </button>
+        </div>
+
+        <div class="card-title">
+            G0/0
+        </div>
+
+        <div class="status-value" id="g0/0">
+            --
+        </div>
+
+        <div class="card-footer">
+            Network Port Status
+        </div>
+
     </div>
 
-    <div
-        class="status-value"
-        id="switchStatus"
-    >
-        --
-    </div>
 
-    <div class="card-footer">
-        Network Switch Status
+    <!-- G0/1 -->
+    <div class="card">
+
+        <div class="card-header">
+            <div class="icon">🔗</div>
+
+            <button class="info-button" data-info="g0/1">
+                i
+            </button>
+        </div>
+
+        <div class="card-title">
+            G0/1
+        </div>
+
+        <div class="status-value" id="g0/1">
+            --
+        </div>
+
+        <div class="card-footer">
+            Network Port Status
+        </div>
+
     </div>
 
 </div>
 
 
-<!-- G0/0 -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <div class="icon">
-            🔗
-        </div>
-
-        <button
-            class="info-button"
-            data-info="g0/0"
-        >
-            i
-        </button>
-
-    </div>
-
-    <div class="card-title">
-        G0/0
-    </div>
-
-    <div
-        class="status-value"
-        id="g0/0"
-    >
-        --
-    </div>
-
-    <div class="card-footer">
-        Network Port Status
-    </div>
-
-</div>
-
-
-<!-- G0/1 -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <div class="icon">
-            🔗
-        </div>
-
-        <button
-            class="info-button"
-            data-info="g0/1"
-        >
-            i
-        </button>
-
-    </div>
-
-    <div class="card-title">
-        G0/1
-    </div>
-
-    <div
-        class="status-value"
-        id="g0/1"
-    >
-        --
-    </div>
-
-    <div class="card-footer">
-        Network Port Status
-    </div>
-
-</div>
-
-<!-- ==================================================
-     LIVE CAMERA
-================================================== -->
+<!-- LIVE CAMERA -->
 
 <div class="camera-card">
 
