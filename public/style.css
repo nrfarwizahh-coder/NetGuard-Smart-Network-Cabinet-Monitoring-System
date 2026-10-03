@@ -987,11 +987,3 @@ footer span {
     background: #1d4ed8;
 }
 
-/* =========================================================
-   FULL WIDTH CAMERA MODIFIER
-========================================================= */
-.full-width-camera {
-    grid-column: 1 / -1;
-    width: 100%;
-}
-

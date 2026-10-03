@@ -116,377 +116,316 @@
 
     <div class="cards">
 
+    <!-- TEMPERATURE -->
+    <div class="card">
 
-        <!-- TEMPERATURE -->
+        <div class="card-header">
+            <div class="icon">🌡</div>
 
-        <div class="card">
-
-            <div class="card-header">
-
-                <div class="icon">
-                    🌡
-                </div>
-
-                <button
-                    class="info-button"
-                    data-info="temperature"
-                >
-                    i
-                </button>
-
-            </div>
-
-            <div class="card-title">
-                Temperature
-            </div>
-
-            <div class="value">
-
-                <span id="temperature">
-                    --
-                </span>
-
-                <small>
-                    °C
-                </small>
-
-            </div>
-
-            <div class="card-footer">
-                Cabinet Temperature
-            </div>
-
+            <button
+                class="info-button"
+                data-info="temperature">
+                i
+            </button>
         </div>
 
-
-        <!-- HUMIDITY -->
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <div class="icon">
-                    💧
-                </div>
-
-                <button
-                    class="info-button"
-                    data-info="humidity"
-                >
-                    i
-                </button>
-
-            </div>
-
-            <div class="card-title">
-                Humidity
-            </div>
-
-            <div class="value">
-
-                <span id="humidity">
-                    --
-                </span>
-
-                <small>
-                    %
-                </small>
-
-            </div>
-
-            <div class="card-footer">
-                Cabinet Humidity
-            </div>
-
+        <div class="card-title">
+            Temperature
         </div>
 
-
-        <!-- DOOR -->
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <div class="icon">
-                    🚪
-                </div>
-
-                <button
-                    class="info-button"
-                    data-info="door"
-                >
-                    i
-                </button>
-
-            </div>
-
-            <div class="card-title">
-                Door Status
-            </div>
-
-            <div
-                class="status-value"
-                id="doorStatus"
-            >
-                --
-            </div>
-
-            <div class="card-footer">
-                Cabinet Door Condition
-            </div>
-
+        <div class="value">
+            <span id="temperature">--</span>
+            <small>°C</small>
         </div>
 
-
-        <!-- RFID -->
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <div class="icon">
-                    🔑
-                </div>
-
-                <button
-                    class="info-button"
-                    data-info="rfid"
-                >
-                    i
-                </button>
-
-            </div>
-
-            <div class="card-title">
-                RFID Access
-            </div>
-
-            <div class="value compact-value">
-
-                <span id="rfidAccess">
-                    --
-                </span>
-
-            </div>
-
-            <div class="card-footer">
-                Latest RFID Access
-            </div>
-
+        <div class="card-footer">
+            Cabinet Temperature
         </div>
 
+    </div>
 
-        <!-- UNAUTHORIZED -->
 
-        <div class="card warning-card">
+    <!-- HUMIDITY -->
+    <div class="card">
 
-            <div class="card-header">
+        <div class="card-header">
+            <div class="icon">💧</div>
 
-                <div class="icon">
-                    ⚠
-                </div>
-
-                <button
-                    class="info-button"
-                    data-info="unauthorized"
-                >
-                    i
-                </button>
-
-            </div>
-
-            <div class="card-title">
-                Unauthorized Access
-            </div>
-
-            <div class="value">
-
-                <span id="unauthorizedAccess">
-                    --
-                </span>
-
-            </div>
-
-            <div class="card-footer">
-                Unauthorized Attempts
-            </div>
-
+            <button
+                class="info-button"
+                data-info="humidity">
+                i
+            </button>
         </div>
 
-
-        <!-- SECURITY -->
-
-        <div class="card">
-
-            <div class="card-header">
-
-                <div class="icon">
-                    🛡
-                </div>
-
-                <button
-                    class="info-button"
-                    data-info="security"
-                >
-                    i
-                </button>
-
-            </div>
-
-            <div class="card-title">
-                Security Access
-            </div>
-
-            <div class="value compact-value">
-
-                <span id="securityAccess">
-                    --
-                </span>
-
-            </div>
-
-            <div class="card-footer">
-                Current Security Level
-            </div>
-
+        <div class="card-title">
+            Humidity
         </div>
 
-<!-- NETWORK CARDS -->
+        <div class="value">
+            <span id="humidity">--</span>
+            <small>%</small>
+        </div>
+
+        <div class="card-footer">
+            Cabinet Humidity
+        </div>
+
+    </div>
+
+
+    <!-- DOOR -->
+    <div class="card">
+
+        <div class="card-header">
+            <div class="icon">🚪</div>
+
+            <button
+                class="info-button"
+                data-info="door">
+                i
+            </button>
+        </div>
+
+        <div class="card-title">
+            Door Status
+        </div>
+
+        <div
+            class="status-value"
+            id="doorStatus">
+            --
+        </div>
+
+        <div class="card-footer">
+            Cabinet Door Condition
+        </div>
+
+    </div>
+
+
+    <!-- RFID -->
+    <div class="card">
+
+        <div class="card-header">
+            <div class="icon">🔑</div>
+
+            <button
+                class="info-button"
+                data-info="rfid">
+                i
+            </button>
+        </div>
+
+        <div class="card-title">
+            RFID Access
+        </div>
+
+        <div class="value compact-value">
+            <span id="rfidAccess">--</span>
+        </div>
+
+        <div class="card-footer">
+            Latest RFID Access
+        </div>
+
+    </div>
+
+
+    <!-- UNAUTHORIZED -->
+    <div class="card warning-card">
+
+        <div class="card-header">
+            <div class="icon">⚠</div>
+
+            <button
+                class="info-button"
+                data-info="unauthorized">
+                i
+            </button>
+        </div>
+
+        <div class="card-title">
+            Unauthorized Access
+        </div>
+
+        <div class="value">
+            <span id="unauthorizedAccess">--</span>
+        </div>
+
+        <div class="card-footer">
+            Unauthorized Attempts
+        </div>
+
+    </div>
+
+
+    <!-- SECURITY -->
+    <div class="card">
+
+        <div class="card-header">
+            <div class="icon">🛡</div>
+
+            <button
+                class="info-button"
+                data-info="security">
+                i
+            </button>
+        </div>
+
+        <div class="card-title">
+            Security Access
+        </div>
+
+        <div class="value compact-value">
+            <span id="securityAccess">--</span>
+        </div>
+
+        <div class="card-footer">
+            Current Security Level
+        </div>
+
+    </div>
+
+</div>
+
 
 <!-- ==================================================
      NETWORK CARDS
 ================================================== -->
 
-<div class="card">
+<div class="network-cards">
 
-    <div class="card-header">
+    <!-- NETWORK SWITCH -->
+    <div class="card">
 
-        <div class="icon">
-            🔌
+        <div class="card-header">
+            <div class="icon">🔌</div>
+
+            <button
+                class="info-button"
+                data-info="switch">
+                i
+            </button>
         </div>
 
-        <button
-            class="info-button"
-            data-info="switch"
-        >
-            i
-        </button>
+        <div class="card-title">
+            Network Switch
+        </div>
+
+        <div
+            class="status-value"
+            id="switchStatus">
+            --
+        </div>
+
+        <div class="card-footer">
+            Network Switch Status
+        </div>
 
     </div>
 
-    <div class="card-title">
-        Network Switch
+
+    <!-- G0/0 -->
+    <div class="card">
+
+        <div class="card-header">
+            <div class="icon">🔗</div>
+
+            <button
+                class="info-button"
+                data-info="g0/0">
+                i
+            </button>
+        </div>
+
+        <div class="card-title">
+            G0/0
+        </div>
+
+        <div
+            class="status-value"
+            id="g0/0">
+            --
+        </div>
+
+        <div class="card-footer">
+            Network Port Status
+        </div>
+
     </div>
 
-    <div
-        class="status-value"
-        id="switchStatus"
-    >
-        --
-    </div>
 
-    <div class="card-footer">
-        Network Switch Status
+    <!-- G0/1 -->
+    <div class="card">
+
+        <div class="card-header">
+            <div class="icon">🔗</div>
+
+            <button
+                class="info-button"
+                data-info="g0/1">
+                i
+            </button>
+        </div>
+
+        <div class="card-title">
+            G0/1
+        </div>
+
+        <div
+            class="status-value"
+            id="g0/1">
+            --
+        </div>
+
+        <div class="card-footer">
+            Network Port Status
+        </div>
+
     </div>
 
 </div>
 
 
-<!-- G0/0 -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <div class="icon">
-            🔗
-        </div>
-
-        <button
-            class="info-button"
-            data-info="g0/0"
-        >
-            i
-        </button>
-
-    </div>
-
-    <div class="card-title">
-        G0/0
-    </div>
-
-    <div
-        class="status-value"
-        id="g0/0"
-    >
-        --
-    </div>
-
-    <div class="card-footer">
-        Network Port Status
-    </div>
-
-</div>
-
-
-<!-- G0/1 -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <div class="icon">
-            🔗
-        </div>
-
-        <button
-            class="info-button"
-            data-info="g0/1"
-        >
-            i
-        </button>
-
-    </div>
-
-    <div class="card-title">
-        G0/1
-    </div>
-
-    <div
-        class="status-value"
-        id="g0/1"
-    >
-        --
-    </div>
-
-    <div class="card-footer">
-        Network Port Status
-    </div>
-
-</div>
-
-<!-- =========================================
+<!-- ==================================================
      ESP32-CAM LIVE CAMERA
-========================================= -->
+================================================== -->
 
 <div class="camera-card">
 
     <div class="camera-header">
 
-        <h3>Live Camera</h3>
+        <div>
+            <h3>Live Camera</h3>
 
-        <span class="camera-status">
-            ● LIVE
-        </span>
+            <p>
+                Visual monitoring of the network cabinet
+            </p>
+        </div>
+
+        <div class="camera-actions">
+
+            <button
+                class="info-button"
+                data-info="camera">
+                i
+            </button>
+
+            <span class="camera-status">
+                ● LIVE
+            </span>
+
+        </div>
 
     </div>
+
 
     <div class="camera-container">
 
         <img
             src="http://172.20.10.3/stream"
-            alt="ESP32-CAM Live Stream"
-        >
+            alt="ESP32-CAM Live Stream">
 
     </div>
 
