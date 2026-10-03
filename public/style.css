@@ -1,13 +1,11 @@
 /* =========================================================
    NETGUARD SMART NETWORK CABINET MONITORING SYSTEM
-   COMPLETE STYLE.CSS
-   DESKTOP ONLY - NO MOBILE RESPONSIVE
+   DESKTOP STYLE - NO MOBILE LAYOUT
 ========================================================= */
 
-
-/* =========================================================
+/* =========================
    GLOBAL
-========================================================= */
+========================= */
 
 * {
     box-sizing: border-box;
@@ -21,14 +19,10 @@ body {
     color: #172033;
 }
 
-body.modal-open {
-    overflow: hidden;
-}
 
-
-/* =========================================================
+/* =========================
    SIDEBAR
-========================================================= */
+========================= */
 
 .sidebar {
     position: fixed;
@@ -41,10 +35,13 @@ body.modal-open {
     background: #111827;
     color: white;
 
-    padding: 25px 18px;
+    padding: 20px 18px;
 
     z-index: 1000;
 }
+
+
+/* LOGO */
 
 .logo {
     display: flex;
@@ -52,9 +49,9 @@ body.modal-open {
 
     gap: 6px;
 
-    padding: 18px 18px 8px;
+    padding: 18px 0 8px;
 
-    margin-bottom: 40px;
+    margin-bottom: 25px;
 }
 
 .logo-icon {
@@ -81,10 +78,7 @@ body.modal-open {
 }
 
 .logo-text h2 {
-    margin: 0;
-
     font-size: 20px;
-
     color: white;
 
     line-height: 1.1;
@@ -101,9 +95,7 @@ body.modal-open {
 }
 
 
-/* =========================================================
-   NAVIGATION
-========================================================= */
+/* NAVIGATION */
 
 nav {
     display: flex;
@@ -122,8 +114,6 @@ nav a {
     border-radius: 8px;
 
     font-size: 16px;
-
-    transition: 0.2s ease;
 }
 
 nav a:hover,
@@ -133,16 +123,7 @@ nav a.active {
 }
 
 
-/* Reduce space before Dashboard */
-
-.sidebar nav {
-    margin-top: 5px;
-}
-
-
-/* =========================================================
-   SIDEBAR BOTTOM
-========================================================= */
+/* SIDEBAR BOTTOM */
 
 .sidebar-bottom {
     position: absolute;
@@ -188,9 +169,9 @@ nav a.active {
 }
 
 
-/* =========================================================
-   MAIN
-========================================================= */
+/* =========================
+   MAIN CONTENT
+========================= */
 
 .main {
     margin-left: 240px;
@@ -201,9 +182,9 @@ nav a.active {
 }
 
 
-/* =========================================================
+/* =========================
    TOP BAR
-========================================================= */
+========================= */
 
 .topbar {
     display: flex;
@@ -218,11 +199,8 @@ nav a.active {
     font-size: 30px;
 }
 
-.topbar p,
-.section-title p,
-.panel-header p {
+.topbar p {
     color: #6b7280;
-
     margin-top: 5px;
 }
 
@@ -240,9 +218,9 @@ nav a.active {
 }
 
 
-/* =========================================================
-   SECTION
-========================================================= */
+/* =========================
+   SECTION TITLE
+========================= */
 
 .section-title {
     display: flex;
@@ -257,34 +235,39 @@ nav a.active {
     font-size: 22px;
 }
 
+.section-title p {
+    color: #6b7280;
+    margin-top: 5px;
+}
+
 .last-update {
     color: #6b7280;
 }
 
 
 /* =========================================================
-   NORMAL MONITORING CARDS
+   CARDS
 ========================================================= */
 
 .cards {
     display: grid;
 
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, 1fr);
 
-    gap: 24px;
+    gap: 25px;
 
     width: 100%;
 
     margin-bottom: 25px;
 }
 
-.card {
-    position: relative;
 
+/* INDIVIDUAL CARD */
+
+.card {
     width: 100%;
 
-    min-height: 190px;
+    min-height: 200px;
 
     background: white;
 
@@ -294,8 +277,6 @@ nav a.active {
 
     box-shadow:
         0 3px 15px rgba(0, 0, 0, 0.05);
-
-    min-width: 0;
 
     transition: 0.2s ease;
 }
@@ -308,9 +289,7 @@ nav a.active {
 }
 
 
-/* =========================================================
-   CARD HEADER
-========================================================= */
+/* CARD HEADER */
 
 .card-header {
     display: flex;
@@ -324,39 +303,18 @@ nav a.active {
 }
 
 
-/* =========================================================
-   PIN
-========================================================= */
-
-.pin {
-    font-size: 12px;
-
-    background: #eef2ff;
-
-    color: #4f46e5;
-
-    padding: 5px 9px;
-
-    border-radius: 8px;
-}
-
-
-/* =========================================================
-   CARD TITLE
-========================================================= */
+/* CARD TITLE */
 
 .card-title {
     color: #6b7280;
 
     font-size: 16px;
 
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 
-/* =========================================================
-   CARD VALUE
-========================================================= */
+/* CARD VALUE */
 
 .value {
     font-size: 36px;
@@ -364,10 +322,6 @@ nav a.active {
     font-weight: bold;
 
     color: #111827;
-}
-
-.compact-value {
-    word-break: break-word;
 }
 
 .value small {
@@ -399,9 +353,7 @@ nav a.active {
 }
 
 
-/* =========================================================
-   CARD FOOTER
-========================================================= */
+/* CARD FOOTER */
 
 .card-footer {
     color: #9ca3af;
@@ -412,18 +364,14 @@ nav a.active {
 }
 
 
-/* =========================================================
-   WARNING CARD
-========================================================= */
+/* WARNING */
 
 .warning-card {
     border-left: 4px solid #f59e0b;
 }
 
 
-/* =========================================================
-   INFORMATION BUTTON
-========================================================= */
+/* INFO BUTTON */
 
 .info-button {
     width: 32px;
@@ -447,23 +395,17 @@ nav a.active {
 
     align-items: center;
     justify-content: center;
-
-    flex-shrink: 0;
-
-    transition: 0.2s ease;
 }
 
 .info-button:hover {
     background: #2563eb;
 
     color: white;
-
-    transform: scale(1.08);
 }
 
 
 /* =========================================================
-   PANEL
+   DOOR MONITOR
 ========================================================= */
 
 .panel {
@@ -488,6 +430,12 @@ nav a.active {
     margin-bottom: 25px;
 }
 
+.panel-header p {
+    color: #6b7280;
+
+    margin-top: 5px;
+}
+
 .live {
     background: #dcfce7;
 
@@ -501,11 +449,6 @@ nav a.active {
 
     font-weight: bold;
 }
-
-
-/* =========================================================
-   DOOR
-========================================================= */
 
 .door-monitor {
     display: flex;
@@ -543,13 +486,11 @@ nav a.active {
 .camera-card {
     width: 100%;
 
-    background: #ffffff;
+    background: white;
 
     border-radius: 15px;
 
     padding: 25px;
-
-    margin-top: 20px;
 
     margin-bottom: 25px;
 
@@ -567,8 +508,6 @@ nav a.active {
 }
 
 .camera-header h3 {
-    margin: 0;
-
     font-size: 22px;
 }
 
@@ -599,15 +538,13 @@ nav a.active {
 .camera-container {
     width: 100%;
 
-    min-height: 300px;
+    min-height: 350px;
 
     background: #111;
 
     border-radius: 12px;
 
     overflow: hidden;
-
-    text-align: center;
 
     display: flex;
 
@@ -643,8 +580,7 @@ nav a.active {
 
     padding: 15px 0;
 
-    border-bottom:
-        1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .info-row:last-child {
@@ -660,9 +596,7 @@ nav a.active {
 }
 
 
-/* =========================================================
-   TABLE
-========================================================= */
+/* TABLE */
 
 .table-container {
     overflow-x: auto;
@@ -680,8 +614,7 @@ td {
 
     text-align: left;
 
-    border-bottom:
-        1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 th {
@@ -714,8 +647,7 @@ td {
 
     border-radius: 12px;
 
-    border:
-        1px solid #e5e7eb;
+    border: 1px solid #e5e7eb;
 }
 
 .filter-group {
@@ -737,8 +669,7 @@ td {
 .filter-group input {
     padding: 10px 12px;
 
-    border:
-        1px solid #d1d5db;
+    border: 1px solid #d1d5db;
 
     border-radius: 8px;
 
@@ -753,9 +684,6 @@ td {
 
 .filter-group input:focus {
     border-color: #2563eb;
-
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
 .clear-history-btn {
@@ -774,19 +702,15 @@ td {
     font-weight: bold;
 
     cursor: pointer;
-
-    transition: 0.2s ease;
 }
 
 .clear-history-btn:hover {
     background: #1d4ed8;
-
-    transform: translateY(-1px);
 }
 
 
 /* =========================================================
-   LOGOUT BUTTON
+   LOGOUT
 ========================================================= */
 
 .logout-button {
@@ -805,27 +729,10 @@ td {
     font-weight: bold;
 
     cursor: pointer;
-
-    transition: all 0.2s ease;
-
-    box-shadow:
-        0 4px 10px rgba(239, 68, 68, 0.20);
 }
 
 .logout-button:hover {
     background: #dc2626;
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        0 6px 14px rgba(239, 68, 68, 0.30);
-}
-
-.logout-button:active {
-    transform: translateY(0);
-
-    box-shadow:
-        0 3px 8px rgba(239, 68, 68, 0.20);
 }
 
 
@@ -887,7 +794,7 @@ footer span {
 
     padding: 40px;
 
-    background: #ffffff;
+    background: white;
 
     border-radius: 16px;
 
@@ -940,12 +847,9 @@ footer span {
 .input-group input {
     width: 100%;
 
-    box-sizing: border-box;
-
     padding: 13px;
 
-    border:
-        1px solid #cbd5e1;
+    border: 1px solid #cbd5e1;
 
     border-radius: 8px;
 
@@ -992,7 +896,7 @@ footer span {
 
 
 /* =========================================================
-   INFO POPUP
+   INFO MODAL
 ========================================================= */
 
 .info-modal {
@@ -1018,8 +922,7 @@ footer span {
 
     inset: 0;
 
-    background:
-        rgba(15, 23, 42, 0.60);
+    background: rgba(15, 23, 42, 0.60);
 
     backdrop-filter: blur(3px);
 }
@@ -1029,8 +932,7 @@ footer span {
 
     z-index: 2;
 
-    width:
-        min(500px, calc(100% - 40px));
+    width: min(500px, calc(100% - 40px));
 
     background: white;
 
@@ -1040,34 +942,7 @@ footer span {
 
     box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.25);
-
-    animation:
-        modalIn 0.18s ease-out;
 }
-
-@keyframes modalIn {
-
-    from {
-        opacity: 0;
-
-        transform:
-            translateY(10px)
-            scale(0.98);
-    }
-
-    to {
-        opacity: 1;
-
-        transform:
-            translateY(0)
-            scale(1);
-    }
-}
-
-
-/* =========================================================
-   MODAL CLOSE
-========================================================= */
 
 .modal-close {
     position: absolute;
@@ -1089,11 +964,6 @@ footer span {
 .modal-close:hover {
     color: #111827;
 }
-
-
-/* =========================================================
-   MODAL ICON
-========================================================= */
 
 .modal-icon {
     width: 55px;
@@ -1147,11 +1017,6 @@ footer span {
     color: #111827;
 }
 
-
-/* =========================================================
-   MODAL BUTTON
-========================================================= */
-
 .modal-done {
     width: 100%;
 
@@ -1175,3 +1040,5 @@ footer span {
 .modal-done:hover {
     background: #1d4ed8;
 }
+
+
