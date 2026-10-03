@@ -784,7 +784,7 @@ footer span {
     z-index: 5000;
 }
 
-.info-modal.show {
+.info-modal.open {
     display: flex;
 }
 
