@@ -355,144 +355,172 @@
        <div class="network-port-row">
 
 <!-- ==================================================
-     NETWORK CONNECTION STATUS
+     NETWORK SWITCH
 ================================================== -->
 
-<div class="network-status-grid">
+<div class="cards">
 
     <!-- NETWORK SWITCH -->
-    <div class="network-status-card">
 
-        <button
-            class="info-btn"
-            onclick="showInfo('switch')"
-        >
-            i
-        </button>
+    <div class="card">
 
-        <div class="network-card-icon">
-            🔌
+        <div class="card-header">
+
+            <div class="icon">
+                🔌
+            </div>
+
+            <button
+                class="info-button"
+                data-info="switch"
+            >
+                i
+            </button>
+
         </div>
 
-        <h3>Network Switch</h3>
+        <div class="card-title">
+            Network Switch
+        </div>
 
         <div
+            class="status-value"
             id="switchStatus"
-            class="network-status-value"
         >
             --
         </div>
 
-        <p>Network Switch Status</p>
+        <div class="card-footer">
+            Network Switch Status
+        </div>
 
     </div>
 
 
     <!-- G0/0 -->
-    <div class="network-status-card">
 
-        <button
-            class="info-btn"
-            onclick="showInfo('g0_0')"
-        >
-            i
-        </button>
+    <div class="card">
 
-        <div class="network-card-icon">
-            🔗
+        <div class="card-header">
+
+            <div class="icon">
+                🔗
+            </div>
+
+            <button
+                class="info-button"
+                data-info="g0_0"
+            >
+                i
+            </button>
+
         </div>
 
-        <h3>G0/0</h3>
+        <div class="card-title">
+            G0/0
+        </div>
 
         <div
+            class="status-value"
             id="g0_0"
-            class="network-status-value"
         >
             --
         </div>
 
-        <p>Network Port Status</p>
+        <div class="card-footer">
+            Network Port Status
+        </div>
 
     </div>
 
 
     <!-- G0/1 -->
-    <div class="network-status-card">
 
-        <button
-            class="info-btn"
-            onclick="showInfo('g0_1')"
-        >
-            i
-        </button>
+    <div class="card">
 
-        <div class="network-card-icon">
-            🔗
+        <div class="card-header">
+
+            <div class="icon">
+                🔗
+            </div>
+
+            <button
+                class="info-button"
+                data-info="g0_1"
+            >
+                i
+            </button>
+
         </div>
 
-        <h3>G0/1</h3>
+        <div class="card-title">
+            G0/1
+        </div>
 
         <div
+            class="status-value"
             id="g0_1"
-            class="network-status-value"
         >
             --
         </div>
 
-        <p>Network Port Status</p>
+        <div class="card-footer">
+            Network Port Status
+        </div>
 
     </div>
 
 </div>
 
-    <!-- LIVE CAMERA -->
 
-    <div class="camera-card">
+<!-- ==================================================
+     LIVE CAMERA
+================================================== -->
 
-        <div class="camera-header">
+<div class="camera-card">
 
-            <div>
+    <div class="camera-header">
 
-                <h3>
-                    Live Camera
-                </h3>
+        <div>
 
-                <p>
-                    Visual monitoring of the network cabinet
-                </p>
+            <h3>
+                Live Camera
+            </h3>
 
-            </div>
-
-            <div class="camera-actions">
-
-                <button
-                    class="info-button"
-                    data-info="camera"
-                >
-                    i
-                </button>
-
-                <span class="camera-status">
-                    ● LIVE
-                </span>
-
-            </div>
+            <p>
+                Visual monitoring of the network cabinet
+            </p>
 
         </div>
 
+        <div class="camera-actions">
 
-        <div class="camera-container">
-
-            <img
-                src="http://172.20.10.3/stream"
-                alt="ESP32-CAM Live Stream"
+            <button
+                class="info-button"
+                data-info="camera"
             >
+                i
+            </button>
+
+            <span class="camera-status">
+                ● LIVE
+            </span>
 
         </div>
 
     </div>
 
-</section>
+
+    <div class="camera-container">
+
+        <img
+            src="http://172.20.10.3/stream"
+            alt="ESP32-CAM Live Stream"
+        >
+
+    </div>
+
+</div>
 
 
 <!-- ==================================================
