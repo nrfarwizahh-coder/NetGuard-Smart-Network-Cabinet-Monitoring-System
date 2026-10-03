@@ -352,168 +352,41 @@
         </div>
 
 
-        <!-- NETWORK SWITCH -->
+       <div class="network-port-row">
 
-        <div class="card">
-
-            <div class="card-header">
-
-                <div class="icon">
-                    🔌
-                </div>
-
-                <button
-                    class="info-button"
-                    data-info="switch"
-                >
-                    i
-                </button>
-
-            </div>
-
-            <div class="card-title">
-                Network Switch
-            </div>
-
-            <div class="value">
-
-                <span id="switchStatus">
-                    --
-                </span>
-
-            </div>
-
-            <div class="card-footer">
-                Network Switch Status
-            </div>
-
-        </div>
-
+    <!-- Network Switch -->
+    <div class="monitoring-card">
+        <!-- your existing Network Switch card -->
     </div>
 
-    <!-- G0/0 PORT -->
+    <!-- G0/0 -->
+    <div class="monitoring-card">
+        <button class="info-btn" onclick="showInfo('g0_0')">i</button>
 
-<div class="card">
+        <div class="card-icon">🔗</div>
 
-    <div class="card-header">
+        <h3>G0/0</h3>
 
-        <div class="icon">
-            🔗
-        </div>
+        <div id="g0_0" class="port-status">--</div>
 
-        <button
-            class="info-button"
-            data-info="g0_0"
-        >
-            i
-        </button>
-
+        <p>Network Port Status</p>
     </div>
 
-    <div class="card-title">
-        G0/0
-    </div>
+    <!-- G0/1 -->
+    <div class="monitoring-card">
+        <button class="info-btn" onclick="showInfo('g0_1')">i</button>
 
-    <div
-        class="port-status"
-        id="g0_0"
-    >
-        --
-    </div>
+        <div class="card-icon">🔗</div>
 
-    <div class="card-footer">
-        Network Port Status
+        <h3>G0/1</h3>
+
+        <div id="g0_1" class="port-status">--</div>
+
+        <p>Network Port Status</p>
     </div>
 
 </div>
 
-
-<!-- G0/1 PORT -->
-
-<div class="card">
-
-    <div class="card-header">
-
-        <div class="icon">
-            🔗
-        </div>
-
-        <button
-            class="info-button"
-            data-info="g0_1"
-        >
-            i
-        </button>
-
-    </div>
-
-    <div class="card-title">
-        G0/1
-    </div>
-
-    <div
-        class="port-status"
-        id="g0_1"
-    >
-        --
-    </div>
-
-    <div class="card-footer">
-        Network Port Status
-    </div>
-
-</div>
-
-
-    <!-- DOOR MONITOR -->
-
-    <div class="panel">
-
-        <div class="panel-header">
-
-            <div>
-
-                <h3>
-                    Door Monitoring
-                </h3>
-
-                <p>
-                    Current cabinet door condition
-                </p>
-
-            </div>
-
-            <span class="live">
-                LIVE
-            </span>
-
-        </div>
-
-
-        <div class="door-monitor">
-
-            <div
-                class="door-circle"
-                id="doorCircle"
-            >
-                🚪
-            </div>
-
-            <div>
-
-                <h2 id="doorStatusLarge">
-                    --
-                </h2>
-
-                <p id="doorDescription">
-                    Waiting for cabinet status...
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
 
 
     <!-- LIVE CAMERA -->

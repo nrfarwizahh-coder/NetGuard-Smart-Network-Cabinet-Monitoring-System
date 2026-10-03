@@ -658,3 +658,31 @@ footer span {
         padding: 25px 20px;
     }
 }
+
+/* Network Switch + G0/0 + G0/1 row */
+.network-port-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+}
+
+/* Keep the cards normal size */
+.network-port-row .monitoring-card {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .network-port-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .network-port-row {
+        grid-template-columns: 1fr;
+    }
+}
