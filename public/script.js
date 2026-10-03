@@ -1,6 +1,5 @@
 // ======================================================
-// NETGUARD DASHBOARD
-// BLYNK + FIREBASE
+// NETGUARD SMART NETWORK CABINET MONITORING
 // ======================================================
 
 const UPDATE_INTERVAL = 30000;
@@ -28,6 +27,9 @@ const unauthorizedAccessElement =
 const securityAccessElement =
     document.getElementById("securityAccess");
 
+const switchStatusElement =
+    document.getElementById("switchStatus");
+
 const doorStatusLarge =
     document.getElementById("doorStatusLarge");
 
@@ -40,43 +42,11 @@ const doorCircle =
 const connectionText =
     document.getElementById("connectionText");
 
+const systemConnection =
+    document.getElementById("systemConnection");
+
 const lastUpdate =
     document.getElementById("lastUpdate");
-
-const switchStatusElement =
-    document.getElementById("switchStatus");
-
-
-// ======================================================
-// FIREBASE ELEMENTS
-// ======================================================
-
-const firebaseTemperature =
-    document.getElementById("firebaseTemperature");
-
-const firebaseHumidity =
-    document.getElementById("firebaseHumidity");
-
-const firebaseDoor =
-    document.getElementById("firebaseDoor");
-
-const firebaseRfid =
-    document.getElementById("firebaseRfid");
-
-const firebaseUnauthorized =
-    document.getElementById("firebaseUnauthorized");
-
-const firebaseSecurity =
-    document.getElementById("firebaseSecurity");
-
-const firebaseSwitch =
-    document.getElementById("firebaseSwitch");
-
-const firebaseStatus =
-    document.getElementById("firebaseStatus");
-
-const firebaseTimestamp =
-    document.getElementById("firebaseTimestamp");
 
 const historyTable =
     document.getElementById("historyTable");
@@ -87,11 +57,11 @@ const historyDate =
 const clearHistory =
     document.getElementById("clearHistory");
 
-const systemBlynk =
-    document.getElementById("systemBlynk");
 
-const systemFirebase =
-    document.getElementById("systemFirebase");
+let dataConnectionState = {
+    primary: false,
+    storage: false
+};
 
 
 // ======================================================
@@ -137,6 +107,34 @@ function formatTime(timestamp) {
         second: "2-digit",
         hour12: false
     });
+}
+
+
+// ======================================================
+// CONNECTION
+// ======================================================
+
+function updateConnectionStatus() {
+
+    const connected =
+        dataConnectionState.primary ||
+        dataConnectionState.storage;
+
+    if (connectionText) {
+
+        connectionText.textContent =
+            connected
+                ? "System Connected"
+                : "Connection Error";
+    }
+
+    if (systemConnection) {
+
+        systemConnection.textContent =
+            connected
+                ? "Connected"
+                : "Disconnected";
+    }
 }
 
 
@@ -212,12 +210,98 @@ function updateDoorStatus(status) {
 
     if (doorDescription)
         doorDescription.textContent =
-            "Door status received from Blynk.";
+            "Waiting for cabinet door status.";
+
+    if (doorCircle)
+        doorCircle.style.background =
+            "#f1f5f9";
 }
 
 
 // ======================================================
-// LOAD BLYNK
+// UPDATE MONITORING CARDS
+// ======================================================
+
+function updateMonitoringCards(data) {
+
+    if (!data) return;
+
+
+    if (temperatureElement) {
+
+        temperatureElement.textContent =
+            formatNumber(data.temperature);
+    }
+
+
+    if (humidityElement) {
+
+        humidityElement.textContent =
+            formatNumber(data.humidity);
+    }
+
+
+    if (rfidAccessElement) {
+
+        rfidAccessElement.textContent =
+            data.rfidAccess ?? "--";
+    }
+
+
+    if (unauthorizedAccessElement) {
+
+        unauthorizedAccessElement.textContent =
+            data.unauthorizedAccess ?? "--";
+    }
+
+
+    if (securityAccessElement) {
+
+        securityAccessElement.textContent =
+            data.securityAccess ?? "--";
+    }
+
+
+    updateDoorStatus(
+        data.doorStatus
+    );
+
+
+    if (switchStatusElement) {
+
+        const switchValue =
+            data.switchStatus ??
+            data.SwitchStatus ??
+            data.switch_status;
+
+
+        if (
+            String(switchValue) === "1" ||
+            String(switchValue).toUpperCase() === "ON"
+        ) {
+
+            switchStatusElement.textContent =
+                "ON";
+
+        } else if (
+            String(switchValue) === "0" ||
+            String(switchValue).toUpperCase() === "OFF"
+        ) {
+
+            switchStatusElement.textContent =
+                "OFF";
+
+        } else {
+
+            switchStatusElement.textContent =
+                "--";
+        }
+    }
+}
+
+
+// ======================================================
+// LOAD CURRENT DATA
 // ======================================================
 
 async function loadBlynkData() {
@@ -227,13 +311,10 @@ async function loadBlynkData() {
         const response =
             await fetch("/api/data");
 
-
         if (!response.ok) {
-
             throw new Error(
-                "Blynk API error"
+                "Current data API error"
             );
-
         }
 
 
@@ -244,124 +325,55 @@ async function loadBlynkData() {
         if (!result.success) {
 
             throw new Error(
-                result.message
+                result.message ||
+                "Current data error"
             );
-
         }
 
 
-        const data =
-            result.data;
-
-
-        // Temperature
-
-        if (temperatureElement)
-            temperatureElement.textContent =
-                formatNumber(
-                    data.temperature
-                );
-
-
-        // Humidity
-
-        if (humidityElement)
-            humidityElement.textContent =
-                formatNumber(
-                    data.humidity
-                );
-
-
-        // RFID
-
-        if (rfidAccessElement)
-            rfidAccessElement.textContent =
-                data.rfidAccess ?? "--";
-
-
-        // Unauthorized Access
-
-        if (unauthorizedAccessElement)
-            unauthorizedAccessElement.textContent =
-                data.unauthorizedAccess ?? "--";
-
-
-        // Security
-
-        if (securityAccessElement)
-            securityAccessElement.textContent =
-                data.securityAccess ?? "--";
-
-
-        // Door
-
-        updateDoorStatus(
-            data.doorStatus
+        updateMonitoringCards(
+            result.data
         );
 
 
-        // Switch
+        dataConnectionState.primary =
+            true;
 
-        if (switchStatusElement) {
-
-            switchStatusElement.textContent =
-                Number(data.switchStatus) === 1
-                    ? "ON"
-                    : "OFF";
-
-        }
+        updateConnectionStatus();
 
 
-        // Connection
-
-        if (connectionText)
-            connectionText.textContent =
-                "Blynk Connected";
-
-
-        if (systemBlynk)
-            systemBlynk.textContent =
-                "🟢 Connected";
-
-
-        // Last Update
-
-        if (lastUpdate) {
+        if (
+            lastUpdate &&
+            result.updatedAt
+        ) {
 
             const time =
-                new Date(
-                    result.updatedAt
-                );
+                new Date(result.updatedAt);
 
-            lastUpdate.textContent =
-                time.toLocaleTimeString();
+            if (!isNaN(time.getTime())) {
 
+                lastUpdate.textContent =
+                    time.toLocaleTimeString();
+            }
         }
-
 
     } catch (error) {
 
         console.error(
-            "Blynk Error:",
+            "Current data error:",
             error
         );
 
+        dataConnectionState.primary =
+            false;
 
-        if (connectionText)
-            connectionText.textContent =
-                "Blynk Connection Error";
-
-
-        if (systemBlynk)
-            systemBlynk.textContent =
-                "🔴 Disconnected";
-
+        updateConnectionStatus();
     }
 }
 
 
 // ======================================================
-// LOAD FIREBASE CURRENT
+// LOAD STORED DATA
 // ======================================================
 
 async function loadFirebaseData() {
@@ -378,12 +390,10 @@ async function loadFirebaseData() {
                 await response.json()
                     .catch(() => ({}));
 
-
             throw new Error(
                 errorData.message ||
-                "Firebase API error"
+                "Stored data API error"
             );
-
         }
 
 
@@ -394,145 +404,66 @@ async function loadFirebaseData() {
         if (!result.success) {
 
             throw new Error(
-                result.message
+                result.message ||
+                "Stored data error"
             );
-
         }
 
 
-        const data =
-            result.data;
-
-
-        if (!data) {
+        if (!result.data) {
 
             throw new Error(
-                "Tiada data dalam Firebase /current"
+                "No current monitoring data found."
             );
-
         }
 
 
-        console.log(
-            "Firebase data:",
-            data
+        updateMonitoringCards(
+            result.data
         );
 
 
-        // Temperature
+        dataConnectionState.storage =
+            true;
 
-        if (firebaseTemperature)
-            firebaseTemperature.textContent =
-                formatNumber(
-                    data.temperature
-                );
+        updateConnectionStatus();
 
 
-        // Humidity
+        if (
+            lastUpdate &&
+            result.data.timestamp
+        ) {
 
-        if (firebaseHumidity)
-            firebaseHumidity.textContent =
-                formatNumber(
-                    data.humidity
-                );
-
-
-        // Door
-
-        if (firebaseDoor)
-            firebaseDoor.textContent =
-                data.doorStatus ?? "--";
-
-
-        // RFID
-
-        if (firebaseRfid)
-            firebaseRfid.textContent =
-                data.rfidAccess ?? "--";
-
-
-        // Unauthorized
-
-        if (firebaseUnauthorized)
-            firebaseUnauthorized.textContent =
-                data.unauthorizedAccess ?? "--";
-
-
-        // Security
-
-        if (firebaseSecurity)
-            firebaseSecurity.textContent =
-                data.securityAccess ?? "--";
-
-
-        // Switch
-
-        if (firebaseSwitch) {
-
-            firebaseSwitch.textContent =
-                Number(data.SwitchStatus) === 1
-                    ? "ON"
-                    : "OFF";
-
+            lastUpdate.textContent =
+                new Date(
+                    Number(result.data.timestamp)
+                ).toLocaleTimeString();
         }
-
-
-        // Timestamp
-
-        if (firebaseTimestamp)
-            firebaseTimestamp.textContent =
-                formatTime(
-                    data.timestamp
-                );
-
-
-        // Firebase Status
-
-        if (firebaseStatus)
-            firebaseStatus.textContent =
-                "🟢 Connected";
-
-
-        if (systemFirebase)
-            systemFirebase.textContent =
-                "🟢 Connected";
 
 
     } catch (error) {
 
         console.error(
-            "Firebase Error:",
+            "Stored data error:",
             error
         );
 
+        dataConnectionState.storage =
+            false;
 
-        if (firebaseStatus)
-            firebaseStatus.textContent =
-                "🔴 Error";
-
-
-        if (systemFirebase)
-            systemFirebase.textContent =
-                "🔴 Disconnected";
-
+        updateConnectionStatus();
     }
 }
 
 
 // ======================================================
-// FIREBASE HISTORY
+// HISTORY
 // ======================================================
 
 let allHistoryRecords = [];
 
-
-// This remembers the date currently selected
 let selectedHistoryDate = "";
 
-
-// ======================================================
-// LOAD FIREBASE HISTORY
-// ======================================================
 
 async function loadFirebaseHistory() {
 
@@ -548,12 +479,10 @@ async function loadFirebaseHistory() {
                 await response.json()
                     .catch(() => ({}));
 
-
             throw new Error(
                 errorData.message ||
                 "History API error"
             );
-
         }
 
 
@@ -564,17 +493,15 @@ async function loadFirebaseHistory() {
         if (!result.success) {
 
             throw new Error(
-                result.message
+                result.message ||
+                "History error"
             );
-
         }
 
 
         const history =
             result.data || {};
 
-
-        // Save all Firebase history
 
         allHistoryRecords =
             Object.entries(history)
@@ -584,10 +511,6 @@ async function loadFirebaseHistory() {
                         Number(a[0])
                 );
 
-
-        // ==================================================
-        // KEEP DATE FILTER AFTER AUTO REFRESH
-        // ==================================================
 
         if (selectedHistoryDate) {
 
@@ -600,14 +523,13 @@ async function loadFirebaseHistory() {
             displayHistory(
                 allHistoryRecords
             );
-
         }
 
 
     } catch (error) {
 
         console.error(
-            "Firebase History Error:",
+            "History error:",
             error
         );
 
@@ -617,13 +539,12 @@ async function loadFirebaseHistory() {
             historyTable.innerHTML = `
                 <tr>
                     <td colspan="7">
-                        Failed to load Firebase history.
+                        Failed to load
+                        monitoring history.
                     </td>
                 </tr>
             `;
-
         }
-
     }
 }
 
@@ -634,8 +555,7 @@ async function loadFirebaseHistory() {
 
 function displayHistory(records) {
 
-    if (!historyTable)
-        return;
+    if (!historyTable) return;
 
 
     if (records.length === 0) {
@@ -643,7 +563,8 @@ function displayHistory(records) {
         historyTable.innerHTML = `
             <tr>
                 <td colspan="7">
-                    No history found for this date.
+                    No history found
+                    for this date.
                 </td>
             </tr>
         `;
@@ -698,27 +619,22 @@ function displayHistory(records) {
 
                     </tr>
                 `;
-
             }
         ).join("");
-
 }
 
 
 // ======================================================
-// HISTORY DATE FILTER
+// DATE FILTER
 // ======================================================
 
-function filterHistoryByDate(selectedDate) {
-
-    // Remember selected date
+function filterHistoryByDate(
+    selectedDate
+) {
 
     selectedHistoryDate =
         selectedDate;
 
-
-    // If no date selected,
-    // show all history
 
     if (!selectedDate) {
 
@@ -745,7 +661,11 @@ function filterHistoryByDate(selectedDate) {
                     );
 
 
-                if (isNaN(date.getTime())) {
+                if (
+                    isNaN(
+                        date.getTime()
+                    )
+                ) {
                     return false;
                 }
 
@@ -770,8 +690,10 @@ function filterHistoryByDate(selectedDate) {
                     `${year}-${month}-${day}`;
 
 
-                return recordDate === selectedDate;
-
+                return (
+                    recordDate ===
+                    selectedDate
+                );
             }
         );
 
@@ -779,7 +701,6 @@ function filterHistoryByDate(selectedDate) {
     displayHistory(
         filteredRecords
     );
-
 }
 
 
@@ -810,7 +731,6 @@ function setupNavigation() {
                     section.id === id
                         ? "block"
                         : "none";
-
             }
         );
 
@@ -824,12 +744,9 @@ function setupNavigation() {
                         "href"
                     ) === `#${id}`
                 );
-
             }
         );
 
-
-        // Page title
 
         const pageTitle =
             document.getElementById(
@@ -837,31 +754,32 @@ function setupNavigation() {
             );
 
 
+        const titles = {
+
+            monitoring:
+                "Monitoring",
+
+            history:
+                "History",
+
+            system:
+                "System Information"
+        };
+
+
         if (pageTitle) {
-
-            const titles = {
-
-                dashboard:
-                    "Dashboard",
-
-                firebase:
-                    "Firebase Monitoring",
-
-                history:
-                    "Firebase History",
-
-                system:
-                    "System Information"
-
-            };
-
 
             pageTitle.textContent =
                 titles[id] ||
-                "NetGuard Dashboard";
-
+                "Monitoring";
         }
 
+
+        window.history.replaceState(
+            null,
+            "",
+            `#${id}`
+        );
     }
 
 
@@ -882,21 +800,345 @@ function setupNavigation() {
 
 
                     showSection(id);
-
                 }
             );
-
         }
     );
 
 
-    showSection("dashboard");
+    const requestedSection =
+        window.location.hash.substring(1);
 
+
+    if (
+        requestedSection &&
+        [
+            "monitoring",
+            "history",
+            "system"
+        ].includes(
+            requestedSection
+        )
+    ) {
+
+        showSection(
+            requestedSection
+        );
+
+    } else {
+
+        showSection(
+            "monitoring"
+        );
+    }
 }
 
 
 // ======================================================
-// HISTORY FILTER EVENTS
+// INFORMATION POPUP CONTENT
+// ======================================================
+
+const infoContent = {
+
+    temperature: {
+
+        icon: "🌡",
+
+        title: "Temperature",
+
+        text:
+            "Displays the current temperature inside the network cabinet. Monitoring temperature helps identify conditions that may affect network equipment.",
+
+        details:
+            "<strong>Normal:</strong> Below 30°C<br>" +
+            "<strong>Warning:</strong> 30°C – 35°C<br>" +
+            "<strong>Alarm:</strong> Above 35°C"
+    },
+
+
+    humidity: {
+
+        icon: "💧",
+
+        title: "Humidity",
+
+        text:
+            "Displays the current humidity level inside the network cabinet. High humidity can affect electronic equipment and cabinet operating conditions.",
+
+        details:
+            "<strong>Unit:</strong> Percentage (%)<br>" +
+            "The value is updated automatically during monitoring."
+    },
+
+
+    door: {
+
+        icon: "🚪",
+
+        title: "Door Status",
+
+        text:
+            "Shows whether the network cabinet door is currently open or closed.",
+
+        details:
+            "<strong>OPEN:</strong> The cabinet door is open.<br>" +
+            "<strong>CLOSED:</strong> The cabinet door is securely closed."
+    },
+
+
+    rfid: {
+
+        icon: "🔑",
+
+        title: "RFID Access",
+
+        text:
+            "Displays the latest RFID access detected by the cabinet security system. RFID is used to control and monitor cabinet access.",
+
+        details:
+            "Authorized access can be recorded as an access event, while unknown or unauthorized cards can be monitored as security events."
+    },
+
+
+    unauthorized: {
+
+        icon: "⚠",
+
+        title: "Unauthorized Access",
+
+        text:
+            "Shows the number of unauthorized access attempts detected by the cabinet security system.",
+
+        details:
+            "The value helps identify repeated unsuccessful access attempts and supports cabinet security monitoring."
+    },
+
+
+    security: {
+
+        icon: "🛡",
+
+        title: "Security Access",
+
+        text:
+            "Shows the current security condition of the network cabinet.",
+
+        details:
+            "<strong>SAFE:</strong> No current security concern.<br>" +
+            "<strong>WARNING:</strong> A security event requires attention.<br>" +
+            "<strong>ALARM:</strong> A serious security event has been detected."
+    },
+
+
+    switch: {
+
+        icon: "🔌",
+
+        title: "Network Switch",
+
+        text:
+            "Displays the current ON or OFF status of the network switch connected to the monitoring system.",
+
+        details:
+            "<strong>ON:</strong> Network switch is active.<br>" +
+            "<strong>OFF:</strong> Network switch is inactive."
+    },
+
+
+    camera: {
+
+        icon: "📷",
+
+        title: "Live Camera",
+
+        text:
+            "Provides a live visual view of the network cabinet using the ESP32-CAM.",
+
+        details:
+            "The camera helps the user visually check the cabinet condition and observe activity around the monitored cabinet."
+    }
+};
+
+
+// ======================================================
+// INFORMATION MODAL
+// ======================================================
+
+function setupInfoModal() {
+
+    const modal =
+        document.getElementById(
+            "infoModal"
+        );
+
+    const overlay =
+        document.getElementById(
+            "infoModalOverlay"
+        );
+
+    const closeButton =
+        document.getElementById(
+            "modalClose"
+        );
+
+    const doneButton =
+        document.getElementById(
+            "modalDone"
+        );
+
+    const title =
+        document.getElementById(
+            "infoModalTitle"
+        );
+
+    const text =
+        document.getElementById(
+            "infoModalText"
+        );
+
+    const icon =
+        document.getElementById(
+            "infoModalIcon"
+        );
+
+    const details =
+        document.getElementById(
+            "infoModalDetails"
+        );
+
+
+    const buttons =
+        document.querySelectorAll(
+            "[data-info]"
+        );
+
+
+    function closeModal() {
+
+        if (!modal) return;
+
+        modal.classList.remove(
+            "open"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+    }
+
+
+    function openModal(type) {
+
+        const content =
+            infoContent[type];
+
+        if (
+            !content ||
+            !modal
+        ) {
+            return;
+        }
+
+
+        icon.textContent =
+            content.icon;
+
+        title.textContent =
+            content.title;
+
+        text.textContent =
+            content.text;
+
+        details.innerHTML =
+            content.details;
+
+
+        modal.classList.add(
+            "open"
+        );
+
+        modal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+        document.body.classList.add(
+            "modal-open"
+        );
+
+
+        if (closeButton) {
+            closeButton.focus();
+        }
+    }
+
+
+    buttons.forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.stopPropagation();
+
+                    openModal(
+                        button.dataset.info
+                    );
+                }
+            );
+        }
+    );
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeModal
+        );
+    }
+
+
+    if (doneButton) {
+
+        doneButton.addEventListener(
+            "click",
+            closeModal
+        );
+    }
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closeModal
+        );
+    }
+
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Escape"
+            ) {
+                closeModal();
+            }
+        }
+    );
+}
+
+
+// ======================================================
+// HISTORY EVENTS
 // ======================================================
 
 if (historyDate) {
@@ -908,16 +1150,10 @@ if (historyDate) {
             filterHistoryByDate(
                 historyDate.value
             );
-
         }
     );
-
 }
 
-
-// ======================================================
-// CLEAR HISTORY FILTER
-// ======================================================
 
 if (clearHistory) {
 
@@ -925,27 +1161,18 @@ if (clearHistory) {
         "click",
         () => {
 
-            // Remove saved date filter
-
-            selectedHistoryDate = "";
-
-
-            // Clear date input
+            selectedHistoryDate =
+                "";
 
             if (historyDate) {
                 historyDate.value = "";
             }
 
-
-            // Show all records
-
             displayHistory(
                 allHistoryRecords
             );
-
         }
     );
-
 }
 
 
@@ -959,8 +1186,7 @@ document.addEventListener(
 
         setupNavigation();
 
-
-        // Initial loading
+        setupInfoModal();
 
         loadBlynkData();
 
@@ -969,21 +1195,11 @@ document.addEventListener(
         loadFirebaseHistory();
 
 
-        // ==================================================
-        // BLYNK REFRESH
-        // Every 30 seconds
-        // ==================================================
-
         setInterval(
             loadBlynkData,
             UPDATE_INTERVAL
         );
 
-
-        // ==================================================
-        // FIREBASE CURRENT REFRESH
-        // Every 30 seconds
-        // ==================================================
 
         setInterval(
             loadFirebaseData,
@@ -991,17 +1207,9 @@ document.addEventListener(
         );
 
 
-        // ==================================================
-        // FIREBASE HISTORY REFRESH
-        // Every 10 seconds
-        //
-        // The selected date will NOT disappear anymore.
-        // ==================================================
-
         setInterval(
             loadFirebaseHistory,
             10000
         );
-
     }
 );
