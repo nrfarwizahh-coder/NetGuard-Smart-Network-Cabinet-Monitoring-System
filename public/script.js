@@ -218,7 +218,7 @@ function updateDoorStatus(status) {
 }
 
 
-// ======================================================
+/// ======================================================
 // UPDATE MONITORING CARDS
 // ======================================================
 
@@ -226,35 +226,65 @@ function updateMonitoringCards(data) {
 
     if (!data) return;
 
-
+    // ==================================================
     // TEMPERATURE
+    // ==================================================
 
     if (temperatureElement) {
-
         temperatureElement.textContent =
             formatNumber(data.temperature);
     }
 
 
+    // ==================================================
     // HUMIDITY
+    // ==================================================
 
     if (humidityElement) {
-
         humidityElement.textContent =
             formatNumber(data.humidity);
     }
 
 
-    // RFID
+    // ==================================================
+    // RFID ACCESS
+    // ==================================================
 
     if (rfidAccessElement) {
 
-        rfidAccessElement.textContent =
-            data.rfidAccess ?? "--";
+        const currentUser =
+            data.currentUser;
+
+        const rfid =
+            data.rfidAccess;
+
+        if (
+            currentUser &&
+            currentUser !== "NONE"
+        ) {
+
+            rfidAccessElement.textContent =
+                currentUser;
+
+        } else if (
+            rfid &&
+            rfid !== "NONE"
+        ) {
+
+            rfidAccessElement.textContent =
+                rfid;
+
+        } else {
+
+            rfidAccessElement.textContent =
+                "NONE";
+        }
     }
 
 
-    // UNAUTHORIZED
+    // ==================================================
+    // UNAUTHORIZED ACCESS
+    // ==================================================
 
     if (unauthorizedAccessElement) {
 
@@ -263,7 +293,9 @@ function updateMonitoringCards(data) {
     }
 
 
-    // SECURITY
+    // ==================================================
+    // SECURITY ACCESS
+    // ==================================================
 
     if (securityAccessElement) {
 
@@ -272,22 +304,23 @@ function updateMonitoringCards(data) {
     }
 
 
-    // DOOR
+    // ==================================================
+    // DOOR STATUS
+    // ==================================================
 
     updateDoorStatus(
         data.doorStatus
     );
 
 
+    // ==================================================
     // NETWORK SWITCH
+    // ==================================================
 
     if (switchStatusElement) {
 
         const switchValue =
-            data.switchStatus ??
-            data.SwitchStatus ??
-            data.switch_status;
-
+            data.switchStatus;
 
         if (
             String(switchValue) === "1" ||
@@ -313,7 +346,9 @@ function updateMonitoringCards(data) {
     }
 
 
+    // ==================================================
     // G0/0
+    // ==================================================
 
     const g00Element =
         document.getElementById("g0/0");
@@ -321,27 +356,20 @@ function updateMonitoringCards(data) {
     if (g00Element) {
 
         const g00Value =
-            data.g00 ??
-            data.G00 ??
-            data["g0/0"] ??
-            data.g0_0 ??
-            data.g0_0_status;
+            data.g0 &&
+            data.g0[0]
+                ? data.g0[0].status
+                : null;
 
-        if (
-            String(g00Value) === "1" ||
-            String(g00Value).toUpperCase() === "ON"
-        ) {
+        if (String(g00Value) === "1") {
 
             g00Element.textContent =
-                "ON";
+                "UP";
 
-        } else if (
-            String(g00Value) === "0" ||
-            String(g00Value).toUpperCase() === "OFF"
-        ) {
+        } else if (String(g00Value) === "0") {
 
             g00Element.textContent =
-                "OFF";
+                "DOWN";
 
         } else {
 
@@ -351,7 +379,9 @@ function updateMonitoringCards(data) {
     }
 
 
+    // ==================================================
     // G0/1
+    // ==================================================
 
     const g01Element =
         document.getElementById("g0/1");
@@ -359,27 +389,20 @@ function updateMonitoringCards(data) {
     if (g01Element) {
 
         const g01Value =
-            data.g01 ??
-            data.G01 ??
-            data["g0/1"] ??
-            data.g0_1 ??
-            data.g0_1_status;
+            data.g0 &&
+            data.g0[1]
+                ? data.g0[1].status
+                : null;
 
-        if (
-            String(g01Value) === "1" ||
-            String(g01Value).toUpperCase() === "ON"
-        ) {
+        if (String(g01Value) === "1") {
 
             g01Element.textContent =
-                "ON";
+                "UP";
 
-        } else if (
-            String(g01Value) === "0" ||
-            String(g01Value).toUpperCase() === "OFF"
-        ) {
+        } else if (String(g01Value) === "0") {
 
             g01Element.textContent =
-                "OFF";
+                "DOWN";
 
         } else {
 
@@ -388,7 +411,6 @@ function updateMonitoringCards(data) {
         }
     }
 }
-
 
 // ======================================================
 // LOAD CURRENT DATA
