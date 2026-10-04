@@ -487,17 +487,11 @@ body {
 
 .camera-card {
     width: 100%;
-
     margin-top: 30px;
-
-    margin-bottom: 40px;
-
+    margin-bottom: 30px;
     padding: 25px;
-
     background: white;
-
     border-radius: 18px;
-
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
@@ -508,38 +502,32 @@ body {
 
 .camera-header {
     width: 100%;
-
     display: flex;
-
     justify-content: space-between;
     align-items: center;
-
     margin-bottom: 18px;
 }
 
 .camera-header h3 {
     font-size: 24px;
-
     margin: 0;
 }
 
 .camera-status {
     font-size: 14px;
-
     font-weight: 700;
-
     color: #16a34a;
 }
 
 
 /* =========================================================
-   CAMERA CONTAINER
+   CAMERA IMAGE
 ========================================================= */
 
 .camera-container {
     width: 450px;
     height: 250px;
-    margin: 0 auto 50px auto;
+    margin: 0 auto;
     overflow: hidden;
     border-radius: 10px;
     background: #111827;
@@ -551,7 +539,6 @@ body {
     object-fit: cover;
     display: block;
 }
-
 
 
 /* =========================================================
