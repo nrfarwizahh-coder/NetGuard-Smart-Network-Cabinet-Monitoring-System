@@ -385,115 +385,62 @@ function updateMonitoringCards(data) {
     }
 
 
-    // ==================================================
-    // G0/0
-    // ======================================================
+// ======================================================
+// G0/0 STATUS
+// ======================================================
 
-    const g00Element =
-        document.getElementById("g0/0");
+const g00Element = document.getElementById("g0/0");
 
+if (g00Element) {
 
-    if (g00Element) {
+    let g00Value = null;
 
-        let g00Value = null;
-
-
-        // Firebase structure:
-        // g0
-        //   0
-        //     status
-
-        if (
-            data.g0 &&
-            data.g0[0] &&
-            data.g0[0].status !== undefined
-        ) {
-
-            g00Value =
-                data.g0[0].status;
-
-        }
-
-
-        // Alternative direct value
-
-        else if (
-            data.g00 !== undefined
-        ) {
-
-            g00Value =
-                data.g00;
-
-        }
-
-
-        if (String(g00Value) === "1") {
-
-            g00Element.textContent =
-                "UP";
-
-        } else if (String(g00Value) === "0") {
-
-            g00Element.textContent =
-                "DOWN";
-
-        }
+    if (
+        data.g0 &&
+        data.g0["0"] &&
+        data.g0["0"].status !== undefined
+    ) {
+        g00Value = data.g0["0"].status;
     }
 
-
-    // ==================================================
-    // G0/1
-    // ======================================================
-
-    const g01Element =
-        document.getElementById("g0/1");
-
-
-    if (g01Element) {
-
-        let g01Value = null;
+    if (String(g00Value) === "1") {
+        g00Element.textContent = "UP";
+    } 
+    else if (String(g00Value) === "0") {
+        g00Element.textContent = "DOWN";
+    } 
+    else {
+        g00Element.textContent = "--";
+    }
+}
 
 
-        // Firebase structure:
-        // g0
-        //   1
-        //     status
+// ======================================================
+// G0/1 STATUS
+// ======================================================
 
-        if (
-            data.g0 &&
-            data.g0[1] &&
-            data.g0[1].status !== undefined
-        ) {
+const g01Element = document.getElementById("g0/1");
 
-            g01Value =
-                data.g0[1].status;
+if (g01Element) {
 
-        }
+    let g01Value = null;
 
+    if (
+        data.g0 &&
+        data.g0["1"] &&
+        data.g0["1"].status !== undefined
+    ) {
+        g01Value = data.g0["1"].status;
+    }
 
-        // Alternative direct value
-
-        else if (
-            data.g01 !== undefined
-        ) {
-
-            g01Value =
-                data.g01;
-
-        }
-
-
-        if (String(g01Value) === "1") {
-
-            g01Element.textContent =
-                "UP";
-
-        } else if (String(g01Value) === "0") {
-
-            g01Element.textContent =
-                "DOWN";
-
-        }
+    if (String(g01Value) === "1") {
+        g01Element.textContent = "UP";
+    } 
+    else if (String(g01Value) === "0") {
+        g01Element.textContent = "DOWN";
+    } 
+    else {
+        g01Element.textContent = "--";
     }
 }
 
@@ -1495,3 +1442,4 @@ document.addEventListener(
 
     }
 );
+}
