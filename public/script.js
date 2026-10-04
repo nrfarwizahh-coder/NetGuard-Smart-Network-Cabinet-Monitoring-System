@@ -877,7 +877,7 @@ function setupNavigation() {
                 "History",
 
             system:
-                "System Information"
+                "System"
         };
 
 
