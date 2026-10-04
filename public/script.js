@@ -142,14 +142,10 @@ navLinks.forEach(link => {
         event.preventDefault();
 
 
-        // Remove active from all links
-
         navLinks.forEach(item => {
             item.classList.remove("active");
         });
 
-
-        // Add active to clicked link
 
         this.classList.add("active");
 
@@ -258,11 +254,6 @@ function updateMonitoringCards(data) {
 
 
     if (!data) {
-
-        console.log(
-            "No monitoring data received."
-        );
-
         return;
     }
 
@@ -422,20 +413,7 @@ function updateMonitoringCards(data) {
             );
 
 
-        console.log(
-            "G0/0:",
-            port0
-        );
-
-        console.log(
-            "G0/1:",
-            port1
-        );
-
-
-        // ==================================================
         // G0/0
-        // ==================================================
 
         if (port0 === 1) {
 
@@ -455,9 +433,7 @@ function updateMonitoringCards(data) {
         }
 
 
-        // ==================================================
         // G0/1
-        // ==================================================
 
         if (port1 === 1) {
 
@@ -477,9 +453,7 @@ function updateMonitoringCards(data) {
         }
 
 
-        // ==================================================
         // NETWORK SWITCH
-        // ==================================================
 
         if (
             port0 === 1 ||
@@ -581,15 +555,117 @@ async function loadBlynkData() {
 
 async function loadAllData() {
 
-    console.log(
-        "Loading NetGuard data..."
-    );
-
-
     await Promise.all([
         loadFirebaseData(),
         loadBlynkData()
     ]);
+
+}
+
+
+// ======================================================
+// HISTORY
+// ======================================================
+
+// Get a value using several possible Firebase field names
+
+function getHistoryValue(record, names) {
+
+    for (const name of names) {
+
+        if (
+            record[name] !== undefined &&
+            record[name] !== null &&
+            record[name] !== ""
+        ) {
+
+            return record[name];
+
+        }
+
+    }
+
+    return null;
+
+}
+
+
+// ======================================================
+// FORMAT HISTORY DATE/TIME
+// ======================================================
+
+function formatHistoryTime(record) {
+
+    const value =
+        getHistoryValue(
+            record,
+            [
+                "time",
+                "timestamp",
+                "dateTime",
+                "datetime",
+                "date",
+                "createdAt"
+            ]
+        );
+
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+
+        return "--";
+
+    }
+
+
+    // Firebase timestamp number
+
+    if (
+        typeof value === "number" ||
+        !isNaN(Number(value))
+    ) {
+
+        const numberValue =
+            Number(value);
+
+
+        // Firebase timestamps are normally milliseconds.
+        // If it is a smaller value, convert seconds to milliseconds.
+
+        const date =
+            new Date(
+                numberValue < 10000000000
+                    ? numberValue * 1000
+                    : numberValue
+            );
+
+
+        if (!isNaN(date.getTime())) {
+
+            return date.toLocaleString();
+
+        }
+
+    }
+
+
+    // Date string
+
+    const date =
+        new Date(value);
+
+
+    if (!isNaN(date.getTime())) {
+
+        return date.toLocaleString();
+
+    }
+
+
+    return String(value);
 
 }
 
@@ -652,6 +728,12 @@ async function loadHistory() {
                 : Object.values(result.data);
 
 
+        console.log(
+            "History records:",
+            records
+        );
+
+
         // ==================================================
         // DATE FILTER
         // ==================================================
@@ -668,15 +750,72 @@ async function loadHistory() {
             records =
                 records.filter(record => {
 
-                    if (!record.time) {
+                    const timeValue =
+                        getHistoryValue(
+                            record,
+                            [
+                                "time",
+                                "timestamp",
+                                "dateTime",
+                                "datetime",
+                                "date",
+                                "createdAt"
+                            ]
+                        );
+
+
+                    if (
+                        timeValue === null ||
+                        timeValue === undefined
+                    ) {
+
                         return false;
+
                     }
 
-                    return String(
-                        record.time
-                    ).startsWith(
-                        selectedDate
-                    );
+
+                    const date =
+                        new Date(
+                            Number(timeValue)
+                                ? (
+                                    Number(timeValue) < 10000000000
+                                        ? Number(timeValue) * 1000
+                                        : Number(timeValue)
+                                  )
+                                : timeValue
+                        );
+
+
+                    if (isNaN(date.getTime())) {
+
+                        return String(
+                            timeValue
+                        ).startsWith(
+                            selectedDate
+                        );
+
+                    }
+
+
+                    const year =
+                        date.getFullYear();
+
+                    const month =
+                        String(
+                            date.getMonth() + 1
+                        ).padStart(2, "0");
+
+                    const day =
+                        String(
+                            date.getDate()
+                        ).padStart(2, "0");
+
+
+                    const formattedDate =
+                        `${year}-${month}-${day}`;
+
+
+                    return formattedDate === selectedDate;
 
                 });
 
@@ -701,40 +840,112 @@ async function loadHistory() {
         historyTable.innerHTML = "";
 
 
+        // ==================================================
+        // DISPLAY RECORDS
+        // ==================================================
+
         records.forEach(record => {
 
             const row =
                 document.createElement("tr");
 
 
+            const time =
+                formatHistoryTime(record);
+
+
+            const temperature =
+                getHistoryValue(
+                    record,
+                    [
+                        "temperature",
+                        "temp"
+                    ]
+                );
+
+
+            const humidity =
+                getHistoryValue(
+                    record,
+                    [
+                        "humidity",
+                        "humid"
+                    ]
+                );
+
+
+            const door =
+                getHistoryValue(
+                    record,
+                    [
+                        "door",
+                        "doorStatus",
+                        "door_status"
+                    ]
+                );
+
+
+            const rfid =
+                getHistoryValue(
+                    record,
+                    [
+                        "rfid",
+                        "rfidAccess",
+                        "rfid_access"
+                    ]
+                );
+
+
+            const unauthorized =
+                getHistoryValue(
+                    record,
+                    [
+                        "unauthorized",
+                        "unauthorizedAccess",
+                        "unauthorized_access"
+                    ]
+                );
+
+
+            const security =
+                getHistoryValue(
+                    record,
+                    [
+                        "security",
+                        "securityAccess",
+                        "security_access"
+                    ]
+                );
+
+
             row.innerHTML = `
 
                 <td>
-                    ${record.time ?? "--"}
+                    ${time}
                 </td>
 
                 <td>
-                    ${record.temperature ?? "--"}
+                    ${temperature ?? "--"}
                 </td>
 
                 <td>
-                    ${record.humidity ?? "--"}
+                    ${humidity ?? "--"}
                 </td>
 
                 <td>
-                    ${record.door ?? "--"}
+                    ${door ?? "--"}
                 </td>
 
                 <td>
-                    ${record.rfid ?? "--"}
+                    ${rfid ?? "--"}
                 </td>
 
                 <td>
-                    ${record.unauthorized ?? "--"}
+                    ${unauthorized ?? "--"}
                 </td>
 
                 <td>
-                    ${record.security ?? "--"}
+                    ${security ?? "--"}
                 </td>
 
             `;
