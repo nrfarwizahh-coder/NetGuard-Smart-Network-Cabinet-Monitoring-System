@@ -228,22 +228,25 @@ function updateDoorStatus(status) {
 
 function updateMonitoringCards(data) {
 
-    if (!data) return;
+    if (!data) {
+        console.warn("No Firebase data received");
+        return;
+    }
 
 
     // ==================================================
     // TEMPERATURE
     // ==================================================
 
-    if (
-        data.temperature !== undefined &&
-        data.temperature !== null
-    ) {
+    if (temperatureElement) {
 
-        if (temperatureElement) {
+        const temperature = Number(data.temperature);
 
+        if (!isNaN(temperature)) {
             temperatureElement.textContent =
-                formatNumber(data.temperature);
+                `${temperature.toFixed(1)}°C`;
+        } else {
+            temperatureElement.textContent = "--";
         }
     }
 
@@ -252,88 +255,16 @@ function updateMonitoringCards(data) {
     // HUMIDITY
     // ==================================================
 
-    if (
-        data.humidity !== undefined &&
-        data.humidity !== null
-    ) {
+    if (humidityElement) {
 
-        if (humidityElement) {
+        const humidity = Number(data.humidity);
 
+        if (!isNaN(humidity)) {
             humidityElement.textContent =
-                formatNumber(data.humidity);
+                `${humidity.toFixed(0)}%`;
+        } else {
+            humidityElement.textContent = "--";
         }
-    }
-
-
-    // ==================================================
-    // RFID ACCESS
-    // ==================================================
-
-    const currentUser =
-        data.currentUser;
-
-    const rfid =
-        data.rfidAccess;
-
-
-    if (rfidAccessElement) {
-
-        if (
-            currentUser &&
-            currentUser !== "NONE"
-        ) {
-
-            rfidAccessElement.textContent =
-                currentUser;
-
-        }
-        else if (
-            rfid &&
-            rfid !== "NONE"
-        ) {
-
-            rfidAccessElement.textContent =
-                rfid;
-
-        }
-        else if (
-            currentUser === "NONE" ||
-            rfid === "NONE"
-        ) {
-
-            rfidAccessElement.textContent =
-                "NONE";
-        }
-    }
-
-
-    // ==================================================
-    // UNAUTHORIZED ACCESS
-    // ==================================================
-
-    if (
-        unauthorizedAccessElement &&
-        data.unauthorizedAccess !== undefined &&
-        data.unauthorizedAccess !== null
-    ) {
-
-        unauthorizedAccessElement.textContent =
-            data.unauthorizedAccess;
-    }
-
-
-    // ==================================================
-    // SECURITY ACCESS
-    // ==================================================
-
-    if (
-        securityAccessElement &&
-        data.securityAccess !== undefined &&
-        data.securityAccess !== null
-    ) {
-
-        securityAccessElement.textContent =
-            data.securityAccess;
     }
 
 
@@ -341,45 +272,104 @@ function updateMonitoringCards(data) {
     // DOOR STATUS
     // ==================================================
 
-    if (
-        data.doorStatus !== undefined &&
-        data.doorStatus !== null
-    ) {
+    const doorStatus =
+        String(data.doorStatus || "").toUpperCase();
 
-        updateDoorStatus(
-            data.doorStatus
-        );
+    updateDoorStatus(doorStatus);
+
+
+    // ==================================================
+    // RFID ACCESS
+    // ==================================================
+
+    if (rfidAccess) {
+
+        rfidAccess.textContent =
+            data.rfidAccess || "NONE";
     }
 
 
     // ==================================================
-    // NETWORK SWITCH
+    // UNAUTHORIZED ACCESS
     // ==================================================
 
-    if (switchStatusElement) {
+    if (unauthorizedAccess) {
 
-        const switchValue =
-            data.switchStatus !== undefined
-                ? data.switchStatus
-                : data.SwitchStatus;
+        const unauthorized =
+            Number(data.unauthorizedAccess);
+
+        unauthorizedAccess.textContent =
+            !isNaN(unauthorized)
+                ? unauthorized
+                : "0";
+    }
 
 
-        if (
-            String(switchValue) === "1" ||
-            String(switchValue).toUpperCase() === "ON"
-        ) {
+    // ==================================================
+    // SECURITY ACCESS
+    // ==================================================
 
-            switchStatusElement.textContent =
-                "ON";
+    if (securityAccess) {
 
-        }
-        else if (
-            String(switchValue) === "0" ||
-            String(switchValue).toUpperCase() === "OFF"
-        ) {
+        securityAccess.textContent =
+            data.securityAccess || "SAFE";
+    }
 
-            switchStatusElement.textContent =
-                "OFF";
+
+    // ==================================================
+    // SWITCH STATUS
+    // ==================================================
+    // Firebase structure:
+    //
+    // "switchStatus": {
+    //     "0 status": 0,
+    //     "1 status": 1
+    // }
+    //
+    // 0 = DOWN
+    // 1 = UP
+    // ==================================================
+
+    if (switchStatus) {
+
+        const switchData =
+            data.switchStatus;
+
+        if (switchData && typeof switchData === "object") {
+
+            const port0 =
+                switchData["0 status"];
+
+            const port1 =
+                switchData["1 status"];
+
+            if (
+                String(port0) === "1" &&
+                String(port1) === "1"
+            ) {
+
+                switchStatus.textContent = "ON";
+
+            } else if (
+                String(port0) === "0" &&
+                String(port1) === "0"
+            ) {
+
+                switchStatus.textContent = "OFF";
+
+            } else {
+
+                switchStatus.textContent = "PARTIAL";
+            }
+
+        } else {
+
+            switchStatus.textContent =
+                String(switchData) === "1"
+                    ? "ON"
+                    : String(switchData) === "0"
+                        ? "OFF"
+                        : "--";
         }
     }
 
@@ -387,46 +377,37 @@ function updateMonitoringCards(data) {
     // ==================================================
     // G0/0 STATUS
     // ==================================================
+    // Firebase:
+    //
+    // "g0": {
+    //     "0 status": 0,
+    //     "1 status": 1
+    // }
+    //
+    // G0/0:
+    // 0 = DOWN
+    // 1 = UP
+    // ==================================================
 
     const g00Element =
         document.getElementById("g0/0");
 
     if (g00Element) {
 
-        let g00Value = null;
+        const g00Status =
+            data.g0?.["0 status"];
 
+        if (String(g00Status) === "1") {
 
-        if (
-            data.g0 &&
-            data.g0["0"] &&
-            data.g0["0"].status !== undefined
-        ) {
+            g00Element.textContent = "UP";
 
-            g00Value =
-                data.g0["0"].status;
-        }
+        } else if (String(g00Status) === "0") {
 
+            g00Element.textContent = "DOWN";
 
-        if (
-            String(g00Value) === "1"
-        ) {
+        } else {
 
-            g00Element.textContent =
-                "UP";
-
-        }
-        else if (
-            String(g00Value) === "0"
-        ) {
-
-            g00Element.textContent =
-                "DOWN";
-
-        }
-        else {
-
-            g00Element.textContent =
-                "--";
+            g00Element.textContent = "--";
         }
     }
 
@@ -440,44 +421,44 @@ function updateMonitoringCards(data) {
 
     if (g01Element) {
 
-        let g01Value = null;
+        const g01Status =
+            data.g0?.["1 status"];
 
+        if (String(g01Status) === "1") {
 
-        if (
-            data.g0 &&
-            data.g0["1"] &&
-            data.g0["1"].status !== undefined
-        ) {
+            g01Element.textContent = "UP";
 
-            g01Value =
-                data.g0["1"].status;
-        }
+        } else if (String(g01Status) === "0") {
 
+            g01Element.textContent = "DOWN";
 
-        if (
-            String(g01Value) === "1"
-        ) {
+        } else {
 
-            g01Element.textContent =
-                "UP";
-
-        }
-        else if (
-            String(g01Value) === "0"
-        ) {
-
-            g01Element.textContent =
-                "DOWN";
-
-        }
-        else {
-
-            g01Element.textContent =
-                "--";
+            g01Element.textContent = "--";
         }
     }
-}
 
+
+    // ==================================================
+    // LAST UPDATE
+    // ==================================================
+
+    if (lastUpdate) {
+
+        lastUpdate.textContent =
+            `Last update: ${formatTime(new Date())}`;
+    }
+
+
+    // ==================================================
+    // CONNECTION STATUS
+    // ==================================================
+
+    dataConnectionState.storage = true;
+
+    updateConnectionStatus();
+
+}
 
 // ======================================================
 // LOAD BLYNK DATA
@@ -1489,3 +1470,39 @@ document.addEventListener(
 
     }
 );
+// ======================================================
+// LOGOUT
+// ======================================================
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                await signOut(auth);
+
+                window.location.href =
+                    "index.html";
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+                alert(
+                    "Logout failed. Please try again."
+                );
+            }
+
+        }
+    );
+}
