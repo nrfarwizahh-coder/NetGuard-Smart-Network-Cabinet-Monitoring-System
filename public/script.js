@@ -187,12 +187,10 @@ function updateDoorStatus(status) {
     ) {
 
         if (doorStatusElement)
-            doorStatusElement.textContent =
-                "CLOSED";
+            doorStatusElement.textContent = "CLOSED";
 
         if (doorStatusLarge)
-            doorStatusLarge.textContent =
-                "CLOSED";
+            doorStatusLarge.textContent = "CLOSED";
 
         if (doorDescription)
             doorDescription.textContent =
@@ -288,7 +286,8 @@ function updateMonitoringCards(data) {
             rfidAccessElement.textContent =
                 currentUser;
 
-        } else if (
+        }
+        else if (
             rfid &&
             rfid !== "NONE"
         ) {
@@ -296,7 +295,8 @@ function updateMonitoringCards(data) {
             rfidAccessElement.textContent =
                 rfid;
 
-        } else if (
+        }
+        else if (
             currentUser === "NONE" ||
             rfid === "NONE"
         ) {
@@ -313,7 +313,8 @@ function updateMonitoringCards(data) {
 
     if (
         unauthorizedAccessElement &&
-        data.unauthorizedAccess !== undefined
+        data.unauthorizedAccess !== undefined &&
+        data.unauthorizedAccess !== null
     ) {
 
         unauthorizedAccessElement.textContent =
@@ -327,7 +328,8 @@ function updateMonitoringCards(data) {
 
     if (
         securityAccessElement &&
-        data.securityAccess !== undefined
+        data.securityAccess !== undefined &&
+        data.securityAccess !== null
     ) {
 
         securityAccessElement.textContent =
@@ -356,10 +358,6 @@ function updateMonitoringCards(data) {
 
     if (switchStatusElement) {
 
-        // Supports both:
-        // Blynk/server: switchStatus
-        // Firebase: SwitchStatus
-
         const switchValue =
             data.switchStatus !== undefined
                 ? data.switchStatus
@@ -374,7 +372,8 @@ function updateMonitoringCards(data) {
             switchStatusElement.textContent =
                 "ON";
 
-        } else if (
+        }
+        else if (
             String(switchValue) === "0" ||
             String(switchValue).toUpperCase() === "OFF"
         ) {
@@ -385,62 +384,97 @@ function updateMonitoringCards(data) {
     }
 
 
-// ======================================================
-// G0/0 STATUS
-// ======================================================
+    // ==================================================
+    // G0/0 STATUS
+    // ==================================================
 
-const g00Element = document.getElementById("g0/0");
+    const g00Element =
+        document.getElementById("g0/0");
 
-if (g00Element) {
+    if (g00Element) {
 
-    let g00Value = null;
+        let g00Value = null;
 
-    if (
-        data.g0 &&
-        data.g0["0"] &&
-        data.g0["0"].status !== undefined
-    ) {
-        g00Value = data.g0["0"].status;
+
+        if (
+            data.g0 &&
+            data.g0["0"] &&
+            data.g0["0"].status !== undefined
+        ) {
+
+            g00Value =
+                data.g0["0"].status;
+        }
+
+
+        if (
+            String(g00Value) === "1"
+        ) {
+
+            g00Element.textContent =
+                "UP";
+
+        }
+        else if (
+            String(g00Value) === "0"
+        ) {
+
+            g00Element.textContent =
+                "DOWN";
+
+        }
+        else {
+
+            g00Element.textContent =
+                "--";
+        }
     }
 
-    if (String(g00Value) === "1") {
-        g00Element.textContent = "UP";
-    } 
-    else if (String(g00Value) === "0") {
-        g00Element.textContent = "DOWN";
-    } 
-    else {
-        g00Element.textContent = "--";
-    }
-}
+
+    // ==================================================
+    // G0/1 STATUS
+    // ==================================================
+
+    const g01Element =
+        document.getElementById("g0/1");
+
+    if (g01Element) {
+
+        let g01Value = null;
 
 
-// ======================================================
-// G0/1 STATUS
-// ======================================================
+        if (
+            data.g0 &&
+            data.g0["1"] &&
+            data.g0["1"].status !== undefined
+        ) {
 
-const g01Element = document.getElementById("g0/1");
+            g01Value =
+                data.g0["1"].status;
+        }
 
-if (g01Element) {
 
-    let g01Value = null;
+        if (
+            String(g01Value) === "1"
+        ) {
 
-    if (
-        data.g0 &&
-        data.g0["1"] &&
-        data.g0["1"].status !== undefined
-    ) {
-        g01Value = data.g0["1"].status;
-    }
+            g01Element.textContent =
+                "UP";
 
-    if (String(g01Value) === "1") {
-        g01Element.textContent = "UP";
-    } 
-    else if (String(g01Value) === "0") {
-        g01Element.textContent = "DOWN";
-    } 
-    else {
-        g01Element.textContent = "--";
+        }
+        else if (
+            String(g01Value) === "0"
+        ) {
+
+            g01Element.textContent =
+                "DOWN";
+
+        }
+        else {
+
+            g01Element.textContent =
+                "--";
+        }
     }
 }
 
@@ -478,6 +512,7 @@ async function loadBlynkData() {
         }
 
 
+        // Blynk data
         updateMonitoringCards(
             result.data
         );
@@ -495,7 +530,9 @@ async function loadBlynkData() {
         ) {
 
             const time =
-                new Date(result.updatedAt);
+                new Date(
+                    result.updatedAt
+                );
 
 
             if (!isNaN(time.getTime())) {
@@ -506,7 +543,8 @@ async function loadBlynkData() {
         }
 
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Current data error:",
@@ -569,6 +607,10 @@ async function loadFirebaseData() {
         }
 
 
+        // Firebase data
+        // This updates Firebase-specific values
+        // such as G0/0 and G0/1.
+
         updateMonitoringCards(
             result.data
         );
@@ -580,8 +622,9 @@ async function loadFirebaseData() {
         updateConnectionStatus();
 
 
-        // Firebase uses lastUpdate
-        // instead of timestamp
+        // ==================================================
+        // FIREBASE LAST UPDATE
+        // ==================================================
 
         const firebaseTimestamp =
             result.data.lastUpdate ||
@@ -607,7 +650,8 @@ async function loadFirebaseData() {
         }
 
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "Stored data error:",
@@ -686,7 +730,8 @@ async function loadFirebaseHistory() {
                 selectedHistoryDate
             );
 
-        } else {
+        }
+        else {
 
             displayHistory(
                 allHistoryRecords
@@ -694,7 +739,8 @@ async function loadFirebaseHistory() {
         }
 
 
-    } catch (error) {
+    }
+    catch (error) {
 
         console.error(
             "History error:",
@@ -992,7 +1038,8 @@ function setupNavigation() {
             requestedSection
         );
 
-    } else {
+    }
+    else {
 
         showSection(
             "monitoring"
@@ -1442,4 +1489,3 @@ document.addEventListener(
 
     }
 );
-}
