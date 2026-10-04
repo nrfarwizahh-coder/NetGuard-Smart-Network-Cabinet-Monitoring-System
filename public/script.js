@@ -70,8 +70,7 @@ let dataConnectionState = {
 
 function formatNumber(value) {
 
-    const number =
-        parseFloat(value);
+    const number = parseFloat(value);
 
     if (isNaN(number)) {
         return "--";
@@ -91,8 +90,7 @@ function formatTime(timestamp) {
         return "--";
     }
 
-    const date =
-        new Date(Number(timestamp));
+    const date = new Date(Number(timestamp));
 
     if (isNaN(date.getTime())) {
         return "--";
@@ -111,7 +109,7 @@ function formatTime(timestamp) {
 
 
 // ======================================================
-// CONNECTION
+// CONNECTION STATUS
 // ======================================================
 
 function updateConnectionStatus() {
@@ -144,8 +142,16 @@ function updateConnectionStatus() {
 
 function updateDoorStatus(status) {
 
+    if (
+        status === undefined ||
+        status === null ||
+        status === ""
+    ) {
+        return;
+    }
+
     const value =
-        String(status || "")
+        String(status)
             .trim()
             .toUpperCase();
 
@@ -202,11 +208,11 @@ function updateDoorStatus(status) {
 
     if (doorStatusElement)
         doorStatusElement.textContent =
-            value || "--";
+            value;
 
     if (doorStatusLarge)
         doorStatusLarge.textContent =
-            value || "--";
+            value;
 
     if (doorDescription)
         doorDescription.textContent =
@@ -218,7 +224,7 @@ function updateDoorStatus(status) {
 }
 
 
-/// ======================================================
+// ======================================================
 // UPDATE MONITORING CARDS
 // ======================================================
 
@@ -226,13 +232,21 @@ function updateMonitoringCards(data) {
 
     if (!data) return;
 
+
     // ==================================================
     // TEMPERATURE
     // ==================================================
 
-    if (temperatureElement) {
-        temperatureElement.textContent =
-            formatNumber(data.temperature);
+    if (
+        data.temperature !== undefined &&
+        data.temperature !== null
+    ) {
+
+        if (temperatureElement) {
+
+            temperatureElement.textContent =
+                formatNumber(data.temperature);
+        }
     }
 
 
@@ -240,9 +254,16 @@ function updateMonitoringCards(data) {
     // HUMIDITY
     // ==================================================
 
-    if (humidityElement) {
-        humidityElement.textContent =
-            formatNumber(data.humidity);
+    if (
+        data.humidity !== undefined &&
+        data.humidity !== null
+    ) {
+
+        if (humidityElement) {
+
+            humidityElement.textContent =
+                formatNumber(data.humidity);
+        }
     }
 
 
@@ -250,13 +271,14 @@ function updateMonitoringCards(data) {
     // RFID ACCESS
     // ==================================================
 
+    const currentUser =
+        data.currentUser;
+
+    const rfid =
+        data.rfidAccess;
+
+
     if (rfidAccessElement) {
-
-        const currentUser =
-            data.currentUser;
-
-        const rfid =
-            data.rfidAccess;
 
         if (
             currentUser &&
@@ -274,7 +296,10 @@ function updateMonitoringCards(data) {
             rfidAccessElement.textContent =
                 rfid;
 
-        } else {
+        } else if (
+            currentUser === "NONE" ||
+            rfid === "NONE"
+        ) {
 
             rfidAccessElement.textContent =
                 "NONE";
@@ -286,10 +311,13 @@ function updateMonitoringCards(data) {
     // UNAUTHORIZED ACCESS
     // ==================================================
 
-    if (unauthorizedAccessElement) {
+    if (
+        unauthorizedAccessElement &&
+        data.unauthorizedAccess !== undefined
+    ) {
 
         unauthorizedAccessElement.textContent =
-            data.unauthorizedAccess ?? "--";
+            data.unauthorizedAccess;
     }
 
 
@@ -297,10 +325,13 @@ function updateMonitoringCards(data) {
     // SECURITY ACCESS
     // ==================================================
 
-    if (securityAccessElement) {
+    if (
+        securityAccessElement &&
+        data.securityAccess !== undefined
+    ) {
 
         securityAccessElement.textContent =
-            data.securityAccess ?? "--";
+            data.securityAccess;
     }
 
 
@@ -308,9 +339,15 @@ function updateMonitoringCards(data) {
     // DOOR STATUS
     // ==================================================
 
-    updateDoorStatus(
-        data.doorStatus
-    );
+    if (
+        data.doorStatus !== undefined &&
+        data.doorStatus !== null
+    ) {
+
+        updateDoorStatus(
+            data.doorStatus
+        );
+    }
 
 
     // ==================================================
@@ -319,8 +356,15 @@ function updateMonitoringCards(data) {
 
     if (switchStatusElement) {
 
+        // Supports both:
+        // Blynk/server: switchStatus
+        // Firebase: SwitchStatus
+
         const switchValue =
-            data.switchStatus;
+            data.switchStatus !== undefined
+                ? data.switchStatus
+                : data.SwitchStatus;
+
 
         if (
             String(switchValue) === "1" ||
@@ -337,29 +381,51 @@ function updateMonitoringCards(data) {
 
             switchStatusElement.textContent =
                 "OFF";
-
-        } else {
-
-            switchStatusElement.textContent =
-                "--";
         }
     }
 
 
     // ==================================================
     // G0/0
-    // ==================================================
+    // ======================================================
 
     const g00Element =
         document.getElementById("g0/0");
 
+
     if (g00Element) {
 
-        const g00Value =
+        let g00Value = null;
+
+
+        // Firebase structure:
+        // g0
+        //   0
+        //     status
+
+        if (
             data.g0 &&
-            data.g0[0]
-                ? data.g0[0].status
-                : null;
+            data.g0[0] &&
+            data.g0[0].status !== undefined
+        ) {
+
+            g00Value =
+                data.g0[0].status;
+
+        }
+
+
+        // Alternative direct value
+
+        else if (
+            data.g00 !== undefined
+        ) {
+
+            g00Value =
+                data.g00;
+
+        }
+
 
         if (String(g00Value) === "1") {
 
@@ -371,28 +437,51 @@ function updateMonitoringCards(data) {
             g00Element.textContent =
                 "DOWN";
 
-        } else {
-
-            g00Element.textContent =
-                "--";
         }
     }
 
 
     // ==================================================
     // G0/1
-    // ==================================================
+    // ======================================================
 
     const g01Element =
         document.getElementById("g0/1");
 
+
     if (g01Element) {
 
-        const g01Value =
+        let g01Value = null;
+
+
+        // Firebase structure:
+        // g0
+        //   1
+        //     status
+
+        if (
             data.g0 &&
-            data.g0[1]
-                ? data.g0[1].status
-                : null;
+            data.g0[1] &&
+            data.g0[1].status !== undefined
+        ) {
+
+            g01Value =
+                data.g0[1].status;
+
+        }
+
+
+        // Alternative direct value
+
+        else if (
+            data.g01 !== undefined
+        ) {
+
+            g01Value =
+                data.g01;
+
+        }
+
 
         if (String(g01Value) === "1") {
 
@@ -404,16 +493,13 @@ function updateMonitoringCards(data) {
             g01Element.textContent =
                 "DOWN";
 
-        } else {
-
-            g01Element.textContent =
-                "--";
         }
     }
 }
 
+
 // ======================================================
-// LOAD CURRENT DATA
+// LOAD BLYNK DATA
 // ======================================================
 
 async function loadBlynkData() {
@@ -422,6 +508,7 @@ async function loadBlynkData() {
 
         const response =
             await fetch("/api/data");
+
 
         if (!response.ok) {
 
@@ -463,6 +550,7 @@ async function loadBlynkData() {
             const time =
                 new Date(result.updatedAt);
 
+
             if (!isNaN(time.getTime())) {
 
                 lastUpdate.textContent =
@@ -478,6 +566,7 @@ async function loadBlynkData() {
             error
         );
 
+
         dataConnectionState.primary =
             false;
 
@@ -487,7 +576,7 @@ async function loadBlynkData() {
 
 
 // ======================================================
-// LOAD STORED DATA
+// LOAD FIREBASE CURRENT DATA
 // ======================================================
 
 async function loadFirebaseData() {
@@ -503,6 +592,7 @@ async function loadFirebaseData() {
             const errorData =
                 await response.json()
                     .catch(() => ({}));
+
 
             throw new Error(
                 errorData.message ||
@@ -543,15 +633,30 @@ async function loadFirebaseData() {
         updateConnectionStatus();
 
 
+        // Firebase uses lastUpdate
+        // instead of timestamp
+
+        const firebaseTimestamp =
+            result.data.lastUpdate ||
+            result.data.timestamp;
+
+
         if (
             lastUpdate &&
-            result.data.timestamp
+            firebaseTimestamp
         ) {
 
-            lastUpdate.textContent =
+            const time =
                 new Date(
-                    Number(result.data.timestamp)
-                ).toLocaleTimeString();
+                    Number(firebaseTimestamp)
+                );
+
+
+            if (!isNaN(time.getTime())) {
+
+                lastUpdate.textContent =
+                    time.toLocaleTimeString();
+            }
         }
 
 
@@ -561,6 +666,7 @@ async function loadFirebaseData() {
             "Stored data error:",
             error
         );
+
 
         dataConnectionState.storage =
             false;
@@ -592,6 +698,7 @@ async function loadFirebaseHistory() {
             const errorData =
                 await response.json()
                     .catch(() => ({}));
+
 
             throw new Error(
                 errorData.message ||
@@ -742,9 +849,7 @@ function displayHistory(records) {
 // DATE FILTER
 // ======================================================
 
-function filterHistoryByDate(
-    selectedDate
-) {
+function filterHistoryByDate(selectedDate) {
 
     selectedHistoryDate =
         selectedDate;
@@ -780,6 +885,7 @@ function filterHistoryByDate(
                         date.getTime()
                     )
                 ) {
+
                     return false;
                 }
 
@@ -954,8 +1060,6 @@ function setupNavigation() {
 
 const infoContent = {
 
-    // TEMPERATURE
-
     temperature: {
 
         icon: "🌡",
@@ -972,8 +1076,6 @@ const infoContent = {
     },
 
 
-    // HUMIDITY
-
     humidity: {
 
         icon: "💧",
@@ -988,8 +1090,6 @@ const infoContent = {
             "The value is updated automatically during monitoring."
     },
 
-
-    // DOOR
 
     door: {
 
@@ -1006,8 +1106,6 @@ const infoContent = {
     },
 
 
-    // RFID
-
     rfid: {
 
         icon: "🔑",
@@ -1022,8 +1120,6 @@ const infoContent = {
     },
 
 
-    // UNAUTHORIZED
-
     unauthorized: {
 
         icon: "⚠",
@@ -1037,8 +1133,6 @@ const infoContent = {
             "The value helps identify repeated unsuccessful access attempts and supports cabinet security monitoring."
     },
 
-
-    // SECURITY
 
     security: {
 
@@ -1056,8 +1150,6 @@ const infoContent = {
     },
 
 
-    // NETWORK SWITCH
-
     switch: {
 
         icon: "🔌",
@@ -1073,8 +1165,6 @@ const infoContent = {
     },
 
 
-    // G0/0
-
     "g0/0": {
 
         icon: "🔗",
@@ -1085,12 +1175,10 @@ const infoContent = {
             "Displays the current status of the G0/0 network port.",
 
         details:
-            "<strong>ON:</strong> The G0/0 network port is active.<br>" +
-            "<strong>OFF:</strong> The G0/0 network port is inactive."
+            "<strong>UP:</strong> The G0/0 network port is active.<br>" +
+            "<strong>DOWN:</strong> The G0/0 network port is inactive."
     },
 
-
-    // G0/1
 
     "g0/1": {
 
@@ -1102,12 +1190,10 @@ const infoContent = {
             "Displays the current status of the G0/1 network port.",
 
         details:
-            "<strong>ON:</strong> The G0/1 network port is active.<br>" +
-            "<strong>OFF:</strong> The G0/1 network port is inactive."
+            "<strong>UP:</strong> The G0/1 network port is active.<br>" +
+            "<strong>DOWN:</strong> The G0/1 network port is inactive."
     },
 
-
-    // CAMERA
 
     camera: {
 
@@ -1182,14 +1268,17 @@ function setupInfoModal() {
 
         if (!modal) return;
 
+
         modal.classList.remove(
             "open"
         );
+
 
         modal.setAttribute(
             "aria-hidden",
             "true"
         );
+
 
         document.body.classList.remove(
             "modal-open"
@@ -1207,6 +1296,7 @@ function setupInfoModal() {
             !content ||
             !modal
         ) {
+
             return;
         }
 
@@ -1243,10 +1333,12 @@ function setupInfoModal() {
             "open"
         );
 
+
         modal.setAttribute(
             "aria-hidden",
             "false"
         );
+
 
         document.body.classList.add(
             "modal-open"
@@ -1380,6 +1472,8 @@ document.addEventListener(
         loadFirebaseHistory();
 
 
+        // Current data every 30 seconds
+
         setInterval(
             loadBlynkData,
             UPDATE_INTERVAL
@@ -1391,6 +1485,8 @@ document.addEventListener(
             UPDATE_INTERVAL
         );
 
+
+        // History every 10 seconds
 
         setInterval(
             loadFirebaseHistory,
