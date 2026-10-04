@@ -186,6 +186,97 @@
 
 
     <!-- ==================================================
+     MONITORING SECTION
+================================================== -->
+
+<section
+    id="monitoring"
+    class="page-section"
+>
+
+    <!-- SECTION TITLE -->
+
+    <div class="section-title">
+
+        <div>
+
+            <h2>
+                Cabinet Monitoring
+            </h2>
+
+            <p>
+                Real-time status of the network cabinet
+            </p>
+
+        </div>
+
+        <div class="last-update">
+
+            Last update:
+
+            <strong id="lastUpdate">
+                --
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         LIVE CAMERA
+    ================================================== -->
+
+    <div class="camera-card">
+
+        <div class="camera-header">
+
+            <div>
+
+                <h3>
+                    Live Camera
+                </h3>
+
+                <p>
+                    Visual monitoring of the network cabinet
+                </p>
+
+            </div>
+
+
+            <div class="camera-actions">
+
+                <button
+                    type="button"
+                    class="info-button"
+                    data-info="camera"
+                    aria-label="Live camera information"
+                >
+                    i
+                </button>
+
+                <span class="camera-status">
+                    ● LIVE
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="camera-container">
+
+            <img
+                src="http://10.127.186.46/stream"
+                alt="ESP32-CAM Live Stream"
+            >
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
          MAIN MONITORING CARDS
     ================================================== -->
 
@@ -239,7 +330,6 @@
         </div>
 
 
-
         <!-- HUMIDITY -->
 
         <div class="card">
@@ -287,7 +377,6 @@
         </div>
 
 
-
         <!-- DOOR -->
 
         <div class="card">
@@ -328,7 +417,6 @@
             </div>
 
         </div>
-
 
 
         <!-- RFID -->
@@ -374,7 +462,6 @@
         </div>
 
 
-
         <!-- UNAUTHORIZED -->
 
         <div class="card warning-card">
@@ -416,7 +503,6 @@
             </div>
 
         </div>
-
 
 
         <!-- SECURITY -->
@@ -461,9 +547,7 @@
 
         </div>
 
-
     </div>
-
 
 
     <!-- ==================================================
@@ -515,7 +599,6 @@
         </div>
 
 
-
         <!-- G0/0 -->
 
         <div class="card">
@@ -556,7 +639,6 @@
             </div>
 
         </div>
-
 
 
         <!-- G0/1 -->
@@ -602,65 +684,6 @@
 
 
     </div>
-
-
-
-    <!-- ==================================================
-         ESP32-CAM LIVE CAMERA
-    ================================================== -->
-
-    <div class="camera-card">
-
-
-        <div class="camera-header">
-
-            <div>
-
-                <h3>
-                    Live Camera
-                </h3>
-
-                <p>
-                    Visual monitoring of the network cabinet
-                </p>
-
-            </div>
-
-
-            <div class="camera-actions">
-
-                <button
-                    type="button"
-                    class="info-button"
-                    data-info="camera"
-                    aria-label="Live camera information"
-                >
-                    i
-                </button>
-
-
-                <span class="camera-status">
-                    ● LIVE
-                </span>
-
-            </div>
-
-        </div>
-
-
-
-        <div class="camera-container">
-
-            <img
-                src="http://10.127.186.46/stream"
-                alt="ESP32-CAM Live Stream"
-            >
-
-        </div>
-
-
-    </div>
-
 
 </section>
 <!-- IMPORTANT: Monitoring section ends here -->
