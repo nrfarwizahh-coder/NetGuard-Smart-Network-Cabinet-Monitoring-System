@@ -967,3 +967,142 @@ footer span {
     background: #1d4ed8;
 }
 
+/* =========================================================
+   MOBILE RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    /* SIDEBAR */
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 15px;
+    }
+
+    .logo {
+        justify-content: center;
+    }
+
+    .sidebar nav {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .sidebar-bottom {
+        display: none;
+    }
+
+
+    /* MAIN */
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+        padding: 15px;
+    }
+
+
+    /* TOPBAR */
+
+    .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .top-status {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+
+    /* SECTION TITLE */
+
+    .section-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+
+    /* CAMERA */
+
+    .camera-card {
+        width: 100%;
+        padding: 18px;
+        margin-top: 20px;
+        margin-bottom: 25px;
+    }
+
+    .camera-header {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .camera-container {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        margin: 0 auto;
+    }
+
+
+    /* MONITORING CARDS */
+
+    .cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+
+    /* NETWORK CARDS */
+
+    .network-cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+
+    /* NORMAL CARDS */
+
+    .card {
+        width: 100%;
+    }
+
+
+    /* HISTORY */
+
+    .history-panel {
+        overflow-x: auto;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    table {
+        min-width: 700px;
+    }
+
+
+    /* SYSTEM */
+
+    .panel {
+        width: 100%;
+    }
+
+
+    /* FOOTER */
+
+    footer {
+        text-align: center;
+        padding: 20px 10px;
+    }
+
+}
