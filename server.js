@@ -117,23 +117,26 @@ app.get("/api/data", async (req, res) => {
     try {
 
         const [
-            temperature,
-            humidity,
-            doorStatus,
-            rfidAccess,
-            unauthorizedAccess,
-            securityAccess
-        ] = await Promise.all([
-
-            getBlynkValue("V0"),
-            getBlynkValue("V1"),
-            getBlynkValue("V2"),
-            getBlynkValue("V3"),
-            getBlynkValue("V4"),
-            getBlynkValue("V5")
-
-        ]);
-
+    temperature,
+    humidity,
+    doorStatus,
+    rfidAccess,
+    unauthorizedAccess,
+    securityAccess,
+    switchStatus,
+    g0,
+    g01
+] = await Promise.all([
+    getBlynkValue("V0"),
+    getBlynkValue("V1"),
+    getBlynkValue("V2"),
+    getBlynkValue("V3"),
+    getBlynkValue("V4"),
+    getBlynkValue("V5"),
+    getBlynkValue("V6"),
+    getBlynkValue("V7"),
+    getBlynkValue("V8")
+]);
 
         res.json({
 
@@ -141,14 +144,17 @@ app.get("/api/data", async (req, res) => {
 
             data: {
 
-                temperature,
-                humidity,
-                doorStatus,
-                rfidAccess,
-                unauthorizedAccess,
-                securityAccess
+    temperature,
+    humidity,
+    doorStatus,
+    rfidAccess,
+    unauthorizedAccess,
+    securityAccess,
+    switchStatus,
+    g0,
+    g01
 
-            },
+},
 
             updatedAt:
                 new Date().toISOString()
