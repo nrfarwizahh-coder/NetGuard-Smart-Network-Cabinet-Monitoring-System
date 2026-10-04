@@ -535,8 +535,8 @@ body {
 ========================================================= */
 
 .camera-container {
-    width: 250px;
-    height: 250px;
+    width: 350px;
+    height: 350px;
     margin: 0 auto;
     overflow: hidden;
     border-radius: 10px;
@@ -549,7 +549,7 @@ body {
     object-fit: cover;
     display: block;
 }
-}
+
 
 
 /* =========================================================
