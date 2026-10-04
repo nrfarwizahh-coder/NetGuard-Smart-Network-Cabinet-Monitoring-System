@@ -6,24 +6,6 @@ const UPDATE_INTERVAL = 30000;
 
 
 // ======================================================
-// FIREBASE AUTHENTICATION
-// ======================================================
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-    getAuth,
-    signOut
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
-
-
-// ======================================================
 // ELEMENTS
 // ======================================================
 
@@ -66,6 +48,12 @@ const systemConnection =
 const historyTable =
     document.getElementById("historyTable");
 
+const historyDate =
+    document.getElementById("historyDate");
+
+const clearHistoryButton =
+    document.getElementById("clearHistory");
+
 
 // ======================================================
 // SECTIONS
@@ -85,6 +73,61 @@ const pageTitle =
 
 
 // ======================================================
+// LOAD FIREBASE DATA
+// ======================================================
+
+async function loadFirebaseData() {
+
+    try {
+
+        const response =
+            await fetch("/api/firebase");
+
+        const result =
+            await response.json();
+
+        console.log("Firebase API result:", result);
+
+
+        if (
+            result.success &&
+            result.data
+        ) {
+
+            updateMonitoringCards(result.data);
+
+        } else {
+
+            console.error(
+                "Firebase data error:",
+                result
+            );
+
+            if (connectionText) {
+                connectionText.textContent =
+                    "Firebase Error";
+            }
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Firebase fetch error:",
+            error
+        );
+
+        if (connectionText) {
+            connectionText.textContent =
+                "Connection Error";
+        }
+
+    }
+
+}
+
+
+// ======================================================
 // NAVIGATION
 // ======================================================
 
@@ -98,60 +141,80 @@ navLinks.forEach(link => {
 
         event.preventDefault();
 
+
+        // Remove active from all links
+
         navLinks.forEach(item => {
             item.classList.remove("active");
         });
 
+
+        // Add active to clicked link
+
         this.classList.add("active");
+
 
         const target =
             this.getAttribute("href");
 
-        // ------------------------------
+
+        // ==================================================
         // MONITORING
-        // ------------------------------
+        // ==================================================
 
         if (target === "#monitoring") {
 
             monitoringSection.style.display = "block";
+
             historySection.style.display = "none";
+
             systemSection.style.display = "none";
 
-            pageTitle.textContent = "Monitoring";
+            pageTitle.textContent =
+                "Monitoring";
 
             loadAllData();
+
         }
 
 
-        // ------------------------------
+        // ==================================================
         // HISTORY
-        // ------------------------------
+        // ==================================================
 
         else if (target === "#history") {
 
             monitoringSection.style.display = "none";
+
             historySection.style.display = "block";
+
             systemSection.style.display = "none";
 
-            pageTitle.textContent = "History";
+            pageTitle.textContent =
+                "History";
 
             loadHistory();
+
         }
 
 
-        // ------------------------------
+        // ==================================================
         // SYSTEM
-        // ------------------------------
+        // ==================================================
 
         else if (target === "#system") {
 
             monitoringSection.style.display = "none";
+
             historySection.style.display = "none";
+
             systemSection.style.display = "block";
 
-            pageTitle.textContent = "System";
+            pageTitle.textContent =
+                "System";
 
             updateSystemStatus();
+
         }
 
     });
@@ -166,23 +229,18 @@ navLinks.forEach(link => {
 const logoutButton =
     document.getElementById("logoutButton");
 
+
 if (logoutButton) {
 
-    logoutButton.addEventListener("click", async () => {
+    logoutButton.addEventListener(
+        "click",
+        function() {
 
-        try {
-
-            await signOut(auth);
-
-            window.location.href = "login.html";
-
-        } catch (error) {
-
-            console.error("Logout error:", error);
+            window.location.href =
+                "login.html";
 
         }
-
-    });
+    );
 
 }
 
@@ -193,10 +251,18 @@ if (logoutButton) {
 
 function updateMonitoringCards(data) {
 
-    console.log("Monitoring data:", data);
+    console.log(
+        "Monitoring data:",
+        data
+    );
+
 
     if (!data) {
-        console.log("No monitoring data received.");
+
+        console.log(
+            "No monitoring data received."
+        );
+
         return;
     }
 
@@ -215,7 +281,8 @@ function updateMonitoringCards(data) {
 
     } else {
 
-        temperatureElement.textContent = "--";
+        temperatureElement.textContent =
+            "--";
 
     }
 
@@ -234,7 +301,8 @@ function updateMonitoringCards(data) {
 
     } else {
 
-        humidityElement.textContent = "--";
+        humidityElement.textContent =
+            "--";
 
     }
 
@@ -245,26 +313,30 @@ function updateMonitoringCards(data) {
 
     if (data.doorStatus !== undefined) {
 
-        let door =
+        const door =
             String(data.doorStatus).toUpperCase();
 
+
         if (
-            door === "1" ||
             door === "OPEN" ||
-            door === "OPENED"
+            door === "OPENED" ||
+            door === "1"
         ) {
 
-            doorStatusElement.textContent = "OPEN";
+            doorStatusElement.textContent =
+                "OPEN";
 
         } else {
 
-            doorStatusElement.textContent = "CLOSED";
+            doorStatusElement.textContent =
+                "CLOSED";
 
         }
 
     } else {
 
-        doorStatusElement.textContent = "--";
+        doorStatusElement.textContent =
+            "--";
 
     }
 
@@ -280,7 +352,8 @@ function updateMonitoringCards(data) {
 
     } else {
 
-        rfidAccessElement.textContent = "--";
+        rfidAccessElement.textContent =
+            "--";
 
     }
 
@@ -296,7 +369,8 @@ function updateMonitoringCards(data) {
 
     } else {
 
-        unauthorizedAccessElement.textContent = "--";
+        unauthorizedAccessElement.textContent =
+            "--";
 
     }
 
@@ -312,7 +386,8 @@ function updateMonitoringCards(data) {
 
     } else {
 
-        securityAccessElement.textContent = "--";
+        securityAccessElement.textContent =
+            "--";
 
     }
 
@@ -324,7 +399,11 @@ function updateMonitoringCards(data) {
     const switchData =
         data.switchStatus;
 
-    console.log("Switch Firebase data:", switchData);
+
+    console.log(
+        "Switch Firebase data:",
+        switchData
+    );
 
 
     if (
@@ -333,77 +412,108 @@ function updateMonitoringCards(data) {
     ) {
 
         const port0 =
-            Number(switchData["0 status"]);
+            Number(
+                switchData["0 status"]
+            );
 
         const port1 =
-            Number(switchData["1 status"]);
+            Number(
+                switchData["1 status"]
+            );
 
 
-        console.log("G0/0:", port0);
-        console.log("G0/1:", port1);
+        console.log(
+            "G0/0:",
+            port0
+        );
+
+        console.log(
+            "G0/1:",
+            port1
+        );
 
 
-        // ------------------------------
+        // ==================================================
         // G0/0
-        // ------------------------------
+        // ==================================================
 
         if (port0 === 1) {
 
-            g00Element.textContent = "UP";
+            g00Element.textContent =
+                "UP";
 
         } else if (port0 === 0) {
 
-            g00Element.textContent = "DOWN";
+            g00Element.textContent =
+                "DOWN";
 
         } else {
 
-            g00Element.textContent = "--";
+            g00Element.textContent =
+                "--";
 
         }
 
 
-        // ------------------------------
+        // ==================================================
         // G0/1
-        // ------------------------------
+        // ==================================================
 
         if (port1 === 1) {
 
-            g01Element.textContent = "UP";
+            g01Element.textContent =
+                "UP";
 
         } else if (port1 === 0) {
 
-            g01Element.textContent = "DOWN";
+            g01Element.textContent =
+                "DOWN";
 
         } else {
 
-            g01Element.textContent = "--";
+            g01Element.textContent =
+                "--";
 
         }
 
 
-        // ------------------------------
+        // ==================================================
         // NETWORK SWITCH
-        // ------------------------------
+        // ==================================================
 
-        if (port0 === 1 || port1 === 1) {
+        if (
+            port0 === 1 ||
+            port1 === 1
+        ) {
 
-            switchStatusElement.textContent = "ON";
+            switchStatusElement.textContent =
+                "ON";
 
-        } else if (port0 === 0 && port1 === 0) {
+        } else if (
+            port0 === 0 &&
+            port1 === 0
+        ) {
 
-            switchStatusElement.textContent = "OFF";
+            switchStatusElement.textContent =
+                "OFF";
 
         } else {
 
-            switchStatusElement.textContent = "--";
+            switchStatusElement.textContent =
+                "--";
 
         }
 
     } else {
 
-        switchStatusElement.textContent = "--";
-        g00Element.textContent = "--";
-        g01Element.textContent = "--";
+        switchStatusElement.textContent =
+            "--";
+
+        g00Element.textContent =
+            "--";
+
+        g01Element.textContent =
+            "--";
 
     }
 
@@ -435,61 +545,6 @@ function updateMonitoringCards(data) {
 
 
 // ======================================================
-// FIREBASE DATA
-// ======================================================
-
-async function loadFirebaseData() {
-
-    try {
-
-        const response =
-            await fetch("/api/firebase");
-
-        const result =
-            await response.json();
-
-        console.log("Firebase API result:", result);
-
-
-        if (
-            result.success &&
-            result.data
-        ) {
-
-            updateMonitoringCards(result.data);
-
-        } else {
-
-            console.error(
-                "Firebase returned no data:",
-                result
-            );
-
-            if (connectionText) {
-                connectionText.textContent =
-                    "Firebase Error";
-            }
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Firebase fetch error:",
-            error
-        );
-
-        if (connectionText) {
-            connectionText.textContent =
-                "Connection Error";
-        }
-
-    }
-
-}
-
-
-// ======================================================
 // BLYNK DATA
 // ======================================================
 
@@ -503,7 +558,10 @@ async function loadBlynkData() {
         const result =
             await response.json();
 
-        console.log("Blynk API result:", result);
+        console.log(
+            "Blynk API result:",
+            result
+        );
 
     } catch (error) {
 
@@ -523,7 +581,10 @@ async function loadBlynkData() {
 
 async function loadAllData() {
 
-    console.log("Loading NetGuard data...");
+    console.log(
+        "Loading NetGuard data..."
+    );
+
 
     await Promise.all([
         loadFirebaseData(),
@@ -543,6 +604,7 @@ async function loadHistory() {
         return;
     }
 
+
     historyTable.innerHTML = `
         <tr>
             <td colspan="7">
@@ -560,7 +622,10 @@ async function loadHistory() {
         const result =
             await response.json();
 
-        console.log("History API result:", result);
+        console.log(
+            "History API result:",
+            result
+        );
 
 
         if (
@@ -577,13 +642,45 @@ async function loadHistory() {
             `;
 
             return;
+
         }
 
 
-        const records =
+        let records =
             Array.isArray(result.data)
                 ? result.data
                 : Object.values(result.data);
+
+
+        // ==================================================
+        // DATE FILTER
+        // ==================================================
+
+        if (
+            historyDate &&
+            historyDate.value
+        ) {
+
+            const selectedDate =
+                historyDate.value;
+
+
+            records =
+                records.filter(record => {
+
+                    if (!record.time) {
+                        return false;
+                    }
+
+                    return String(
+                        record.time
+                    ).startsWith(
+                        selectedDate
+                    );
+
+                });
+
+        }
 
 
         if (records.length === 0) {
@@ -597,6 +694,7 @@ async function loadHistory() {
             `;
 
             return;
+
         }
 
 
@@ -608,10 +706,11 @@ async function loadHistory() {
             const row =
                 document.createElement("tr");
 
+
             row.innerHTML = `
 
                 <td>
-                    ${record.time || "--"}
+                    ${record.time ?? "--"}
                 </td>
 
                 <td>
@@ -623,11 +722,11 @@ async function loadHistory() {
                 </td>
 
                 <td>
-                    ${record.door || "--"}
+                    ${record.door ?? "--"}
                 </td>
 
                 <td>
-                    ${record.rfid || "--"}
+                    ${record.rfid ?? "--"}
                 </td>
 
                 <td>
@@ -635,10 +734,11 @@ async function loadHistory() {
                 </td>
 
                 <td>
-                    ${record.security || "--"}
+                    ${record.security ?? "--"}
                 </td>
 
             `;
+
 
             historyTable.appendChild(row);
 
@@ -652,6 +752,7 @@ async function loadHistory() {
             error
         );
 
+
         historyTable.innerHTML = `
             <tr>
                 <td colspan="7">
@@ -661,6 +762,42 @@ async function loadHistory() {
         `;
 
     }
+
+}
+
+
+// ======================================================
+// HISTORY DATE SEARCH
+// ======================================================
+
+if (historyDate) {
+
+    historyDate.addEventListener(
+        "change",
+        loadHistory
+    );
+
+}
+
+
+// ======================================================
+// CLEAR HISTORY SEARCH
+// ======================================================
+
+if (clearHistoryButton) {
+
+    clearHistoryButton.addEventListener(
+        "click",
+        function() {
+
+            if (historyDate) {
+                historyDate.value = "";
+            }
+
+            loadHistory();
+
+        }
+    );
 
 }
 
@@ -701,13 +838,13 @@ async function updateSystemStatus() {
 
         }
 
-
     } catch (error) {
 
         console.error(
             "System status error:",
             error
         );
+
 
         systemConnection.textContent =
             "System connection error";
@@ -722,6 +859,7 @@ async function updateSystemStatus() {
 // ======================================================
 
 loadAllData();
+
 
 setInterval(
     loadAllData,
