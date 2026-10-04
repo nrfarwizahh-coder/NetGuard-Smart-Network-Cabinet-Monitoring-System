@@ -537,7 +537,7 @@ body {
 .camera-container {
     width: 450px;
     height: 250px;
-    margin: 0 auto 25px auto;
+    margin: 0 auto 50px auto;
     overflow: hidden;
     border-radius: 10px;
     background: #111827;
