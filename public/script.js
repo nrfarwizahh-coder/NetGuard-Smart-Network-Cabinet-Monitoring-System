@@ -632,9 +632,6 @@ function formatHistoryTime(record) {
             Number(value);
 
 
-        // Firebase timestamps are normally milliseconds.
-        // If it is a smaller value, convert seconds to milliseconds.
-
         const date =
             new Date(
                 numberValue < 10000000000
@@ -1064,225 +1061,272 @@ async function updateSystemStatus() {
 
 }
 
+
 // ======================================================
 // INFORMATION POPUP
 // ======================================================
 
-const infoModal =
-    document.getElementById("infoModal");
+document.addEventListener("DOMContentLoaded", function () {
 
-const infoModalTitle =
-    document.getElementById("infoModalTitle");
-
-const infoModalText =
-    document.getElementById("infoModalText");
-
-const infoModalDetails =
-    document.getElementById("infoModalDetails");
-
-const infoModalIcon =
-    document.getElementById("infoModalIcon");
-
-const modalClose =
-    document.getElementById("modalClose");
-
-const modalDone =
-    document.getElementById("modalDone");
-
-const infoModalOverlay =
-    document.getElementById("infoModalOverlay");
+    console.log("NetGuard Info Popup Loaded");
 
 
-// ======================================================
-// INFORMATION CONTENT
-// ======================================================
+    const infoModal =
+        document.getElementById("infoModal");
 
-const infoContent = {
+    const infoModalTitle =
+        document.getElementById("infoModalTitle");
 
-    camera: {
-        icon: "📷",
-        title: "Live Camera",
-        text: "Provides live visual monitoring of the network cabinet using the ESP32-CAM.",
-        details: "The camera allows the user to visually check the condition of the cabinet remotely."
-    },
+    const infoModalText =
+        document.getElementById("infoModalText");
 
-    temperature: {
-        icon: "🌡",
-        title: "Temperature",
-        text: "Displays the current temperature inside the network cabinet.",
-        details: "The DHT22 sensor monitors the cabinet temperature to help identify high-temperature conditions."
-    },
+    const infoModalDetails =
+        document.getElementById("infoModalDetails");
 
-    humidity: {
-        icon: "💧",
-        title: "Humidity",
-        text: "Displays the current humidity level inside the network cabinet.",
-        details: "The DHT22 sensor monitors humidity to help maintain a suitable environment for network equipment."
-    },
+    const infoModalIcon =
+        document.getElementById("infoModalIcon");
 
-    door: {
-        icon: "🚪",
-        title: "Door Status",
-        text: "Shows the current condition of the network cabinet door.",
-        details: "CLOSED indicates that the cabinet is secured, while OPEN indicates that the cabinet door has been opened."
-    },
+    const modalClose =
+        document.getElementById("modalClose");
 
-    rfid: {
-        icon: "🔑",
-        title: "RFID Access",
-        text: "Displays the latest RFID access detected by the system.",
-        details: "The RFID RC522 reader is used to identify authorized users accessing the network cabinet."
-    },
+    const modalDone =
+        document.getElementById("modalDone");
 
-    unauthorized: {
-        icon: "⚠",
-        title: "Unauthorized Access",
-        text: "Displays the number of unauthorized access attempts.",
-        details: "The system records unsuccessful RFID access attempts and can trigger a security alert when the attempt limit is reached."
-    },
-
-    security: {
-        icon: "🛡",
-        title: "Security Access",
-        text: "Displays the current security level of the network cabinet.",
-        details: "SAFE indicates normal operation, while WARNING or ALARM indicates a security condition that requires attention."
-    },
-
-    switch: {
-        icon: "🔌",
-        title: "Network Switch",
-        text: "Displays the overall status of the network switch.",
-        details: "The system monitors the connected network switch and displays whether the monitored ports are active."
-    },
-
-    "g0/0": {
-        icon: "🔗",
-        title: "G0/0",
-        text: "Displays the current status of the G0/0 network port.",
-        details: "UP indicates that the G0/0 interface is active, while DOWN indicates that the interface is inactive."
-    },
-
-    "g0/1": {
-        icon: "🔗",
-        title: "G0/1",
-        text: "Displays the current status of the G0/1 network port.",
-        details: "UP indicates that the G0/1 interface is active, while DOWN indicates that the interface is inactive."
-    }
-
-};
+    const infoModalOverlay =
+        document.getElementById("infoModalOverlay");
 
 
-// ======================================================
-// OPEN INFORMATION POPUP
-// ======================================================
+    // ==================================================
+    // INFORMATION CONTENT
+    // ==================================================
 
-document.querySelectorAll(".info-button").forEach(button => {
+    const infoContent = {
 
-    button.addEventListener("click", function() {
+        camera: {
+            icon: "📷",
+            title: "Live Camera",
+            text: "Provides live visual monitoring of the network cabinet.",
+            details: "The ESP32-CAM allows the user to visually check the condition of the network cabinet remotely."
+        },
 
-        const type =
-            this.getAttribute("data-info");
+        temperature: {
+            icon: "🌡️",
+            title: "Temperature",
+            text: "Displays the current temperature inside the network cabinet.",
+            details: "The DHT22 sensor monitors the temperature inside the network cabinet."
+        },
 
-        const info =
-            infoContent[type];
+        humidity: {
+            icon: "💧",
+            title: "Humidity",
+            text: "Displays the current humidity level inside the network cabinet.",
+            details: "The DHT22 sensor monitors humidity inside the network cabinet."
+        },
 
-        if (!info) {
-            return;
+        door: {
+            icon: "🚪",
+            title: "Door Status",
+            text: "Shows the current condition of the network cabinet door.",
+            details: "CLOSED means the cabinet is secured. OPEN means the cabinet door has been opened."
+        },
+
+        rfid: {
+            icon: "🔑",
+            title: "RFID Access",
+            text: "Displays the latest RFID access detected by the system.",
+            details: "The RFID RC522 reader is used to identify authorized users."
+        },
+
+        unauthorized: {
+            icon: "⚠️",
+            title: "Unauthorized Access",
+            text: "Displays the number of unauthorized access attempts.",
+            details: "The system records unsuccessful RFID access attempts."
+        },
+
+        security: {
+            icon: "🛡️",
+            title: "Security Access",
+            text: "Displays the current security level of the network cabinet.",
+            details: "SAFE indicates normal operation. WARNING or ALARM indicates a security condition."
+        },
+
+        switch: {
+            icon: "🔌",
+            title: "Network Switch",
+            text: "Displays the overall status of the network switch.",
+            details: "The system monitors the connected network switch and its monitored ports."
+        },
+
+        "g0/0": {
+            icon: "🔗",
+            title: "G0/0",
+            text: "Displays the current status of the G0/0 network port.",
+            details: "UP means the G0/0 interface is active. DOWN means the interface is inactive."
+        },
+
+        "g0/1": {
+            icon: "🔗",
+            title: "G0/1",
+            text: "Displays the current status of the G0/1 network port.",
+            details: "UP means the G0/1 interface is active. DOWN means the interface is inactive."
         }
 
-
-        infoModalIcon.textContent =
-            info.icon;
-
-        infoModalTitle.textContent =
-            info.title;
-
-        infoModalText.textContent =
-            info.text;
-
-        infoModalDetails.textContent =
-            info.details;
+    };
 
 
-        infoModal.style.display =
-            "flex";
+    // ==================================================
+    // FIND INFO BUTTONS
+    // ==================================================
 
-        infoModal.setAttribute(
-            "aria-hidden",
-            "false"
-        );
+    const infoButtons =
+        document.querySelectorAll(".info-button");
+
+
+    console.log(
+        "Info buttons found:",
+        infoButtons.length
+    );
+
+
+    // ==================================================
+    // OPEN INFORMATION POPUP
+    // ==================================================
+
+    infoButtons.forEach(function(button) {
+
+        button.addEventListener("click", function(event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+
+            const type =
+                button.getAttribute("data-info");
+
+
+            console.log(
+                "INFO BUTTON CLICKED:",
+                type
+            );
+
+
+            const info =
+                infoContent[type];
+
+
+            if (!info) {
+
+                console.error(
+                    "No information found for:",
+                    type
+                );
+
+                return;
+
+            }
+
+
+            infoModalIcon.textContent =
+                info.icon;
+
+            infoModalTitle.textContent =
+                info.title;
+
+            infoModalText.textContent =
+                info.text;
+
+            infoModalDetails.textContent =
+                info.details;
+
+
+            // Show modal
+
+            infoModal.style.display =
+                "flex";
+
+            infoModal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+        });
 
     });
 
-});
 
+    // ==================================================
+    // CLOSE POPUP
+    // ==================================================
 
-// ======================================================
-// CLOSE POPUP
-// ======================================================
+    function closeInfoModal() {
 
-function closeInfoModal() {
+        infoModal.style.display =
+            "none";
 
-    infoModal.style.display =
-        "none";
-
-    infoModal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-}
-
-
-if (modalClose) {
-
-    modalClose.addEventListener(
-        "click",
-        closeInfoModal
-    );
-
-}
-
-
-if (modalDone) {
-
-    modalDone.addEventListener(
-        "click",
-        closeInfoModal
-    );
-
-}
-
-
-if (infoModalOverlay) {
-
-    infoModalOverlay.addEventListener(
-        "click",
-        closeInfoModal
-    );
-
-}
-
-
-// ======================================================
-// CLOSE WITH ESCAPE KEY
-// ======================================================
-
-document.addEventListener(
-    "keydown",
-    function(event) {
-
-        if (
-            event.key === "Escape" &&
-            infoModal.getAttribute("aria-hidden") === "false"
-        ) {
-
-            closeInfoModal();
-
-        }
+        infoModal.setAttribute(
+            "aria-hidden",
+            "true"
+        );
 
     }
-);
+
+
+    // Close X
+
+    if (modalClose) {
+
+        modalClose.addEventListener(
+            "click",
+            closeInfoModal
+        );
+
+    }
+
+
+    // Close button
+
+    if (modalDone) {
+
+        modalDone.addEventListener(
+            "click",
+            closeInfoModal
+        );
+
+    }
+
+
+    // Close overlay
+
+    if (infoModalOverlay) {
+
+        infoModalOverlay.addEventListener(
+            "click",
+            closeInfoModal
+        );
+
+    }
+
+
+    // ==================================================
+    // ESC KEY
+    // ==================================================
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Escape") {
+
+                closeInfoModal();
+
+            }
+
+        }
+    );
+
+});
+
 
 // ======================================================
 // START
