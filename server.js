@@ -298,7 +298,6 @@ app.get(
                     "Firebase connection berjaya",
 
                 data:
-
                     data
 
             });
@@ -427,21 +426,19 @@ app.get(
 // ==================================================
 // FIREBASE HISTORY
 //
+// Reads:
+//
 // /history
 //
-// Supports records such as:
+// OLD WORKING STRUCTURE:
 //
-// 15896
-//    date
-//    event
-//    message
-//    time
-//
-// 42307
-//    date
-//    event
-//    message
-//    time
+// temperature
+// humidity
+// rfidAccess
+// currentUser
+// securityAccess
+// doorStatus
+// timestamp
 // ==================================================
 
 app.get(
@@ -480,44 +477,89 @@ app.get(
             const records =
                 Object.entries(data)
                     .map(
-                        ([key, value]) => ({
+                        ([key, value]) => {
 
-                            key,
+                            return {
 
-                            date:
-                                value?.date ||
-                                "--",
+                                key,
 
-                            time:
-                                value?.time ||
-                                "--",
+                                temperature:
+                                    value?.temperature ??
+                                    "--",
 
-                            event:
-                                value?.event ||
-                                "--",
+                                humidity:
+                                    value?.humidity ??
+                                    "--",
 
-                            message:
-                                value?.message ||
-                                "--"
+                                rfidAccess:
+                                    value?.rfidAccess ??
+                                    "--",
 
-                        })
+                                currentUser:
+                                    value?.currentUser ??
+                                    "--",
+
+                                securityAccess:
+                                    value?.securityAccess ??
+                                    "--",
+
+                                doorStatus:
+                                    value?.doorStatus ??
+                                    "--",
+
+                                timestamp:
+                                    value?.timestamp ??
+                                    key,
+
+                                // Support old records
+                                date:
+                                    value?.date ??
+                                    "--",
+
+                                time:
+                                    value?.time ??
+                                    "--",
+
+                                event:
+                                    value?.event ??
+                                    "--",
+
+                                message:
+                                    value?.message ??
+                                    "--"
+
+                            };
+
+                        }
                     )
                     .sort(
                         (a, b) => {
 
-                            const dateA =
-                                new Date(
-                                    `${a.date} ${a.time}`
-                                ).getTime();
+                            const timestampA =
+                                Number(
+                                    a.timestamp
+                                );
+
+                            const timestampB =
+                                Number(
+                                    b.timestamp
+                                );
 
 
-                            const dateB =
-                                new Date(
-                                    `${b.date} ${b.time}`
-                                ).getTime();
+                            if (
+                                !isNaN(timestampA) &&
+                                !isNaN(timestampB)
+                            ) {
+
+                                return (
+                                    timestampB -
+                                    timestampA
+                                );
+
+                            }
 
 
-                            return dateB - dateA;
+                            return 0;
 
                         }
                     )
