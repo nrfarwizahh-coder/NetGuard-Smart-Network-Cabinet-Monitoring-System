@@ -40,9 +40,6 @@ const g01Element =
 const lastUpdateElement =
     document.getElementById("lastUpdate");
 
-const connectionText =
-    document.getElementById("connectionText");
-
 const systemConnection =
     document.getElementById("systemConnection");
 
@@ -141,7 +138,6 @@ function setStatus(element, status) {
             "--";
 
         return;
-
     }
 
 
@@ -152,21 +148,16 @@ function setStatus(element, status) {
 
 
     if (value === "1") {
-
         value = "ON";
-
     }
 
     else if (value === "0") {
-
         value = "OFF";
-
     }
 
 
     element.textContent =
         value;
-
 }
 
 
@@ -189,31 +180,23 @@ function updateDoorStatus(status) {
     ) {
 
         if (doorStatusElement) {
-
             doorStatusElement.textContent =
                 "OPEN";
-
         }
 
         if (doorStatusLarge) {
-
             doorStatusLarge.textContent =
                 "OPEN";
-
         }
 
         if (doorDescription) {
-
             doorDescription.textContent =
                 "Cabinet door is currently open.";
-
         }
 
         if (doorCircle) {
-
             doorCircle.style.background =
                 "#fee2e2";
-
         }
 
         return;
@@ -227,31 +210,23 @@ function updateDoorStatus(status) {
     ) {
 
         if (doorStatusElement) {
-
             doorStatusElement.textContent =
                 "CLOSED";
-
         }
 
         if (doorStatusLarge) {
-
             doorStatusLarge.textContent =
                 "CLOSED";
-
         }
 
         if (doorDescription) {
-
             doorDescription.textContent =
                 "Cabinet door is securely closed.";
-
         }
 
         if (doorCircle) {
-
             doorCircle.style.background =
                 "#dcfce7";
-
         }
 
         return;
@@ -259,26 +234,19 @@ function updateDoorStatus(status) {
 
 
     if (doorStatusElement) {
-
         doorStatusElement.textContent =
             value || "--";
-
     }
 
     if (doorStatusLarge) {
-
         doorStatusLarge.textContent =
             value || "--";
-
     }
 
     if (doorDescription) {
-
         doorDescription.textContent =
             "Door status received from NetGuard.";
-
     }
-
 }
 
 
@@ -325,7 +293,6 @@ function updateNetworkSwitch(data) {
                 "--";
 
         }
-
     }
 
 
@@ -355,7 +322,6 @@ function updateNetworkSwitch(data) {
                 "--";
 
         }
-
     }
 
 
@@ -391,7 +357,6 @@ function updateNetworkSwitch(data) {
                 "--";
 
         }
-
     }
 
 
@@ -421,7 +386,6 @@ function updateNetworkSwitch(data) {
                 "--";
 
         }
-
     }
 
 
@@ -451,9 +415,7 @@ function updateNetworkSwitch(data) {
                 "--";
 
         }
-
     }
-
 }
 
 
@@ -498,7 +460,6 @@ function updateMonitoringCards(data) {
                 "--";
 
         }
-
     }
 
 
@@ -526,7 +487,6 @@ function updateMonitoringCards(data) {
                 "--";
 
         }
-
     }
 
 
@@ -603,7 +563,6 @@ function updateMonitoringCards(data) {
             new Date().toLocaleTimeString();
 
     }
-
 }
 
 
@@ -664,8 +623,9 @@ async function loadBlynkData() {
 
         }
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
             "Blynk fetch error:",
@@ -681,7 +641,6 @@ async function loadBlynkData() {
         }
 
     }
-
 }
 
 
@@ -751,8 +710,9 @@ async function loadFirebaseData() {
 
         }
 
+    }
 
-    } catch (error) {
+    catch (error) {
 
         console.error(
             "Firebase fetch error:",
@@ -767,16 +727,7 @@ async function loadFirebaseData() {
 
         }
 
-
-        if (connectionText) {
-
-            connectionText.textContent =
-                "Firebase Connection Error";
-
-        }
-
     }
-
 }
 
 
@@ -828,15 +779,35 @@ function getHistoryValue(
 
 function formatHistoryTime(record) {
 
+    const dateValue =
+        record.date;
+
+    const timeValue =
+        record.time;
+
+
+    // If Firebase has separate date and time
+    if (
+        dateValue !== undefined &&
+        dateValue !== null &&
+        dateValue !== "" &&
+        timeValue !== undefined &&
+        timeValue !== null &&
+        timeValue !== ""
+    ) {
+
+        return `${dateValue} ${timeValue}`;
+
+    }
+
+
     const value =
         getHistoryValue(
             record,
             [
-                "time",
                 "timestamp",
                 "dateTime",
                 "datetime",
-                "date",
                 "createdAt"
             ]
         );
@@ -989,15 +960,32 @@ async function loadHistory() {
                 records.filter(
                     record => {
 
+                        const dateValue =
+                            record.date;
+
+
+                        if (
+                            dateValue !== undefined &&
+                            dateValue !== null &&
+                            dateValue !== ""
+                        ) {
+
+                            return String(
+                                dateValue
+                            ).startsWith(
+                                selectedDate
+                            );
+
+                        }
+
+
                         const timeValue =
                             getHistoryValue(
                                 record,
                                 [
-                                    "time",
                                     "timestamp",
                                     "dateTime",
                                     "datetime",
-                                    "date",
                                     "createdAt"
                                 ]
                             );
@@ -1222,7 +1210,9 @@ async function loadHistory() {
         );
 
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "History error:",
@@ -1397,7 +1387,7 @@ function setupNavigation() {
             );
 
         }
-    )
+    );
 
 
     // Start with Monitoring page
@@ -1452,7 +1442,9 @@ async function updateSystemStatus() {
 
         }
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "System status error:",
