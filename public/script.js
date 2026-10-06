@@ -752,14 +752,6 @@ async function loadFirebaseData() {
         }
 
 
-        if (connectionText) {
-
-            connectionText.textContent =
-                "Blynk + Firebase Connected";
-
-        }
-
-
     } catch (error) {
 
         console.error(
@@ -1405,7 +1397,7 @@ function setupNavigation() {
             );
 
         }
-    );
+    )
 
 
     // Start with Monitoring page
