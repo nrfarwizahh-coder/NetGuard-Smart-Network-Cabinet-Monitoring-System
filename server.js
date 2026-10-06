@@ -190,6 +190,105 @@ app.get(
             ]);
 
 
+            // ==================================================
+            // SAVE TO FIREBASE HISTORY
+            // ==================================================
+
+            if (
+                firebaseReady &&
+                database
+            ) {
+
+                try {
+
+                    await get(
+                        ref(
+                            database,
+                            "history"
+                        )
+                    );
+
+
+                    const historyRef =
+                        ref(
+                            database,
+                            "history"
+                        );
+
+
+                    const historyData = {
+
+                        timestamp:
+                            Date.now(),
+
+                        temperature:
+                            temperature || 0,
+
+                        humidity:
+                            humidity || 0,
+
+                        doorStatus:
+                            doorStatus || "UNKNOWN",
+
+                        rfidAccess:
+                            rfidAccess || "NONE",
+
+                        unauthorizedAccess:
+                            unauthorizedAccess || 0,
+
+                        securityAccess:
+                            securityAccess || "SAFE",
+
+                        switchStatus:
+                            switchStatus || 0,
+
+                        g0_0:
+                            g0 || 0,
+
+                        g0_1:
+                            g01 || 0
+
+                    };
+
+
+                    const { push } =
+                        require("firebase-admin/database");
+
+
+                    const newHistoryRef =
+                        push(
+                            historyRef
+                        );
+
+
+                    const {
+                        set
+                    } =
+                        require("firebase-admin/database");
+
+
+                    await set(
+                        newHistoryRef,
+                        historyData
+                    );
+
+
+                    console.log(
+                        "History saved to Firebase"
+                    );
+
+                } catch (fbError) {
+
+                    console.error(
+                        "Failed to save history:",
+                        fbError.message
+                    );
+
+                }
+
+            }
+
+
             res.json({
 
                 success: true,
@@ -228,6 +327,7 @@ app.get(
                 "Blynk Error:",
                 error.message
             );
+
 
             res.status(500).json({
 
@@ -273,6 +373,7 @@ app.get(
 
             }
 
+
             const snapshot =
                 await get(
                     ref(
@@ -281,10 +382,12 @@ app.get(
                     )
                 );
 
+
             const data =
                 snapshot.exists()
                     ? snapshot.val()
                     : null;
+
 
             res.json({
 
@@ -298,12 +401,14 @@ app.get(
 
             });
 
+
         } catch (error) {
 
             console.error(
                 "Firebase Test Error:",
                 error.message
             );
+
 
             res.status(500).json({
 
@@ -329,8 +434,6 @@ app.get(
 // Reads:
 //
 // /current
-//
-// This is the current NetGuard data.
 // ==================================================
 
 app.get(
@@ -355,6 +458,7 @@ app.get(
 
             }
 
+
             const snapshot =
                 await get(
                     ref(
@@ -363,10 +467,12 @@ app.get(
                     )
                 );
 
+
             const data =
                 snapshot.exists()
                     ? snapshot.val()
                     : null;
+
 
             if (data === null) {
 
@@ -383,13 +489,16 @@ app.get(
 
             }
 
+
             res.json({
 
                 success: true,
 
-                data: data
+                data:
+                    data
 
             });
+
 
         } catch (error) {
 
@@ -397,6 +506,7 @@ app.get(
                 "Firebase Current Error:",
                 error.message
             );
+
 
             res.status(500).json({
 
@@ -447,16 +557,12 @@ app.get(
             }
 
 
-            const historyRef =
-                ref(
-                    database,
-                    "history"
-                );
-
-
             const snapshot =
                 await get(
-                    historyRef
+                    ref(
+                        database,
+                        "history"
+                    )
                 );
 
 
@@ -470,6 +576,87 @@ app.get(
                 Object.entries(data)
                     .map(
                         ([key, value]) => {
+
+                            let timestamp =
+                                value?.timestamp;
+
+
+                            /*
+                             * If timestamp exists,
+                             * convert it to Malaysia date/time.
+                             */
+
+                            let date =
+                                value?.date ||
+                                "--";
+
+
+                            let time =
+                                value?.time ||
+                                "--";
+
+
+                            if (
+                                timestamp &&
+                                !isNaN(
+                                    Number(timestamp)
+                                )
+                            ) {
+
+                                const historyDate =
+                                    new Date(
+                                        Number(timestamp)
+                                    );
+
+
+                                date =
+                                    new Intl.DateTimeFormat(
+                                        "en-GB",
+                                        {
+                                            timeZone:
+                                                "Asia/Kuala_Lumpur",
+
+                                            year:
+                                                "numeric",
+
+                                            month:
+                                                "2-digit",
+
+                                            day:
+                                                "2-digit"
+                                        }
+                                    )
+                                    .format(
+                                        historyDate
+                                    );
+
+
+                                time =
+                                    new Intl.DateTimeFormat(
+                                        "en-GB",
+                                        {
+                                            timeZone:
+                                                "Asia/Kuala_Lumpur",
+
+                                            hour:
+                                                "2-digit",
+
+                                            minute:
+                                                "2-digit",
+
+                                            second:
+                                                "2-digit",
+
+                                            hour12:
+                                                false
+                                        }
+                                    )
+                                    .format(
+                                        historyDate
+                                    );
+
+                            }
+
 
                             return {
 
@@ -505,16 +692,12 @@ app.get(
                                     "--",
 
                                 timestamp:
-                                    value?.timestamp ??
+                                    timestamp ??
                                     key,
 
-                                date:
-                                    value?.date ??
-                                    "--",
+                                date,
 
-                                time:
-                                    value?.time ??
-                                    "--",
+                                time,
 
                                 event:
                                     value?.event ??
@@ -579,7 +762,7 @@ app.get(
 
             console.error(
                 "Firebase History Error:",
-                error
+                error.message
             );
 
 
@@ -627,6 +810,7 @@ app.get(
 
             }
 
+
             const snapshot =
                 await get(
                     ref(
@@ -635,10 +819,12 @@ app.get(
                     )
                 );
 
+
             const data =
                 snapshot.exists()
                     ? snapshot.val()
                     : {};
+
 
             const records =
                 Object.entries(data)
@@ -677,10 +863,12 @@ app.get(
                                     `${a.date} ${a.time}`
                                 ).getTime();
 
+
                             const bTime =
                                 new Date(
                                     `${b.date} ${b.time}`
                                 ).getTime();
+
 
                             return bTime - aTime;
 
@@ -691,6 +879,7 @@ app.get(
                         50
                     );
 
+
             res.json({
 
                 success: true,
@@ -700,12 +889,14 @@ app.get(
 
             });
 
+
         } catch (error) {
 
             console.error(
                 "Access Logs Error:",
                 error.message
             );
+
 
             res.status(500).json({
 
@@ -751,6 +942,7 @@ app.get(
 
             }
 
+
             const snapshot =
                 await get(
                     ref(
@@ -759,10 +951,12 @@ app.get(
                     )
                 );
 
+
             const data =
                 snapshot.exists()
                     ? snapshot.val()
                     : {};
+
 
             const records =
                 Object.entries(data)
@@ -795,6 +989,7 @@ app.get(
                     )
                     .reverse();
 
+
             res.json({
 
                 success: true,
@@ -804,12 +999,14 @@ app.get(
 
             });
 
+
         } catch (error) {
 
             console.error(
                 "Alerts Error:",
                 error.message
             );
+
 
             res.status(500).json({
 
