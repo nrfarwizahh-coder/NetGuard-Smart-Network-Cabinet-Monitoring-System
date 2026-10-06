@@ -1065,78 +1065,224 @@ async function updateSystemStatus() {
 }
 
 // ======================================================
-// INFO BUTTONS
+// INFORMATION POPUP
 // ======================================================
 
-function showInfo(type) {
+const infoModal =
+    document.getElementById("infoModal");
 
-    const info = {
+const infoModalTitle =
+    document.getElementById("infoModalTitle");
 
-        temperature: {
-            title: "Temperature",
-            text: "Displays the current temperature inside the network cabinet. This helps monitor the cabinet environment and identify high temperature conditions."
-        },
+const infoModalText =
+    document.getElementById("infoModalText");
 
-        humidity: {
-            title: "Humidity",
-            text: "Displays the current humidity level inside the network cabinet. Monitoring humidity helps protect network equipment from environmental conditions."
-        },
+const infoModalDetails =
+    document.getElementById("infoModalDetails");
 
-        door: {
-            title: "Door Status",
-            text: "Shows the current condition of the network cabinet door. CLOSED means the cabinet is secured, while OPEN means the cabinet door has been opened."
-        },
+const infoModalIcon =
+    document.getElementById("infoModalIcon");
 
-        rfid: {
-            title: "RFID Access",
-            text: "Displays the latest RFID access detected by the system. The RFID reader is used to identify users who access the network cabinet."
-        },
+const modalClose =
+    document.getElementById("modalClose");
 
-        unauthorized: {
-            title: "Unauthorized Access",
-            text: "Shows the number of unauthorized access attempts detected by the system."
-        },
+const modalDone =
+    document.getElementById("modalDone");
 
-        security: {
-            title: "Security Access",
-            text: "Displays the current security level of the network cabinet. SAFE indicates normal operation, while WARNING or ALARM indicates a security issue."
-        },
-
-        switch: {
-            title: "Network Switch",
-            text: "Shows the overall status of the network switch. ON means at least one monitored network port is active."
-        },
-
-        g00: {
-            title: "G0/0",
-            text: "Displays the current status of the G0/0 network switch port. UP means the port is active, while DOWN means the port is inactive."
-        },
-
-        g01: {
-            title: "G0/1",
-            text: "Displays the current status of the G0/1 network switch port. UP means the port is active, while DOWN means the port is inactive."
-        }
-
-    };
+const infoModalOverlay =
+    document.getElementById("infoModalOverlay");
 
 
-    const selectedInfo =
-        info[type];
+// ======================================================
+// INFORMATION CONTENT
+// ======================================================
 
+const infoContent = {
 
-    if (!selectedInfo) {
-        return;
+    camera: {
+        icon: "📷",
+        title: "Live Camera",
+        text: "Provides live visual monitoring of the network cabinet using the ESP32-CAM.",
+        details: "The camera allows the user to visually check the condition of the cabinet remotely."
+    },
+
+    temperature: {
+        icon: "🌡",
+        title: "Temperature",
+        text: "Displays the current temperature inside the network cabinet.",
+        details: "The DHT22 sensor monitors the cabinet temperature to help identify high-temperature conditions."
+    },
+
+    humidity: {
+        icon: "💧",
+        title: "Humidity",
+        text: "Displays the current humidity level inside the network cabinet.",
+        details: "The DHT22 sensor monitors humidity to help maintain a suitable environment for network equipment."
+    },
+
+    door: {
+        icon: "🚪",
+        title: "Door Status",
+        text: "Shows the current condition of the network cabinet door.",
+        details: "CLOSED indicates that the cabinet is secured, while OPEN indicates that the cabinet door has been opened."
+    },
+
+    rfid: {
+        icon: "🔑",
+        title: "RFID Access",
+        text: "Displays the latest RFID access detected by the system.",
+        details: "The RFID RC522 reader is used to identify authorized users accessing the network cabinet."
+    },
+
+    unauthorized: {
+        icon: "⚠",
+        title: "Unauthorized Access",
+        text: "Displays the number of unauthorized access attempts.",
+        details: "The system records unsuccessful RFID access attempts and can trigger a security alert when the attempt limit is reached."
+    },
+
+    security: {
+        icon: "🛡",
+        title: "Security Access",
+        text: "Displays the current security level of the network cabinet.",
+        details: "SAFE indicates normal operation, while WARNING or ALARM indicates a security condition that requires attention."
+    },
+
+    switch: {
+        icon: "🔌",
+        title: "Network Switch",
+        text: "Displays the overall status of the network switch.",
+        details: "The system monitors the connected network switch and displays whether the monitored ports are active."
+    },
+
+    "g0/0": {
+        icon: "🔗",
+        title: "G0/0",
+        text: "Displays the current status of the G0/0 network port.",
+        details: "UP indicates that the G0/0 interface is active, while DOWN indicates that the interface is inactive."
+    },
+
+    "g0/1": {
+        icon: "🔗",
+        title: "G0/1",
+        text: "Displays the current status of the G0/1 network port.",
+        details: "UP indicates that the G0/1 interface is active, while DOWN indicates that the interface is inactive."
     }
 
+};
 
-    alert(
-        selectedInfo.title +
-        "\n\n" +
-        selectedInfo.text
+
+// ======================================================
+// OPEN INFORMATION POPUP
+// ======================================================
+
+document.querySelectorAll(".info-button").forEach(button => {
+
+    button.addEventListener("click", function() {
+
+        const type =
+            this.getAttribute("data-info");
+
+        const info =
+            infoContent[type];
+
+        if (!info) {
+            return;
+        }
+
+
+        infoModalIcon.textContent =
+            info.icon;
+
+        infoModalTitle.textContent =
+            info.title;
+
+        infoModalText.textContent =
+            info.text;
+
+        infoModalDetails.textContent =
+            info.details;
+
+
+        infoModal.style.display =
+            "flex";
+
+        infoModal.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+    });
+
+});
+
+
+// ======================================================
+// CLOSE POPUP
+// ======================================================
+
+function closeInfoModal() {
+
+    infoModal.style.display =
+        "none";
+
+    infoModal.setAttribute(
+        "aria-hidden",
+        "true"
     );
 
 }
 
+
+if (modalClose) {
+
+    modalClose.addEventListener(
+        "click",
+        closeInfoModal
+    );
+
+}
+
+
+if (modalDone) {
+
+    modalDone.addEventListener(
+        "click",
+        closeInfoModal
+    );
+
+}
+
+
+if (infoModalOverlay) {
+
+    infoModalOverlay.addEventListener(
+        "click",
+        closeInfoModal
+    );
+
+}
+
+
+// ======================================================
+// CLOSE WITH ESCAPE KEY
+// ======================================================
+
+document.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (
+            event.key === "Escape" &&
+            infoModal.getAttribute("aria-hidden") === "false"
+        ) {
+
+            closeInfoModal();
+
+        }
+
+    }
+);
 
 // ======================================================
 // START
