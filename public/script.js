@@ -1,5 +1,6 @@
 // ======================================================
 // NETGUARD SMART NETWORK CABINET MONITORING
+// BLYNK + FIREBASE SYNCHRONIZED
 // ======================================================
 
 const UPDATE_INTERVAL = 30000;
@@ -45,6 +46,12 @@ const connectionText =
 const systemConnection =
     document.getElementById("systemConnection");
 
+const systemBlynk =
+    document.getElementById("systemBlynk");
+
+const systemFirebase =
+    document.getElementById("systemFirebase");
+
 const historyTable =
     document.getElementById("historyTable");
 
@@ -53,6 +60,31 @@ const historyDate =
 
 const clearHistoryButton =
     document.getElementById("clearHistory");
+
+
+// ======================================================
+// DOOR ELEMENTS
+// ======================================================
+
+const doorStatusLarge =
+    document.getElementById("doorStatusLarge");
+
+const doorDescription =
+    document.getElementById("doorDescription");
+
+const doorCircle =
+    document.getElementById("doorCircle");
+
+
+// ======================================================
+// OPTIONAL ETHERNET ELEMENTS
+// ======================================================
+
+const ethernetE0 =
+    document.getElementById("ethernetE0");
+
+const ethernetE1 =
+    document.getElementById("ethernetE1");
 
 
 // ======================================================
@@ -73,54 +105,177 @@ const pageTitle =
 
 
 // ======================================================
-// LOAD FIREBASE DATA
+// FORMAT NUMBER
 // ======================================================
 
-async function loadFirebaseData() {
+function formatNumber(value) {
 
-    try {
+    const number =
+        parseFloat(value);
 
-        const response =
-            await fetch("/api/firebase");
+    if (isNaN(number)) {
+        return "--";
+    }
 
-        const result =
-            await response.json();
-
-        console.log("Firebase API result:", result);
+    return number.toFixed(1);
+}
 
 
-        if (
-            result.success &&
-            result.data
-        ) {
+// ======================================================
+// SET STATUS
+// ======================================================
 
-            updateMonitoringCards(result.data);
+function setStatus(element, status) {
 
-        } else {
+    if (!element) {
+        return;
+    }
 
-            console.error(
-                "Firebase data error:",
-                result
-            );
+    if (
+        status === null ||
+        status === undefined ||
+        status === ""
+    ) {
 
-            if (connectionText) {
-                connectionText.textContent =
-                    "Firebase Error";
-            }
+        element.textContent =
+            "--";
+
+        return;
+
+    }
+
+
+    let value =
+        String(status)
+            .trim()
+            .toUpperCase();
+
+
+    if (value === "1") {
+
+        value = "ON";
+
+    }
+
+    else if (value === "0") {
+
+        value = "OFF";
+
+    }
+
+
+    element.textContent =
+        value;
+
+}
+
+
+// ======================================================
+// DOOR STATUS
+// ======================================================
+
+function updateDoorStatus(status) {
+
+    const value =
+        String(status || "")
+            .trim()
+            .toUpperCase();
+
+
+    if (
+        value === "OPEN" ||
+        value === "1" ||
+        value === "OPENED"
+    ) {
+
+        if (doorStatusElement) {
+
+            doorStatusElement.textContent =
+                "OPEN";
 
         }
 
-    } catch (error) {
+        if (doorStatusLarge) {
 
-        console.error(
-            "Firebase fetch error:",
-            error
-        );
+            doorStatusLarge.textContent =
+                "OPEN";
 
-        if (connectionText) {
-            connectionText.textContent =
-                "Connection Error";
         }
+
+        if (doorDescription) {
+
+            doorDescription.textContent =
+                "Cabinet door is currently open.";
+
+        }
+
+        if (doorCircle) {
+
+            doorCircle.style.background =
+                "#fee2e2";
+
+        }
+
+        return;
+    }
+
+
+    if (
+        value === "CLOSED" ||
+        value === "0" ||
+        value === "CLOSE"
+    ) {
+
+        if (doorStatusElement) {
+
+            doorStatusElement.textContent =
+                "CLOSED";
+
+        }
+
+        if (doorStatusLarge) {
+
+            doorStatusLarge.textContent =
+                "CLOSED";
+
+        }
+
+        if (doorDescription) {
+
+            doorDescription.textContent =
+                "Cabinet door is securely closed.";
+
+        }
+
+        if (doorCircle) {
+
+            doorCircle.style.background =
+                "#dcfce7";
+
+        }
+
+        return;
+    }
+
+
+    if (doorStatusElement) {
+
+        doorStatusElement.textContent =
+            value || "--";
+
+    }
+
+    if (doorStatusLarge) {
+
+        doorStatusLarge.textContent =
+            value || "--";
+
+    }
+
+    if (doorDescription) {
+
+        doorDescription.textContent =
+            "Door status received from NetGuard.";
 
     }
 
@@ -128,115 +283,268 @@ async function loadFirebaseData() {
 
 
 // ======================================================
-// NAVIGATION
+// UPDATE NETWORK SWITCH
 // ======================================================
 
-const navLinks =
-    document.querySelectorAll(".nav-link");
+function updateNetworkSwitch(data) {
+
+    let port0 = null;
+
+    let port1 = null;
 
 
-navLinks.forEach(link => {
+    // ----------------------------------------------
+    // NEW STRUCTURE
+    // switchStatus
+    // {
+    //     "0 status": 1,
+    //     "1 status": 0
+    // }
+    // ----------------------------------------------
 
-    link.addEventListener("click", function(event) {
+    if (
+        data.switchStatus &&
+        typeof data.switchStatus === "object"
+    ) {
 
-        event.preventDefault();
+        port0 =
+            Number(
+                data.switchStatus["0 status"]
+            );
+
+        port1 =
+            Number(
+                data.switchStatus["1 status"]
+            );
+
+    }
 
 
-        navLinks.forEach(item => {
-            item.classList.remove("active");
-        });
+    // ----------------------------------------------
+    // FIREBASE g0 STRUCTURE
+    // g0
+    // {
+    //     0: { status: 1 },
+    //     1: { status: 0 }
+    // }
+    // ----------------------------------------------
 
+    if (
+        data.g0 &&
+        typeof data.g0 === "object"
+    ) {
 
-        this.classList.add("active");
+        if (
+            data.g0[0] &&
+            typeof data.g0[0] === "object"
+        ) {
 
+            port0 =
+                Number(
+                    data.g0[0].status
+                );
 
-        const target =
-            this.getAttribute("href");
+        }
 
+        else if (
+            data.g0[0] !== undefined
+        ) {
 
-        // ==================================================
-        // MONITORING
-        // ==================================================
-
-        if (target === "#monitoring") {
-
-            monitoringSection.style.display = "block";
-
-            historySection.style.display = "none";
-
-            systemSection.style.display = "none";
-
-            pageTitle.textContent =
-                "Monitoring";
-
-            loadAllData();
+            port0 =
+                Number(
+                    data.g0[0]
+                );
 
         }
 
 
-        // ==================================================
-        // HISTORY
-        // ==================================================
+        if (
+            data.g0[1] &&
+            typeof data.g0[1] === "object"
+        ) {
 
-        else if (target === "#history") {
-
-            monitoringSection.style.display = "none";
-
-            historySection.style.display = "block";
-
-            systemSection.style.display = "none";
-
-            pageTitle.textContent =
-                "History";
-
-            loadHistory();
+            port1 =
+                Number(
+                    data.g0[1].status
+                );
 
         }
 
+        else if (
+            data.g0[1] !== undefined
+        ) {
 
-        // ==================================================
-        // SYSTEM
-        // ==================================================
-
-        else if (target === "#system") {
-
-            monitoringSection.style.display = "none";
-
-            historySection.style.display = "none";
-
-            systemSection.style.display = "block";
-
-            pageTitle.textContent =
-                "System";
-
-            updateSystemStatus();
+            port1 =
+                Number(
+                    data.g0[1]
+                );
 
         }
 
-    });
-
-});
+    }
 
 
-// ======================================================
-// LOGOUT
-// ======================================================
-
-const logoutButton =
-    document.getElementById("logoutButton");
-
-
-if (logoutButton) {
-
-    logoutButton.addEventListener(
-        "click",
-        function() {
-
-            window.location.href =
-                "login.html";
-
-        }
+    console.log(
+        "Network Port 0:",
+        port0
     );
+
+    console.log(
+        "Network Port 1:",
+        port1
+    );
+
+
+    // ----------------------------------------------
+    // G0/0
+    // ----------------------------------------------
+
+    if (g00Element) {
+
+        if (port0 === 1) {
+
+            g00Element.textContent =
+                "UP";
+
+        }
+
+        else if (port0 === 0) {
+
+            g00Element.textContent =
+                "DOWN";
+
+        }
+
+        else {
+
+            g00Element.textContent =
+                "--";
+
+        }
+
+    }
+
+
+    // ----------------------------------------------
+    // G0/1
+    // ----------------------------------------------
+
+    if (g01Element) {
+
+        if (port1 === 1) {
+
+            g01Element.textContent =
+                "UP";
+
+        }
+
+        else if (port1 === 0) {
+
+            g01Element.textContent =
+                "DOWN";
+
+        }
+
+        else {
+
+            g01Element.textContent =
+                "--";
+
+        }
+
+    }
+
+
+    // ----------------------------------------------
+    // NETWORK SWITCH
+    // ----------------------------------------------
+
+    if (switchStatusElement) {
+
+        if (
+            port0 === 1 ||
+            port1 === 1
+        ) {
+
+            switchStatusElement.textContent =
+                "ON";
+
+        }
+
+        else if (
+            port0 === 0 &&
+            port1 === 0
+        ) {
+
+            switchStatusElement.textContent =
+                "OFF";
+
+        }
+
+        else {
+
+            switchStatusElement.textContent =
+                "--";
+
+        }
+
+    }
+
+
+    // ----------------------------------------------
+    // OPTIONAL ETHERNET
+    // ----------------------------------------------
+
+    if (ethernetE0) {
+
+        if (port0 === 1) {
+
+            ethernetE0.textContent =
+                "ON";
+
+        }
+
+        else if (port0 === 0) {
+
+            ethernetE0.textContent =
+                "OFF";
+
+        }
+
+        else {
+
+            ethernetE0.textContent =
+                "--";
+
+        }
+
+    }
+
+
+    if (ethernetE1) {
+
+        if (port1 === 1) {
+
+            ethernetE1.textContent =
+                "ON";
+
+        }
+
+        else if (port1 === 0) {
+
+            ethernetE1.textContent =
+                "OFF";
+
+        }
+
+        else {
+
+            ethernetE1.textContent =
+                "--";
+
+        }
+
+    }
 
 }
 
@@ -247,33 +555,41 @@ if (logoutButton) {
 
 function updateMonitoringCards(data) {
 
+    if (!data) {
+        return;
+    }
+
+
     console.log(
         "Monitoring data:",
         data
     );
 
 
-    if (!data) {
-        return;
-    }
-
-
     // ==================================================
     // TEMPERATURE
     // ==================================================
 
-    if (
-        data.temperature !== undefined &&
-        data.temperature !== null
-    ) {
+    if (temperatureElement) {
 
-        temperatureElement.textContent =
-            Number(data.temperature).toFixed(1);
+        if (
+            data.temperature !== undefined &&
+            data.temperature !== null
+        ) {
 
-    } else {
+            temperatureElement.textContent =
+                formatNumber(
+                    data.temperature
+                );
 
-        temperatureElement.textContent =
-            "--";
+        }
+
+        else {
+
+            temperatureElement.textContent =
+                "--";
+
+        }
 
     }
 
@@ -282,68 +598,53 @@ function updateMonitoringCards(data) {
     // HUMIDITY
     // ==================================================
 
-    if (
-        data.humidity !== undefined &&
-        data.humidity !== null
-    ) {
-
-        humidityElement.textContent =
-            Number(data.humidity).toFixed(0);
-
-    } else {
-
-        humidityElement.textContent =
-            "--";
-
-    }
-
-
-    // ==================================================
-    // DOOR STATUS
-    // ==================================================
-
-    if (data.doorStatus !== undefined) {
-
-        const door =
-            String(data.doorStatus).toUpperCase();
-
+    if (humidityElement) {
 
         if (
-            door === "OPEN" ||
-            door === "OPENED" ||
-            door === "1"
+            data.humidity !== undefined &&
+            data.humidity !== null
         ) {
 
-            doorStatusElement.textContent =
-                "OPEN";
-
-        } else {
-
-            doorStatusElement.textContent =
-                "CLOSED";
+            humidityElement.textContent =
+                Number(
+                    data.humidity
+                ).toFixed(0);
 
         }
 
-    } else {
+        else {
 
-        doorStatusElement.textContent =
-            "--";
+            humidityElement.textContent =
+                "--";
+
+        }
 
     }
 
 
     // ==================================================
-    // RFID ACCESS
+    // DOOR
     // ==================================================
 
-    if (data.rfidAccess !== undefined) {
+    if (
+        data.doorStatus !== undefined
+    ) {
+
+        updateDoorStatus(
+            data.doorStatus
+        );
+
+    }
+
+
+    // ==================================================
+    // RFID
+    // ==================================================
+
+    if (rfidAccessElement) {
 
         rfidAccessElement.textContent =
-            data.rfidAccess;
-
-    } else {
-
-        rfidAccessElement.textContent =
+            data.rfidAccess ??
             "--";
 
     }
@@ -353,14 +654,10 @@ function updateMonitoringCards(data) {
     // UNAUTHORIZED ACCESS
     // ==================================================
 
-    if (data.unauthorizedAccess !== undefined) {
+    if (unauthorizedAccessElement) {
 
         unauthorizedAccessElement.textContent =
-            data.unauthorizedAccess;
-
-    } else {
-
-        unauthorizedAccessElement.textContent =
+            data.unauthorizedAccess ??
             "--";
 
     }
@@ -370,14 +667,10 @@ function updateMonitoringCards(data) {
     // SECURITY ACCESS
     // ==================================================
 
-    if (data.securityAccess !== undefined) {
+    if (securityAccessElement) {
 
         securityAccessElement.textContent =
-            data.securityAccess;
-
-    } else {
-
-        securityAccessElement.textContent =
+            data.securityAccess ??
             "--";
 
     }
@@ -387,109 +680,9 @@ function updateMonitoringCards(data) {
     // NETWORK SWITCH
     // ==================================================
 
-    const switchData =
-        data.switchStatus;
-
-
-    console.log(
-        "Switch Firebase data:",
-        switchData
+    updateNetworkSwitch(
+        data
     );
-
-
-    if (
-        switchData &&
-        typeof switchData === "object"
-    ) {
-
-        const port0 =
-            Number(
-                switchData["0 status"]
-            );
-
-        const port1 =
-            Number(
-                switchData["1 status"]
-            );
-
-
-        // G0/0
-
-        if (port0 === 1) {
-
-            g00Element.textContent =
-                "UP";
-
-        } else if (port0 === 0) {
-
-            g00Element.textContent =
-                "DOWN";
-
-        } else {
-
-            g00Element.textContent =
-                "--";
-
-        }
-
-
-        // G0/1
-
-        if (port1 === 1) {
-
-            g01Element.textContent =
-                "UP";
-
-        } else if (port1 === 0) {
-
-            g01Element.textContent =
-                "DOWN";
-
-        } else {
-
-            g01Element.textContent =
-                "--";
-
-        }
-
-
-        // NETWORK SWITCH
-
-        if (
-            port0 === 1 ||
-            port1 === 1
-        ) {
-
-            switchStatusElement.textContent =
-                "ON";
-
-        } else if (
-            port0 === 0 &&
-            port1 === 0
-        ) {
-
-            switchStatusElement.textContent =
-                "OFF";
-
-        } else {
-
-            switchStatusElement.textContent =
-                "--";
-
-        }
-
-    } else {
-
-        switchStatusElement.textContent =
-            "--";
-
-        g00Element.textContent =
-            "--";
-
-        g01Element.textContent =
-            "--";
-
-    }
 
 
     // ==================================================
@@ -503,23 +696,11 @@ function updateMonitoringCards(data) {
 
     }
 
-
-    // ==================================================
-    // CONNECTION
-    // ==================================================
-
-    if (connectionText) {
-
-        connectionText.textContent =
-            "Connected";
-
-    }
-
 }
 
 
 // ======================================================
-// BLYNK DATA
+// LOAD BLYNK DATA
 // ======================================================
 
 async function loadBlynkData() {
@@ -529,13 +710,58 @@ async function loadBlynkData() {
         const response =
             await fetch("/api/data");
 
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Blynk API error"
+            );
+
+        }
+
+
         const result =
             await response.json();
+
 
         console.log(
             "Blynk API result:",
             result
         );
+
+
+        if (!result.success) {
+
+            throw new Error(
+                result.message ||
+                "Blynk data unavailable"
+            );
+
+        }
+
+
+        const data =
+            result.data || {};
+
+
+        // Blynk data is used as primary data
+
+        updateMonitoringCards(
+            data
+        );
+
+
+        // ----------------------------------------------
+        // CONNECTION
+        // ----------------------------------------------
+
+        if (systemBlynk) {
+
+            systemBlynk.textContent =
+                "🟢 Connected";
+
+        }
+
 
     } catch (error) {
 
@@ -543,6 +769,125 @@ async function loadBlynkData() {
             "Blynk fetch error:",
             error
         );
+
+
+        if (systemBlynk) {
+
+            systemBlynk.textContent =
+                "🔴 Disconnected";
+
+        }
+
+    }
+
+}
+
+
+// ======================================================
+// LOAD FIREBASE CURRENT DATA
+// ======================================================
+
+async function loadFirebaseData() {
+
+    try {
+
+        const response =
+            await fetch("/api/firebase");
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Firebase API error"
+            );
+
+        }
+
+
+        const result =
+            await response.json();
+
+
+        console.log(
+            "Firebase API result:",
+            result
+        );
+
+
+        if (
+            !result.success ||
+            !result.data
+        ) {
+
+            throw new Error(
+                result.message ||
+                "Firebase data unavailable"
+            );
+
+        }
+
+
+        const data =
+            result.data;
+
+
+        console.log(
+            "Firebase current data:",
+            data
+        );
+
+
+        // ----------------------------------------------
+        // Firebase is synchronized with dashboard
+        // ----------------------------------------------
+
+        updateMonitoringCards(
+            data
+        );
+
+
+        // ----------------------------------------------
+        // CONNECTION
+        // ----------------------------------------------
+
+        if (systemFirebase) {
+
+            systemFirebase.textContent =
+                "🟢 Connected";
+
+        }
+
+
+        if (connectionText) {
+
+            connectionText.textContent =
+                "Blynk + Firebase Connected";
+
+        }
+
+
+    } catch (error) {
+
+        console.error(
+            "Firebase fetch error:",
+            error
+        );
+
+
+        if (systemFirebase) {
+
+            systemFirebase.textContent =
+                "🔴 Disconnected";
+
+        }
+
+
+        if (connectionText) {
+
+            connectionText.textContent =
+                "Firebase Connection Error";
+
+        }
 
     }
 
@@ -556,20 +901,21 @@ async function loadBlynkData() {
 async function loadAllData() {
 
     await Promise.all([
-        loadFirebaseData(),
-        loadBlynkData()
+        loadBlynkData(),
+        loadFirebaseData()
     ]);
 
 }
 
 
 // ======================================================
-// HISTORY
+// HISTORY VALUE
 // ======================================================
 
-// Get a value using several possible Firebase field names
-
-function getHistoryValue(record, names) {
+function getHistoryValue(
+    record,
+    names
+) {
 
     for (const name of names) {
 
@@ -591,7 +937,7 @@ function getHistoryValue(record, names) {
 
 
 // ======================================================
-// FORMAT HISTORY DATE/TIME
+// FORMAT HISTORY TIME
 // ======================================================
 
 function formatHistoryTime(record) {
@@ -621,8 +967,6 @@ function formatHistoryTime(record) {
     }
 
 
-    // Firebase timestamp number
-
     if (
         typeof value === "number" ||
         !isNaN(Number(value))
@@ -649,8 +993,6 @@ function formatHistoryTime(record) {
     }
 
 
-    // Date string
-
     const date =
         new Date(value);
 
@@ -668,7 +1010,7 @@ function formatHistoryTime(record) {
 
 
 // ======================================================
-// HISTORY
+// LOAD FIREBASE HISTORY
 // ======================================================
 
 async function loadHistory() {
@@ -692,8 +1034,19 @@ async function loadHistory() {
         const response =
             await fetch("/api/history");
 
+
+        if (!response.ok) {
+
+            throw new Error(
+                "History API error"
+            );
+
+        }
+
+
         const result =
             await response.json();
+
 
         console.log(
             "History API result:",
@@ -722,7 +1075,9 @@ async function loadHistory() {
         let records =
             Array.isArray(result.data)
                 ? result.data
-                : Object.values(result.data);
+                : Object.values(
+                    result.data
+                );
 
 
         console.log(
@@ -745,76 +1100,98 @@ async function loadHistory() {
 
 
             records =
-                records.filter(record => {
+                records.filter(
+                    record => {
 
-                    const timeValue =
-                        getHistoryValue(
-                            record,
-                            [
-                                "time",
-                                "timestamp",
-                                "dateTime",
-                                "datetime",
-                                "date",
-                                "createdAt"
-                            ]
-                        );
-
-
-                    if (
-                        timeValue === null ||
-                        timeValue === undefined
-                    ) {
-
-                        return false;
-
-                    }
+                        const timeValue =
+                            getHistoryValue(
+                                record,
+                                [
+                                    "time",
+                                    "timestamp",
+                                    "dateTime",
+                                    "datetime",
+                                    "date",
+                                    "createdAt"
+                                ]
+                            );
 
 
-                    const date =
-                        new Date(
-                            Number(timeValue)
-                                ? (
-                                    Number(timeValue) < 10000000000
-                                        ? Number(timeValue) * 1000
-                                        : Number(timeValue)
-                                  )
-                                : timeValue
-                        );
+                        if (
+                            timeValue === null ||
+                            timeValue === undefined
+                        ) {
+
+                            return false;
+
+                        }
 
 
-                    if (isNaN(date.getTime())) {
+                        const date =
+                            new Date(
+                                Number(timeValue)
+                                    ? (
+                                        Number(timeValue) <
+                                        10000000000
 
-                        return String(
-                            timeValue
-                        ).startsWith(
+                                            ? Number(timeValue) *
+                                              1000
+
+                                            : Number(timeValue)
+                                      )
+
+                                    : timeValue
+                            );
+
+
+                        if (
+                            isNaN(
+                                date.getTime()
+                            )
+                        ) {
+
+                            return String(
+                                timeValue
+                            ).startsWith(
+                                selectedDate
+                            );
+
+                        }
+
+
+                        const year =
+                            date.getFullYear();
+
+
+                        const month =
+                            String(
+                                date.getMonth() + 1
+                            ).padStart(
+                                2,
+                                "0"
+                            );
+
+
+                        const day =
+                            String(
+                                date.getDate()
+                            ).padStart(
+                                2,
+                                "0"
+                            );
+
+
+                        const formattedDate =
+                            `${year}-${month}-${day}`;
+
+
+                        return (
+                            formattedDate ===
                             selectedDate
                         );
 
                     }
-
-
-                    const year =
-                        date.getFullYear();
-
-                    const month =
-                        String(
-                            date.getMonth() + 1
-                        ).padStart(2, "0");
-
-                    const day =
-                        String(
-                            date.getDate()
-                        ).padStart(2, "0");
-
-
-                    const formattedDate =
-                        `${year}-${month}-${day}`;
-
-
-                    return formattedDate === selectedDate;
-
-                });
+                );
 
         }
 
@@ -834,123 +1211,132 @@ async function loadHistory() {
         }
 
 
-        historyTable.innerHTML = "";
+        historyTable.innerHTML =
+            "";
 
 
         // ==================================================
-        // DISPLAY RECORDS
+        // DISPLAY HISTORY
         // ==================================================
 
-        records.forEach(record => {
+        records.forEach(
+            record => {
 
-            const row =
-                document.createElement("tr");
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
 
 
-            const time =
-                formatHistoryTime(record);
+                const time =
+                    formatHistoryTime(
+                        record
+                    );
 
 
-            const temperature =
-                getHistoryValue(
-                    record,
-                    [
-                        "temperature",
-                        "temp"
-                    ]
+                const temperature =
+                    getHistoryValue(
+                        record,
+                        [
+                            "temperature",
+                            "temp"
+                        ]
+                    );
+
+
+                const humidity =
+                    getHistoryValue(
+                        record,
+                        [
+                            "humidity",
+                            "humid"
+                        ]
+                    );
+
+
+                const door =
+                    getHistoryValue(
+                        record,
+                        [
+                            "door",
+                            "doorStatus",
+                            "door_status"
+                        ]
+                    );
+
+
+                const rfid =
+                    getHistoryValue(
+                        record,
+                        [
+                            "rfid",
+                            "rfidAccess",
+                            "rfid_access"
+                        ]
+                    );
+
+
+                const unauthorized =
+                    getHistoryValue(
+                        record,
+                        [
+                            "unauthorized",
+                            "unauthorizedAccess",
+                            "unauthorized_access"
+                        ]
+                    );
+
+
+                const security =
+                    getHistoryValue(
+                        record,
+                        [
+                            "security",
+                            "securityAccess",
+                            "security_access"
+                        ]
+                    );
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${time}
+                    </td>
+
+                    <td>
+                        ${temperature ?? "--"}
+                    </td>
+
+                    <td>
+                        ${humidity ?? "--"}
+                    </td>
+
+                    <td>
+                        ${door ?? "--"}
+                    </td>
+
+                    <td>
+                        ${rfid ?? "--"}
+                    </td>
+
+                    <td>
+                        ${unauthorized ?? "--"}
+                    </td>
+
+                    <td>
+                        ${security ?? "--"}
+                    </td>
+
+                `;
+
+
+                historyTable.appendChild(
+                    row
                 );
 
-
-            const humidity =
-                getHistoryValue(
-                    record,
-                    [
-                        "humidity",
-                        "humid"
-                    ]
-                );
-
-
-            const door =
-                getHistoryValue(
-                    record,
-                    [
-                        "door",
-                        "doorStatus",
-                        "door_status"
-                    ]
-                );
-
-
-            const rfid =
-                getHistoryValue(
-                    record,
-                    [
-                        "rfid",
-                        "rfidAccess",
-                        "rfid_access"
-                    ]
-                );
-
-
-            const unauthorized =
-                getHistoryValue(
-                    record,
-                    [
-                        "unauthorized",
-                        "unauthorizedAccess",
-                        "unauthorized_access"
-                    ]
-                );
-
-
-            const security =
-                getHistoryValue(
-                    record,
-                    [
-                        "security",
-                        "securityAccess",
-                        "security_access"
-                    ]
-                );
-
-
-            row.innerHTML = `
-
-                <td>
-                    ${time}
-                </td>
-
-                <td>
-                    ${temperature ?? "--"}
-                </td>
-
-                <td>
-                    ${humidity ?? "--"}
-                </td>
-
-                <td>
-                    ${door ?? "--"}
-                </td>
-
-                <td>
-                    ${rfid ?? "--"}
-                </td>
-
-                <td>
-                    ${unauthorized ?? "--"}
-                </td>
-
-                <td>
-                    ${security ?? "--"}
-                </td>
-
-            `;
-
-
-            historyTable.appendChild(row);
-
-        });
+            }
+        );
 
 
     } catch (error) {
@@ -999,12 +1385,143 @@ if (clearHistoryButton) {
         function() {
 
             if (historyDate) {
-                historyDate.value = "";
+
+                historyDate.value =
+                    "";
+
             }
 
             loadHistory();
 
         }
+    );
+
+}
+
+
+// ======================================================
+// NAVIGATION
+// ======================================================
+
+function setupNavigation() {
+
+    const links =
+        document.querySelectorAll(
+            ".nav-link"
+        );
+
+
+    const sections =
+        document.querySelectorAll(
+            ".page-section"
+        );
+
+
+    function showSection(id) {
+
+        sections.forEach(
+            section => {
+
+                section.style.display =
+                    section.id === id
+                        ? "block"
+                        : "none";
+
+            }
+        );
+
+
+        links.forEach(
+            link => {
+
+                link.classList.toggle(
+                    "active",
+
+                    link.getAttribute(
+                        "href"
+                    ) === `#${id}`
+
+                );
+
+            }
+        );
+
+
+        const titles = {
+
+            dashboard:
+                "Dashboard",
+
+            monitoring:
+                "Monitoring",
+
+            history:
+                "History",
+
+            system:
+                "System Information"
+
+        };
+
+
+        if (pageTitle) {
+
+            pageTitle.textContent =
+                titles[id] ||
+                "NetGuard Dashboard";
+
+        }
+
+
+        // ----------------------------------------------
+        // Load required data
+        // ----------------------------------------------
+
+        if (id === "history") {
+
+            loadHistory();
+
+        }
+
+
+        if (id === "system") {
+
+            updateSystemStatus();
+
+        }
+
+    }
+
+
+    links.forEach(
+        link => {
+
+            link.addEventListener(
+                "click",
+                function(event) {
+
+                    event.preventDefault();
+
+
+                    const id =
+                        this.getAttribute(
+                            "href"
+                        ).substring(1);
+
+
+                    showSection(
+                        id
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+    showSection(
+        "dashboard"
     );
 
 }
@@ -1028,18 +1545,25 @@ async function updateSystemStatus() {
     try {
 
         const firebaseResponse =
-            await fetch("/api/firebase");
+            await fetch(
+                "/api/firebase"
+            );
+
 
         const firebaseResult =
             await firebaseResponse.json();
 
 
-        if (firebaseResult.success) {
+        if (
+            firebaseResult.success
+        ) {
 
             systemConnection.textContent =
                 "Firebase: Connected";
 
-        } else {
+        }
+
+        else {
 
             systemConnection.textContent =
                 "Firebase: Error";
@@ -1063,279 +1587,375 @@ async function updateSystemStatus() {
 
 
 // ======================================================
+// LOGOUT
+// ======================================================
+
+const logoutButton =
+    document.getElementById(
+        "logoutButton"
+    );
+
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        function() {
+
+            window.location.href =
+                "login.html";
+
+        }
+    );
+
+}
+
+
+// ======================================================
 // INFORMATION POPUP
 // ======================================================
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
 
-    console.log("NetGuard Info Popup Loaded");
-
-
-    const infoModal =
-        document.getElementById("infoModal");
-
-    const infoModalTitle =
-        document.getElementById("infoModalTitle");
-
-    const infoModalText =
-        document.getElementById("infoModalText");
-
-    const infoModalDetails =
-        document.getElementById("infoModalDetails");
-
-    const infoModalIcon =
-        document.getElementById("infoModalIcon");
-
-    const modalClose =
-        document.getElementById("modalClose");
-
-    const modalDone =
-        document.getElementById("modalDone");
-
-    const infoModalOverlay =
-        document.getElementById("infoModalOverlay");
+        console.log(
+            "NetGuard Info Popup Loaded"
+        );
 
 
-    // ==================================================
-    // INFORMATION CONTENT
-    // ==================================================
+        const infoModal =
+            document.getElementById(
+                "infoModal"
+            );
 
-    const infoContent = {
+        const infoModalTitle =
+            document.getElementById(
+                "infoModalTitle"
+            );
 
-        camera: {
-            icon: "📷",
-            title: "Live Camera",
-            text: "Provides live visual monitoring of the network cabinet.",
-            details: "The ESP32-CAM allows the user to visually check the condition of the network cabinet remotely."
-        },
+        const infoModalText =
+            document.getElementById(
+                "infoModalText"
+            );
 
-        temperature: {
-            icon: "🌡️",
-            title: "Temperature",
-            text: "Displays the current temperature inside the network cabinet.",
-            details: "The DHT22 sensor monitors the temperature inside the network cabinet."
-        },
+        const infoModalDetails =
+            document.getElementById(
+                "infoModalDetails"
+            );
 
-        humidity: {
-            icon: "💧",
-            title: "Humidity",
-            text: "Displays the current humidity level inside the network cabinet.",
-            details: "The DHT22 sensor monitors humidity inside the network cabinet."
-        },
+        const infoModalIcon =
+            document.getElementById(
+                "infoModalIcon"
+            );
 
-        door: {
-            icon: "🚪",
-            title: "Door Status",
-            text: "Shows the current condition of the network cabinet door.",
-            details: "CLOSED means the cabinet is secured. OPEN means the cabinet door has been opened."
-        },
+        const modalClose =
+            document.getElementById(
+                "modalClose"
+            );
 
-        rfid: {
-            icon: "🔑",
-            title: "RFID Access",
-            text: "Displays the latest RFID access detected by the system.",
-            details: "The RFID RC522 reader is used to identify authorized users."
-        },
+        const modalDone =
+            document.getElementById(
+                "modalDone"
+            );
 
-        unauthorized: {
-            icon: "⚠️",
-            title: "Unauthorized Access",
-            text: "Displays the number of unauthorized access attempts.",
-            details: "The system records unsuccessful RFID access attempts."
-        },
-
-        security: {
-            icon: "🛡️",
-            title: "Security Access",
-            text: "Displays the current security level of the network cabinet.",
-            details: "SAFE indicates normal operation. WARNING or ALARM indicates a security condition."
-        },
-
-        switch: {
-            icon: "🔌",
-            title: "Network Switch",
-            text: "Displays the overall status of the network switch.",
-            details: "The system monitors the connected network switch and its monitored ports."
-        },
-
-        "g0/0": {
-            icon: "🔗",
-            title: "G0/0",
-            text: "Displays the current status of the G0/0 network port.",
-            details: "UP means the G0/0 interface is active. DOWN means the interface is inactive."
-        },
-
-        "g0/1": {
-            icon: "🔗",
-            title: "G0/1",
-            text: "Displays the current status of the G0/1 network port.",
-            details: "UP means the G0/1 interface is active. DOWN means the interface is inactive."
-        }
-
-    };
-
-
-    // ==================================================
-    // FIND INFO BUTTONS
-    // ==================================================
-
-    const infoButtons =
-        document.querySelectorAll(".info-button");
-
-
-    console.log(
-        "Info buttons found:",
-        infoButtons.length
-    );
-
-
-    // ==================================================
-    // OPEN INFORMATION POPUP
-    // ==================================================
-
-    infoButtons.forEach(function(button) {
-
-        button.addEventListener("click", function(event) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-
-            const type =
-                button.getAttribute("data-info");
-
-
-            console.log(
-                "INFO BUTTON CLICKED:",
-                type
+        const infoModalOverlay =
+            document.getElementById(
+                "infoModalOverlay"
             );
 
 
-            const info =
-                infoContent[type];
+        // ==================================================
+        // INFORMATION CONTENT
+        // ==================================================
+
+        const infoContent = {
+
+            camera: {
+                icon: "📷",
+                title: "Live Camera",
+                text:
+                    "Provides live visual monitoring of the network cabinet.",
+                details:
+                    "The ESP32-CAM allows the user to visually check the condition of the network cabinet remotely."
+            },
+
+            temperature: {
+                icon: "🌡️",
+                title: "Temperature",
+                text:
+                    "Displays the current temperature inside the network cabinet.",
+                details:
+                    "The DHT22 sensor monitors the temperature inside the network cabinet."
+            },
+
+            humidity: {
+                icon: "💧",
+                title: "Humidity",
+                text:
+                    "Displays the current humidity level inside the network cabinet.",
+                details:
+                    "The DHT22 sensor monitors humidity inside the network cabinet."
+            },
+
+            door: {
+                icon: "🚪",
+                title: "Door Status",
+                text:
+                    "Shows the current condition of the network cabinet door.",
+                details:
+                    "CLOSED means the cabinet is secured. OPEN means the cabinet door has been opened."
+            },
+
+            rfid: {
+                icon: "🔑",
+                title: "RFID Access",
+                text:
+                    "Displays the latest RFID access detected by the system.",
+                details:
+                    "The RFID RC522 reader is used to identify authorized users."
+            },
+
+            unauthorized: {
+                icon: "⚠️",
+                title: "Unauthorized Access",
+                text:
+                    "Displays the number of unauthorized access attempts.",
+                details:
+                    "The system records unsuccessful RFID access attempts."
+            },
+
+            security: {
+                icon: "🛡️",
+                title: "Security Access",
+                text:
+                    "Displays the current security level of the network cabinet.",
+                details:
+                    "SAFE indicates normal operation. WARNING or ALARM indicates a security condition."
+            },
+
+            switch: {
+                icon: "🔌",
+                title: "Network Switch",
+                text:
+                    "Displays the overall status of the network switch.",
+                details:
+                    "The system monitors the connected network switch and its monitored ports."
+            },
+
+            "g0/0": {
+                icon: "🔗",
+                title: "G0/0",
+                text:
+                    "Displays the current status of the G0/0 network port.",
+                details:
+                    "UP means the G0/0 interface is active. DOWN means the interface is inactive."
+            },
+
+            "g0/1": {
+                icon: "🔗",
+                title: "G0/1",
+                text:
+                    "Displays the current status of the G0/1 network port.",
+                details:
+                    "UP means the G0/1 interface is active. DOWN means the interface is inactive."
+            }
+
+        };
 
 
-            if (!info) {
+        // ==================================================
+        // INFO BUTTONS
+        // ==================================================
 
-                console.error(
-                    "No information found for:",
-                    type
+        const infoButtons =
+            document.querySelectorAll(
+                ".info-button"
+            );
+
+
+        infoButtons.forEach(
+            function(button) {
+
+                button.addEventListener(
+                    "click",
+                    function(event) {
+
+                        event.preventDefault();
+
+                        event.stopPropagation();
+
+
+                        const type =
+                            button.getAttribute(
+                                "data-info"
+                            );
+
+
+                        const info =
+                            infoContent[type];
+
+
+                        if (!info) {
+
+                            console.error(
+                                "No information found for:",
+                                type
+                            );
+
+                            return;
+
+                        }
+
+
+                        if (infoModalIcon) {
+
+                            infoModalIcon.textContent =
+                                info.icon;
+
+                        }
+
+
+                        if (infoModalTitle) {
+
+                            infoModalTitle.textContent =
+                                info.title;
+
+                        }
+
+
+                        if (infoModalText) {
+
+                            infoModalText.textContent =
+                                info.text;
+
+                        }
+
+
+                        if (infoModalDetails) {
+
+                            infoModalDetails.textContent =
+                                info.details;
+
+                        }
+
+
+                        if (infoModal) {
+
+                            infoModal.style.display =
+                                "flex";
+
+                            infoModal.setAttribute(
+                                "aria-hidden",
+                                "false"
+                            );
+
+                        }
+
+                    }
                 );
 
-                return;
+            }
+        );
 
+
+        // ==================================================
+        // CLOSE MODAL
+        // ==================================================
+
+        function closeInfoModal() {
+
+            if (!infoModal) {
+                return;
             }
 
 
-            infoModalIcon.textContent =
-                info.icon;
-
-            infoModalTitle.textContent =
-                info.title;
-
-            infoModalText.textContent =
-                info.text;
-
-            infoModalDetails.textContent =
-                info.details;
-
-
-            // Show modal
-
             infoModal.style.display =
-                "flex";
+                "none";
+
 
             infoModal.setAttribute(
                 "aria-hidden",
-                "false"
+                "true"
             );
 
-        });
-
-    });
+        }
 
 
-    // ==================================================
-    // CLOSE POPUP
-    // ==================================================
+        if (modalClose) {
 
-    function closeInfoModal() {
-
-        infoModal.style.display =
-            "none";
-
-        infoModal.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-    }
-
-
-    // Close X
-
-    if (modalClose) {
-
-        modalClose.addEventListener(
-            "click",
-            closeInfoModal
-        );
-
-    }
-
-
-    // Close button
-
-    if (modalDone) {
-
-        modalDone.addEventListener(
-            "click",
-            closeInfoModal
-        );
-
-    }
-
-
-    // Close overlay
-
-    if (infoModalOverlay) {
-
-        infoModalOverlay.addEventListener(
-            "click",
-            closeInfoModal
-        );
-
-    }
-
-
-    // ==================================================
-    // ESC KEY
-    // ==================================================
-
-    document.addEventListener(
-        "keydown",
-        function(event) {
-
-            if (event.key === "Escape") {
-
-                closeInfoModal();
-
-            }
+            modalClose.addEventListener(
+                "click",
+                closeInfoModal
+            );
 
         }
-    );
 
-});
+
+        if (modalDone) {
+
+            modalDone.addEventListener(
+                "click",
+                closeInfoModal
+            );
+
+        }
+
+
+        if (infoModalOverlay) {
+
+            infoModalOverlay.addEventListener(
+                "click",
+                closeInfoModal
+            );
+
+        }
+
+
+        document.addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Escape"
+                ) {
+
+                    closeInfoModal();
+
+                }
+
+            }
+        );
+
+    }
+);
 
 
 // ======================================================
-// START
+// START NETGUARD
 // ======================================================
 
-loadAllData();
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        setupNavigation();
+
+        loadAllData();
+
+        loadHistory();
 
 
-setInterval(
-    loadAllData,
-    UPDATE_INTERVAL
-); script
+        setInterval(
+            loadAllData,
+            UPDATE_INTERVAL
+        );
+
+
+        setInterval(
+            loadHistory,
+            UPDATE_INTERVAL
+        );
+
+    }
+);

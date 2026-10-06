@@ -30,23 +30,46 @@ let database = null;
 
 try {
 
-    const serviceAccount = JSON.parse(
-    process.env.FIREBASE_SERVICE_ACCOUNT
-);
+    if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
 
-admin.initializeApp({
+        throw new Error(
+            "FIREBASE_SERVICE_ACCOUNT tidak dijumpai dalam environment variables."
+        );
 
-    credential: admin.cert(serviceAccount),
+    }
 
-    databaseURL: FIREBASE_DATABASE_URL
 
-});
+    const serviceAccount =
+        JSON.parse(
+            process.env.FIREBASE_SERVICE_ACCOUNT
+        );
 
-    database = getDatabase();
 
-    firebaseReady = true;
+    admin.initializeApp({
 
-    console.log("Firebase: READY");
+        credential:
+            admin.cert(
+                serviceAccount
+            ),
+
+        databaseURL:
+            FIREBASE_DATABASE_URL
+
+    });
+
+
+    database =
+        getDatabase();
+
+
+    firebaseReady =
+        true;
+
+
+    console.log(
+        "Firebase: READY"
+    );
+
 
 } catch (error) {
 
@@ -65,7 +88,7 @@ admin.initializeApp({
 if (!BLYNK_AUTH_TOKEN) {
 
     console.error(
-        "ERROR: BLYNK_AUTH_TOKEN tidak dijumpai dalam .env"
+        "ERROR: BLYNK_AUTH_TOKEN tidak dijumpai dalam environment variables."
     );
 
     process.exit(1);
@@ -79,7 +102,10 @@ if (!BLYNK_AUTH_TOKEN) {
 
 app.use(
     express.static(
-        path.join(__dirname, "public")
+        path.join(
+            __dirname,
+            "public"
+        )
     )
 );
 
@@ -91,9 +117,14 @@ app.use(
 async function getBlynkValue(pin) {
 
     const url =
-        `https://blynk.cloud/external/api/get?token=${encodeURIComponent(BLYNK_AUTH_TOKEN)}&${pin}`;
+        `https://blynk.cloud/external/api/get?token=${encodeURIComponent(
+            BLYNK_AUTH_TOKEN
+        )}&${pin}`;
 
-    const response = await fetch(url);
+
+    const response =
+        await fetch(url);
+
 
     if (!response.ok) {
 
@@ -103,6 +134,7 @@ async function getBlynkValue(pin) {
 
     }
 
+
     return await response.text();
 
 }
@@ -110,365 +142,743 @@ async function getBlynkValue(pin) {
 
 // ==================================================
 // BLYNK DATA
+//
+// V0 = Temperature
+// V1 = Humidity
+// V2 = Door Status
+// V3 = RFID Access
+// V4 = Unauthorized Access
+// V5 = Security Access
+// V6 = Switch Status
+// V7 = G0/0
+// V8 = G0/1
 // ==================================================
 
-app.get("/api/data", async (req, res) => {
+app.get(
+    "/api/data",
+    async (req, res) => {
 
-    try {
+        try {
 
-        const [
-    temperature,
-    humidity,
-    doorStatus,
-    rfidAccess,
-    unauthorizedAccess,
-    securityAccess,
-    switchStatus,
-    g0,
-    g01
-] = await Promise.all([
-    getBlynkValue("V0"),
-    getBlynkValue("V1"),
-    getBlynkValue("V2"),
-    getBlynkValue("V3"),
-    getBlynkValue("V4"),
-    getBlynkValue("V5"),
-    getBlynkValue("V6"),
-    getBlynkValue("V7"),
-    getBlynkValue("V8")
-]);
+            const [
 
-        res.json({
+                temperature,
+                humidity,
+                doorStatus,
+                rfidAccess,
+                unauthorizedAccess,
+                securityAccess,
+                switchStatus,
+                g0,
+                g01
 
-            success: true,
+            ] = await Promise.all([
 
-            data: {
+                getBlynkValue("V0"),
 
-    temperature,
-    humidity,
-    doorStatus,
-    rfidAccess,
-    unauthorizedAccess,
-    securityAccess,
-    switchStatus,
-    g0,
-    g01
+                getBlynkValue("V1"),
 
-},
+                getBlynkValue("V2"),
 
-            updatedAt:
-                new Date().toISOString()
+                getBlynkValue("V3"),
 
-        });
+                getBlynkValue("V4"),
+
+                getBlynkValue("V5"),
+
+                getBlynkValue("V6"),
+
+                getBlynkValue("V7"),
+
+                getBlynkValue("V8")
+
+            ]);
 
 
-    } catch (error) {
+            res.json({
 
-        console.error(
-            "Blynk Error:",
-            error.message
-        );
+                success: true,
 
-        res.status(500).json({
+                data: {
 
-            success: false,
+                    temperature,
 
-            message:
-                "Gagal mendapatkan data daripada Blynk.",
+                    humidity,
 
-            error:
+                    doorStatus,
+
+                    rfidAccess,
+
+                    unauthorizedAccess,
+
+                    securityAccess,
+
+                    switchStatus,
+
+                    g0,
+
+                    g01
+
+                },
+
+                updatedAt:
+                    new Date().toISOString()
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Blynk Error:",
                 error.message
+            );
 
-        });
+
+            res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Gagal mendapatkan data daripada Blynk.",
+
+                error:
+                    error.message
+
+            });
+
+        }
 
     }
-
-});
+);
 
 
 // ==================================================
 // FIREBASE TEST
 // ==================================================
 
-app.get("/api/firebase-test", async (req, res) => {
+app.get(
+    "/api/firebase-test",
+    async (req, res) => {
 
-    try {
+        try {
 
-        if (!firebaseReady || !database) {
+            if (
+                !firebaseReady ||
+                !database
+            ) {
 
-            return res.status(500).json({
+                return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                        "Firebase belum berjaya initialize."
+
+                });
+
+            }
+
+
+            const snapshot =
+                await database
+                    .ref("current")
+                    .once("value");
+
+
+            const data =
+                snapshot.val();
+
+
+            res.json({
+
+                success: true,
+
+                message:
+                    "Firebase connection berjaya",
+
+                data:
+
+                    data
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Firebase Test Error:",
+                error.message
+            );
+
+
+            res.status(500).json({
 
                 success: false,
 
                 message:
-                    "Firebase belum berjaya initialize."
+                    "Firebase error",
+
+                error:
+                    error.message
 
             });
 
         }
 
-
-        const snapshot =
-            await database
-                .ref("current")
-                .once("value");
-
-
-        const data =
-            snapshot.val();
-
-
-        res.json({
-
-            success: true,
-
-            message:
-                "Firebase connection berjaya",
-
-            data: data
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Firebase Test Error:",
-            error.message
-        );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Firebase error",
-
-            error:
-                error.message
-
-        });
-
     }
-
-});
+);
 
 
 // ==================================================
 // FIREBASE CURRENT DATA
+//
+// Reads:
+//
+// /current
+//
+// This is the current NetGuard data.
 // ==================================================
 
-app.get("/api/firebase", async (req, res) => {
+app.get(
+    "/api/firebase",
+    async (req, res) => {
 
-    try {
+        try {
 
-        if (!firebaseReady || !database) {
+            if (
+                !firebaseReady ||
+                !database
+            ) {
 
-            return res.status(500).json({
+                return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                        "Firebase belum berjaya initialize."
+
+                });
+
+            }
+
+
+            const snapshot =
+                await database
+                    .ref("current")
+                    .once("value");
+
+
+            const data =
+                snapshot.val();
+
+
+            if (data === null) {
+
+                return res.json({
+
+                    success: true,
+
+                    data: null,
+
+                    message:
+                        "Tiada data di Firebase/current."
+
+                });
+
+            }
+
+
+            res.json({
+
+                success: true,
+
+                data: data
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Firebase Current Error:",
+                error.message
+            );
+
+
+            res.status(500).json({
 
                 success: false,
 
                 message:
-                    "Firebase belum berjaya initialize."
+                    "Gagal mendapatkan data Firebase.",
+
+                error:
+                    error.message
 
             });
 
         }
-
-
-        const snapshot =
-            await database
-                .ref("current")
-                .once("value");
-
-
-        const data =
-            snapshot.val();
-
-
-        if (data === null) {
-
-            return res.json({
-
-                success: true,
-
-                data: null,
-
-                message:
-                    "Tiada data di Firebase/current."
-
-            });
-
-        }
-
-
-        res.json({
-
-            success: true,
-
-            data: data
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Firebase Current Error:",
-            error.message
-        );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Gagal mendapatkan data Firebase.",
-
-            error:
-                error.message
-
-        });
 
     }
-
-});
+);
 
 
 // ==================================================
 // FIREBASE HISTORY
+//
+// /history
+//
+// Supports records such as:
+//
+// 15896
+//    date
+//    event
+//    message
+//    time
+//
+// 42307
+//    date
+//    event
+//    message
+//    time
 // ==================================================
 
-app.get("/api/history", async (req, res) => {
+app.get(
+    "/api/history",
+    async (req, res) => {
 
-    try {
+        try {
 
-        if (!firebaseReady || !database) {
+            if (
+                !firebaseReady ||
+                !database
+            ) {
 
-            return res.status(500).json({
+                return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                        "Firebase belum berjaya initialize."
+
+                });
+
+            }
+
+
+            const snapshot =
+                await database
+                    .ref("history")
+                    .once("value");
+
+
+            const data =
+                snapshot.val() || {};
+
+
+            const records =
+                Object.entries(data)
+                    .map(
+                        ([key, value]) => ({
+
+                            key,
+
+                            date:
+                                value?.date ||
+                                "--",
+
+                            time:
+                                value?.time ||
+                                "--",
+
+                            event:
+                                value?.event ||
+                                "--",
+
+                            message:
+                                value?.message ||
+                                "--"
+
+                        })
+                    )
+                    .sort(
+                        (a, b) => {
+
+                            const dateA =
+                                new Date(
+                                    `${a.date} ${a.time}`
+                                ).getTime();
+
+
+                            const dateB =
+                                new Date(
+                                    `${b.date} ${b.time}`
+                                ).getTime();
+
+
+                            return dateB - dateA;
+
+                        }
+                    )
+                    .slice(
+                        0,
+                        50
+                    );
+
+
+            res.json({
+
+                success: true,
+
+                data:
+                    records
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Firebase History Error:",
+                error.message
+            );
+
+
+            res.status(500).json({
 
                 success: false,
 
                 message:
-                    "Firebase belum berjaya initialize."
+                    "Gagal mendapatkan Firebase history.",
+
+                error:
+                    error.message
 
             });
 
         }
 
-
-        const snapshot =
-            await database
-                .ref("history")
-                .once("value");
+    }
+);
 
 
-        const data =
-            snapshot.val();
+// ==================================================
+// FIREBASE ACCESS LOGS
+//
+// Reads:
+//
+// /accessLogs
+// ==================================================
+
+app.get(
+    "/api/access-logs",
+    async (req, res) => {
+
+        try {
+
+            if (
+                !firebaseReady ||
+                !database
+            ) {
+
+                return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                        "Firebase belum berjaya initialize."
+
+                });
+
+            }
 
 
-        res.json({
-
-            success: true,
-
-            data: data || {}
-
-        });
+            const snapshot =
+                await database
+                    .ref("accessLogs")
+                    .once("value");
 
 
-    } catch (error) {
-
-        console.error(
-            "Firebase History Error:",
-            error.message
-        );
+            const data =
+                snapshot.val() || {};
 
 
-        res.status(500).json({
+            const records =
+                Object.entries(data)
+                    .map(
+                        ([key, value]) => ({
 
-            success: false,
+                            key,
 
-            message:
-                "Gagal mendapatkan Firebase history.",
+                            date:
+                                value?.date ||
+                                "--",
 
-            error:
+                            time:
+                                value?.time ||
+                                "--",
+
+                            uid:
+                                value?.uid ||
+                                "--",
+
+                            userName:
+                                value?.userName ||
+                                "--",
+
+                            status:
+                                value?.status ||
+                                "--"
+
+                        })
+                    )
+                    .sort(
+                        (a, b) => {
+
+                            const aTime =
+                                new Date(
+                                    `${a.date} ${a.time}`
+                                ).getTime();
+
+
+                            const bTime =
+                                new Date(
+                                    `${b.date} ${b.time}`
+                                ).getTime();
+
+
+                            return bTime - aTime;
+
+                        }
+                    )
+                    .slice(
+                        0,
+                        50
+                    );
+
+
+            res.json({
+
+                success: true,
+
+                data:
+                    records
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Access Logs Error:",
                 error.message
+            );
 
-        });
+
+            res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Gagal mendapatkan access logs.",
+
+                error:
+                    error.message
+
+            });
+
+        }
 
     }
+);
 
-});
+
+// ==================================================
+// FIREBASE ALERTS
+//
+// Reads:
+//
+// /alerts
+// ==================================================
+
+app.get(
+    "/api/alerts",
+    async (req, res) => {
+
+        try {
+
+            if (
+                !firebaseReady ||
+                !database
+            ) {
+
+                return res.status(500).json({
+
+                    success: false,
+
+                    message:
+                        "Firebase belum berjaya initialize."
+
+                });
+
+            }
+
+
+            const snapshot =
+                await database
+                    .ref("alerts")
+                    .once("value");
+
+
+            const data =
+                snapshot.val() || {};
+
+
+            const records =
+                Object.entries(data)
+                    .map(
+                        ([key, value]) => ({
+
+                            key,
+
+                            date:
+                                value?.date ||
+                                "--",
+
+                            time:
+                                value?.time ||
+                                "--",
+
+                            type:
+                                value?.type ||
+                                value?.event ||
+                                "--",
+
+                            message:
+                                value?.message ||
+                                "--"
+
+                        })
+                    )
+                    .slice(
+                        -50
+                    )
+                    .reverse();
+
+
+            res.json({
+
+                success: true,
+
+                data:
+                    records
+
+            });
+
+
+        } catch (error) {
+
+            console.error(
+                "Alerts Error:",
+                error.message
+            );
+
+
+            res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Gagal mendapatkan alerts.",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
 
 
 // ==================================================
 // SERVER STATUS
 // ==================================================
 
-app.get("/api/status", (req, res) => {
+app.get(
+    "/api/status",
+    (req, res) => {
 
-    res.json({
+        res.json({
 
-        success: true,
+            success: true,
 
-        blynk: !!BLYNK_AUTH_TOKEN,
+            blynk:
+                !!BLYNK_AUTH_TOKEN,
 
-        firebase: firebaseReady,
+            firebase:
+                firebaseReady,
 
-        database: firebaseReady
-            ? "Connected"
-            : "Disconnected",
+            database:
+                firebaseReady
+                    ? "Connected"
+                    : "Disconnected",
 
-        time:
-            new Date().toISOString()
+            time:
+                new Date().toISOString()
 
-    });
+        });
 
-});
+    }
+);
 
 
 // ==================================================
 // START SERVER
 // ==================================================
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(
+    PORT,
+    "0.0.0.0",
+    () => {
 
-    console.log("");
+        console.log("");
 
-    console.log(
-        "======================================"
-    );
+        console.log(
+            "======================================"
+        );
 
-    console.log(
-        "      NETGUARD DASHBOARD"
-    );
+        console.log(
+            "      NETGUARD DASHBOARD"
+        );
 
-    console.log(
-        "======================================"
-    );
+        console.log(
+            "======================================"
+        );
 
-    console.log(
-        `Website: http://localhost:${PORT}`
-    );
+        console.log(
+            `Website: http://localhost:${PORT}`
+        );
 
-    console.log(
-        "Blynk: READY"
-    );
+        console.log(
+            "Blynk: READY"
+        );
 
-    console.log(
-        `Firebase: ${
-            firebaseReady
-                ? "READY"
-                : "ERROR"
-        }`
-    );
+        console.log(
+            `Firebase: ${
+                firebaseReady
+                    ? "READY"
+                    : "ERROR"
+            }`
+        );
 
-    console.log(
-        "======================================"
-    );
+        console.log(
+            "======================================"
+        );
 
-    console.log("");
+        console.log("");
 
-});
+    }
+);
