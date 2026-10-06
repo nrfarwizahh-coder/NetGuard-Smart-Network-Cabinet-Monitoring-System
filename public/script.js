@@ -288,116 +288,20 @@ function updateDoorStatus(status) {
 
 function updateNetworkSwitch(data) {
 
-    let port0 = null;
+    const port0 =
+        Number(
+            data?.g0?.[0]?.status
+        );
 
-    let port1 = null;
-
-
-    // ----------------------------------------------
-    // NEW STRUCTURE
-    // switchStatus
-    // {
-    //     "0 status": 1,
-    //     "1 status": 0
-    // }
-    // ----------------------------------------------
-
-    if (
-        data.switchStatus &&
-        typeof data.switchStatus === "object"
-    ) {
-
-        port0 =
-            Number(
-                data.switchStatus["0 status"]
-            );
-
-        port1 =
-            Number(
-                data.switchStatus["1 status"]
-            );
-
-    }
+    const port1 =
+        Number(
+            data?.g0?.[1]?.status
+        );
 
 
-    // ----------------------------------------------
-    // FIREBASE g0 STRUCTURE
-    // g0
-    // {
-    //     0: { status: 1 },
-    //     1: { status: 0 }
-    // }
-    // ----------------------------------------------
-
-    if (
-        data.g0 &&
-        typeof data.g0 === "object"
-    ) {
-
-        if (
-            data.g0[0] &&
-            typeof data.g0[0] === "object"
-        ) {
-
-            port0 =
-                Number(
-                    data.g0[0].status
-                );
-
-        }
-
-        else if (
-            data.g0[0] !== undefined
-        ) {
-
-            port0 =
-                Number(
-                    data.g0[0]
-                );
-
-        }
-
-
-        if (
-            data.g0[1] &&
-            typeof data.g0[1] === "object"
-        ) {
-
-            port1 =
-                Number(
-                    data.g0[1].status
-                );
-
-        }
-
-        else if (
-            data.g0[1] !== undefined
-        ) {
-
-            port1 =
-                Number(
-                    data.g0[1]
-                );
-
-        }
-
-    }
-
-
-    console.log(
-        "Network Port 0:",
-        port0
-    );
-
-    console.log(
-        "Network Port 1:",
-        port1
-    );
-
-
-    // ----------------------------------------------
+    // ==================================================
     // G0/0
-    // ----------------------------------------------
+    // ==================================================
 
     if (g00Element) {
 
@@ -425,9 +329,9 @@ function updateNetworkSwitch(data) {
     }
 
 
-    // ----------------------------------------------
+    // ==================================================
     // G0/1
-    // ----------------------------------------------
+    // ==================================================
 
     if (g01Element) {
 
@@ -455,9 +359,9 @@ function updateNetworkSwitch(data) {
     }
 
 
-    // ----------------------------------------------
+    // ==================================================
     // NETWORK SWITCH
-    // ----------------------------------------------
+    // ==================================================
 
     if (switchStatusElement) {
 
@@ -491,9 +395,9 @@ function updateNetworkSwitch(data) {
     }
 
 
-    // ----------------------------------------------
-    // OPTIONAL ETHERNET
-    // ----------------------------------------------
+    // ==================================================
+    // OPTIONAL ETHERNET E0
+    // ==================================================
 
     if (ethernetE0) {
 
@@ -520,6 +424,10 @@ function updateNetworkSwitch(data) {
 
     }
 
+
+    // ==================================================
+    // OPTIONAL ETHERNET E1
+    // ==================================================
 
     if (ethernetE1) {
 
@@ -744,16 +652,10 @@ async function loadBlynkData() {
             result.data || {};
 
 
-        // Blynk data is used as primary data
-
         updateMonitoringCards(
             data
         );
 
-
-        // ----------------------------------------------
-        // CONNECTION
-        // ----------------------------------------------
 
         if (systemBlynk) {
 
@@ -837,18 +739,10 @@ async function loadFirebaseData() {
         );
 
 
-        // ----------------------------------------------
-        // Firebase is synchronized with dashboard
-        // ----------------------------------------------
-
         updateMonitoringCards(
             data
         );
 
-
-        // ----------------------------------------------
-        // CONNECTION
-        // ----------------------------------------------
 
         if (systemFirebase) {
 
@@ -1133,13 +1027,10 @@ async function loadHistory() {
                                     ? (
                                         Number(timeValue) <
                                         10000000000
-
                                             ? Number(timeValue) *
                                               1000
-
                                             : Number(timeValue)
                                       )
-
                                     : timeValue
                             );
 
@@ -1449,9 +1340,6 @@ function setupNavigation() {
 
         const titles = {
 
-            dashboard:
-                "Dashboard",
-
             monitoring:
                 "Monitoring",
 
@@ -1520,8 +1408,10 @@ function setupNavigation() {
     );
 
 
+    // Start with Monitoring page
+
     showSection(
-        "dashboard"
+        "monitoring"
     );
 
 }
