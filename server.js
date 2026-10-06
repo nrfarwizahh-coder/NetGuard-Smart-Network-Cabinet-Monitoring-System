@@ -1,21 +1,14 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
-
 const admin = require("firebase-admin/app");
 const { getDatabase } = require("firebase-admin/database");
 
 dotenv.config();
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
 const BLYNK_AUTH_TOKEN = process.env.BLYNK_AUTH_TOKEN;
-
-
-// ==================================================
-// FIREBASE CONFIGURATION
-// ==================================================
 
 const FIREBASE_DATABASE_URL =
     "https://netguard-814d7-default-rtdb.asia-southeast1.firebasedatabase.app";
@@ -23,27 +16,21 @@ const FIREBASE_DATABASE_URL =
 let firebaseReady = false;
 let database = null;
 
-
-// ==================================================
-// INITIALIZE FIREBASE
-// ==================================================
+// ======================================================
+// FIREBASE INITIALIZATION
+// ======================================================
 
 try {
+    const serviceAccount = require(
+        path.join(__dirname, "firebase-service-account.json")
+    );
 
-    const serviceAccount = JSON.parse(
-    process.env.FIREBASE_SERVICE_ACCOUNT
-);
-
-admin.initializeApp({
-
-    credential: admin.cert(serviceAccount),
-
-    databaseURL: FIREBASE_DATABASE_URL
-
-});
+    admin.initializeApp({
+        credential: admin.cert(serviceAccount),
+        databaseURL: FIREBASE_DATABASE_URL
+    });
 
     database = getDatabase();
-
     firebaseReady = true;
 
     console.log("Firebase: READY");
@@ -54,13 +41,11 @@ admin.initializeApp({
         "Firebase initialization error:",
         error.message
     );
-
 }
 
-
-// ==================================================
-// CHECK BLYNK TOKEN
-// ==================================================
+// ======================================================
+// BLYNK CHECK
+// ======================================================
 
 if (!BLYNK_AUTH_TOKEN) {
 
@@ -69,29 +54,24 @@ if (!BLYNK_AUTH_TOKEN) {
     );
 
     process.exit(1);
-
 }
 
+// ======================================================
+// STATIC WEBSITE
+// ======================================================
 
-// ==================================================
-// SERVE WEBSITE
-// ==================================================
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(
-    express.static(
-        path.join(__dirname, "public")
-    )
-);
-
-
-// ==================================================
-// BLYNK FUNCTION
-// ==================================================
+// ======================================================
+// BLYNK API
+// ======================================================
 
 async function getBlynkValue(pin) {
 
     const url =
-        `https://blynk.cloud/external/api/get?token=${encodeURIComponent(BLYNK_AUTH_TOKEN)}&${pin}`;
+        `https://blynk.cloud/external/api/get?token=${encodeURIComponent(
+            BLYNK_AUTH_TOKEN
+        )}&${pin}`;
 
     const response = await fetch(url);
 
@@ -100,43 +80,48 @@ async function getBlynkValue(pin) {
         throw new Error(
             `Blynk API error ${pin}: ${response.status}`
         );
-
     }
 
     return await response.text();
-
 }
 
-
-// ==================================================
-// BLYNK DATA
-// ==================================================
+// ======================================================
+// GET BLYNK DATA
+// V0 = Temperature
+// V1 = Humidity
+// V2 = RFID Access
+// V3 = RFID UID
+// V4 = Failed Attempts
+// V5 = Security State
+// V6 = Ethernet E0
+// V7 = Ethernet E1
+// ======================================================
 
 app.get("/api/data", async (req, res) => {
 
     try {
 
         const [
-    temperature,
-    humidity,
-    doorStatus,
-    rfidAccess,
-    unauthorizedAccess,
-    securityAccess,
-    switchStatus,
-    g0,
-    g01
-] = await Promise.all([
-    getBlynkValue("V0"),
-    getBlynkValue("V1"),
-    getBlynkValue("V2"),
-    getBlynkValue("V3"),
-    getBlynkValue("V4"),
-    getBlynkValue("V5"),
-    getBlynkValue("V6"),
-    getBlynkValue("V7"),
-    getBlynkValue("V8")
-]);
+            temperature,
+            humidity,
+            accessStatus,
+            uid,
+            failedAttempts,
+            securityState,
+            ethernetE0,
+            ethernetE1
+        ] = await Promise.all([
+
+            getBlynkValue("V0"),
+            getBlynkValue("V1"),
+            getBlynkValue("V2"),
+            getBlynkValue("V3"),
+            getBlynkValue("V4"),
+            getBlynkValue("V5"),
+            getBlynkValue("V6"),
+            getBlynkValue("V7")
+
+        ]);
 
         res.json({
 
@@ -144,23 +129,29 @@ app.get("/api/data", async (req, res) => {
 
             data: {
 
-    temperature,
-    humidity,
-    doorStatus,
-    rfidAccess,
-    unauthorizedAccess,
-    securityAccess,
-    switchStatus,
-    g0,
-    g01
+                temperature,
+                humidity,
 
-},
+                rfid: {
+                    status: accessStatus,
+                    uid: uid
+                },
 
-            updatedAt:
-                new Date().toISOString()
+                security: {
+                    failedAttempts: failedAttempts,
+                    status: securityState
+                },
+
+                ethernet: {
+                    E0: ethernetE0,
+                    E1: ethernetE1
+                }
+
+            },
+
+            updatedAt: new Date().toISOString()
 
         });
-
 
     } catch (error) {
 
@@ -185,79 +176,9 @@ app.get("/api/data", async (req, res) => {
 
 });
 
-
-// ==================================================
-// FIREBASE TEST
-// ==================================================
-
-app.get("/api/firebase-test", async (req, res) => {
-
-    try {
-
-        if (!firebaseReady || !database) {
-
-            return res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Firebase belum berjaya initialize."
-
-            });
-
-        }
-
-
-        const snapshot =
-            await database
-                .ref("current")
-                .once("value");
-
-
-        const data =
-            snapshot.val();
-
-
-        res.json({
-
-            success: true,
-
-            message:
-                "Firebase connection berjaya",
-
-            data: data
-
-        });
-
-
-    } catch (error) {
-
-        console.error(
-            "Firebase Test Error:",
-            error.message
-        );
-
-
-        res.status(500).json({
-
-            success: false,
-
-            message:
-                "Firebase error",
-
-            error:
-                error.message
-
-        });
-
-    }
-
-});
-
-
-// ==================================================
+// ======================================================
 // FIREBASE CURRENT DATA
-// ==================================================
+// ======================================================
 
 app.get("/api/firebase", async (req, res) => {
 
@@ -276,41 +197,55 @@ app.get("/api/firebase", async (req, res) => {
 
         }
 
+        const [
 
-        const snapshot =
-            await database
-                .ref("current")
-                .once("value");
+            currentSnapshot,
+            sensorSnapshot
 
+        ] = await Promise.all([
 
-        const data =
-            snapshot.val();
+            database.ref("current").once("value"),
 
+            database.ref("sensors").once("value")
 
-        if (data === null) {
+        ]);
 
-            return res.json({
+        const current =
+            currentSnapshot.val() || {};
 
-                success: true,
-
-                data: null,
-
-                message:
-                    "Tiada data di Firebase/current."
-
-            });
-
-        }
-
+        const sensors =
+            sensorSnapshot.val() || {};
 
         res.json({
 
             success: true,
 
-            data: data
+            data: {
+
+                accessStatus:
+                    current.accessStatus || "--",
+
+                uid:
+                    current.uid || "--",
+
+                userName:
+                    current.userName || "--",
+
+                date:
+                    current.date || "--",
+
+                time:
+                    current.time || "--",
+
+                temperature:
+                    sensors.temperature ?? "--",
+
+                humidity:
+                    sensors.humidity ?? "--"
+
+            }
 
         });
-
 
     } catch (error) {
 
@@ -318,7 +253,6 @@ app.get("/api/firebase", async (req, res) => {
             "Firebase Current Error:",
             error.message
         );
-
 
         res.status(500).json({
 
@@ -336,10 +270,184 @@ app.get("/api/firebase", async (req, res) => {
 
 });
 
+// ======================================================
+// FIREBASE ACCESS LOGS
+// ======================================================
 
-// ==================================================
+app.get("/api/access-logs", async (req, res) => {
+
+    try {
+
+        if (!firebaseReady || !database) {
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Firebase belum berjaya initialize."
+
+            });
+
+        }
+
+        const snapshot =
+            await database
+                .ref("accessLogs")
+                .once("value");
+
+        const data =
+            snapshot.val() || {};
+
+        const records =
+            Object.entries(data)
+                .sort(
+                    (a, b) =>
+                        Number(b[0]) -
+                        Number(a[0])
+                )
+                .slice(0, 20)
+                .map(([timestamp, item]) => ({
+
+                    timestamp,
+
+                    uid:
+                        item.uid || "--",
+
+                    userName:
+                        item.userName || "--",
+
+                    status:
+                        item.status || "--",
+
+                    date:
+                        item.date || "--",
+
+                    time:
+                        item.time || "--"
+
+                }));
+
+        res.json({
+
+            success: true,
+
+            data: records
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Firebase Access Log Error:",
+            error.message
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                "Gagal mendapatkan access logs.",
+
+            error:
+                error.message
+
+        });
+
+    }
+
+});
+
+// ======================================================
+// FIREBASE ALERTS
+// ======================================================
+
+app.get("/api/alerts", async (req, res) => {
+
+    try {
+
+        if (!firebaseReady || !database) {
+
+            return res.status(500).json({
+
+                success: false,
+
+                message:
+                    "Firebase belum berjaya initialize."
+
+            });
+
+        }
+
+        const snapshot =
+            await database
+                .ref("alerts")
+                .once("value");
+
+        const data =
+            snapshot.val() || {};
+
+        const records =
+            Object.entries(data)
+                .sort(
+                    (a, b) =>
+                        Number(b[0]) -
+                        Number(a[0])
+                )
+                .slice(0, 20)
+                .map(([timestamp, item]) => ({
+
+                    timestamp,
+
+                    type:
+                        item.type || "--",
+
+                    message:
+                        item.message || "--",
+
+                    date:
+                        item.date || "--",
+
+                    time:
+                        item.time || "--"
+
+                }));
+
+        res.json({
+
+            success: true,
+
+            data: records
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Firebase Alert Error:",
+            error.message
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                "Gagal mendapatkan alerts.",
+
+            error:
+                error.message
+
+        });
+
+    }
+
+});
+
+// ======================================================
 // FIREBASE HISTORY
-// ==================================================
+// ======================================================
 
 app.get("/api/history", async (req, res) => {
 
@@ -358,25 +466,47 @@ app.get("/api/history", async (req, res) => {
 
         }
 
-
         const snapshot =
             await database
                 .ref("history")
                 .once("value");
 
-
         const data =
-            snapshot.val();
+            snapshot.val() || {};
 
+        const records =
+            Object.entries(data)
+                .sort(
+                    (a, b) =>
+                        Number(b[0]) -
+                        Number(a[0])
+                )
+                .slice(0, 20)
+                .map(([timestamp, item]) => ({
+
+                    timestamp,
+
+                    event:
+                        item.event || "--",
+
+                    message:
+                        item.message || "--",
+
+                    date:
+                        item.date || "--",
+
+                    time:
+                        item.time || "--"
+
+                }));
 
         res.json({
 
             success: true,
 
-            data: data || {}
+            data: records
 
         });
-
 
     } catch (error) {
 
@@ -384,7 +514,6 @@ app.get("/api/history", async (req, res) => {
             "Firebase History Error:",
             error.message
         );
-
 
         res.status(500).json({
 
@@ -402,10 +531,9 @@ app.get("/api/history", async (req, res) => {
 
 });
 
-
-// ==================================================
-// SERVER STATUS
-// ==================================================
+// ======================================================
+// SYSTEM STATUS
+// ======================================================
 
 app.get("/api/status", (req, res) => {
 
@@ -413,13 +541,16 @@ app.get("/api/status", (req, res) => {
 
         success: true,
 
-        blynk: !!BLYNK_AUTH_TOKEN,
+        blynk:
+            !!BLYNK_AUTH_TOKEN,
 
-        firebase: firebaseReady,
+        firebase:
+            firebaseReady,
 
-        database: firebaseReady
-            ? "Connected"
-            : "Disconnected",
+        database:
+            firebaseReady
+                ? "Connected"
+                : "Disconnected",
 
         time:
             new Date().toISOString()
@@ -428,12 +559,11 @@ app.get("/api/status", (req, res) => {
 
 });
 
-
-// ==================================================
+// ======================================================
 // START SERVER
-// ==================================================
+// ======================================================
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
 
     console.log("");
 
@@ -442,7 +572,7 @@ app.listen(PORT, "0.0.0.0", () => {
     );
 
     console.log(
-        "      NETGUARD DASHBOARD"
+        "        NETGUARD DASHBOARD"
     );
 
     console.log(
