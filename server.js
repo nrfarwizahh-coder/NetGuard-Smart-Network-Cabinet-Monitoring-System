@@ -3,7 +3,11 @@ const dotenv = require("dotenv");
 const path = require("path");
 
 const admin = require("firebase-admin");
-const { getDatabase } = require("firebase-admin/database");
+const {
+    getDatabase,
+    ref,
+    get
+} = require("firebase-admin/database");
 
 dotenv.config();
 
@@ -270,12 +274,17 @@ app.get(
             }
 
             const snapshot =
-                await database
-                    .ref("current")
-                    .once("value");
+                await get(
+                    ref(
+                        database,
+                        "current"
+                    )
+                );
 
             const data =
-                snapshot.val();
+                snapshot.exists()
+                    ? snapshot.val()
+                    : null;
 
             res.json({
 
@@ -347,12 +356,17 @@ app.get(
             }
 
             const snapshot =
-                await database
-                    .ref("current")
-                    .once("value");
+                await get(
+                    ref(
+                        database,
+                        "current"
+                    )
+                );
 
             const data =
-                snapshot.val();
+                snapshot.exists()
+                    ? snapshot.val()
+                    : null;
 
             if (data === null) {
 
@@ -432,13 +446,25 @@ app.get(
 
             }
 
+
+            const historyRef =
+                ref(
+                    database,
+                    "history"
+                );
+
+
             const snapshot =
-                await database
-                    .ref("history")
-                    .once("value");
+                await get(
+                    historyRef
+                );
+
 
             const data =
-                snapshot.val() || {};
+                snapshot.exists()
+                    ? snapshot.val()
+                    : {};
+
 
             const records =
                 Object.entries(data)
@@ -515,6 +541,7 @@ app.get(
                                     b.timestamp
                                 );
 
+
                             if (
                                 !isNaN(timestampA) &&
                                 !isNaN(timestampB)
@@ -527,6 +554,7 @@ app.get(
 
                             }
 
+
                             return 0;
 
                         }
@@ -535,6 +563,7 @@ app.get(
                         0,
                         50
                     );
+
 
             res.json({
 
@@ -545,12 +574,14 @@ app.get(
 
             });
 
+
         } catch (error) {
 
             console.error(
                 "Firebase History Error:",
-                error.message
+                error
             );
+
 
             res.status(500).json({
 
@@ -597,12 +628,17 @@ app.get(
             }
 
             const snapshot =
-                await database
-                    .ref("accessLogs")
-                    .once("value");
+                await get(
+                    ref(
+                        database,
+                        "accessLogs"
+                    )
+                );
 
             const data =
-                snapshot.val() || {};
+                snapshot.exists()
+                    ? snapshot.val()
+                    : {};
 
             const records =
                 Object.entries(data)
@@ -716,12 +752,17 @@ app.get(
             }
 
             const snapshot =
-                await database
-                    .ref("alerts")
-                    .once("value");
+                await get(
+                    ref(
+                        database,
+                        "alerts"
+                    )
+                );
 
             const data =
-                snapshot.val() || {};
+                snapshot.exists()
+                    ? snapshot.val()
+                    : {};
 
             const records =
                 Object.entries(data)
