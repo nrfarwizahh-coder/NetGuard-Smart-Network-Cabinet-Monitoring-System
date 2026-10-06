@@ -9,12 +9,10 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 
+require("dotenv").config();
+
 const { initializeApp, cert } = require("firebase-admin/app");
-const {
-    getDatabase,
-    ref,
-    get
-} = require("firebase-admin/database");
+const { getDatabase } = require("firebase-admin/database");
 
 const app = express();
 
@@ -68,10 +66,7 @@ try {
 
     let serviceAccount;
 
-    // --------------------------------------------------
-    // RENDER
-    // --------------------------------------------------
-
+    // Render
     if (process.env.FIREBASE_SERVICE_ACCOUNT) {
 
         serviceAccount = JSON.parse(
@@ -80,10 +75,7 @@ try {
 
     }
 
-    // --------------------------------------------------
-    // LOCAL COMPUTER
-    // --------------------------------------------------
-
+    // Local computer
     else {
 
         const localFile = path.join(
@@ -103,10 +95,6 @@ try {
             );
         }
     }
-
-    // --------------------------------------------------
-    // INITIALIZE FIREBASE
-    // --------------------------------------------------
 
     const firebaseApp = initializeApp({
 
@@ -229,9 +217,9 @@ app.get("/api/firebase", async (req, res) => {
     try {
 
         const snapshot =
-            await get(
-                ref(database, "current")
-            );
+            await database
+                .ref("current")
+                .once("value");
 
         res.json({
 
@@ -286,9 +274,9 @@ app.get("/api/history", async (req, res) => {
     try {
 
         const snapshot =
-            await get(
-                ref(database, "history")
-            );
+            await database
+                .ref("history")
+                .once("value");
 
         if (!snapshot.exists()) {
 
@@ -424,9 +412,9 @@ app.get("/api/access-logs", async (req, res) => {
     try {
 
         const snapshot =
-            await get(
-                ref(database, "access_logs")
-            );
+            await database
+                .ref("access_logs")
+                .once("value");
 
         if (!snapshot.exists()) {
 
@@ -511,9 +499,9 @@ app.get("/api/alerts", async (req, res) => {
     try {
 
         const snapshot =
-            await get(
-                ref(database, "alerts")
-            );
+            await database
+                .ref("alerts")
+                .once("value");
 
         if (!snapshot.exists()) {
 
