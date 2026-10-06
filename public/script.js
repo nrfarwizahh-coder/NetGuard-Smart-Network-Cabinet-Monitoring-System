@@ -1064,6 +1064,79 @@ async function updateSystemStatus() {
 
 }
 
+// ======================================================
+// INFO BUTTONS
+// ======================================================
+
+function showInfo(type) {
+
+    const info = {
+
+        temperature: {
+            title: "Temperature",
+            text: "Displays the current temperature inside the network cabinet. This helps monitor the cabinet environment and identify high temperature conditions."
+        },
+
+        humidity: {
+            title: "Humidity",
+            text: "Displays the current humidity level inside the network cabinet. Monitoring humidity helps protect network equipment from environmental conditions."
+        },
+
+        door: {
+            title: "Door Status",
+            text: "Shows the current condition of the network cabinet door. CLOSED means the cabinet is secured, while OPEN means the cabinet door has been opened."
+        },
+
+        rfid: {
+            title: "RFID Access",
+            text: "Displays the latest RFID access detected by the system. The RFID reader is used to identify users who access the network cabinet."
+        },
+
+        unauthorized: {
+            title: "Unauthorized Access",
+            text: "Shows the number of unauthorized access attempts detected by the system."
+        },
+
+        security: {
+            title: "Security Access",
+            text: "Displays the current security level of the network cabinet. SAFE indicates normal operation, while WARNING or ALARM indicates a security issue."
+        },
+
+        switch: {
+            title: "Network Switch",
+            text: "Shows the overall status of the network switch. ON means at least one monitored network port is active."
+        },
+
+        g00: {
+            title: "G0/0",
+            text: "Displays the current status of the G0/0 network switch port. UP means the port is active, while DOWN means the port is inactive."
+        },
+
+        g01: {
+            title: "G0/1",
+            text: "Displays the current status of the G0/1 network switch port. UP means the port is active, while DOWN means the port is inactive."
+        }
+
+    };
+
+
+    const selectedInfo =
+        info[type];
+
+
+    if (!selectedInfo) {
+        return;
+    }
+
+
+    alert(
+        selectedInfo.title +
+        "\n\n" +
+        selectedInfo.text
+    );
+
+}
+
 
 // ======================================================
 // START
