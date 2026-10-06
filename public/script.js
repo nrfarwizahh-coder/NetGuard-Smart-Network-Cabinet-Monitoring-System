@@ -256,168 +256,79 @@ function updateDoorStatus(status) {
 
 function updateNetworkSwitch(data) {
 
-    const port0 =
-        Number(
-            data?.g0?.[0]?.status
-        );
+    // Only update network cards when Firebase provides g0 data
+    if (!data?.g0) {
+        return;
+    }
 
-    const port1 =
-        Number(
-            data?.g0?.[1]?.status
-        );
+    const port0 = Number(data.g0?.[0]?.status);
+    const port1 = Number(data.g0?.[1]?.status);
 
-
-    // ==================================================
     // G0/0
-    // ==================================================
-
     if (g00Element) {
 
         if (port0 === 1) {
-
-            g00Element.textContent =
-                "UP";
-
+            g00Element.textContent = "UP";
+        } else if (port0 === 0) {
+            g00Element.textContent = "DOWN";
+        } else {
+            g00Element.textContent = "--";
         }
 
-        else if (port0 === 0) {
-
-            g00Element.textContent =
-                "DOWN";
-
-        }
-
-        else {
-
-            g00Element.textContent =
-                "--";
-
-        }
     }
 
-
-    // ==================================================
     // G0/1
-    // ==================================================
-
     if (g01Element) {
 
         if (port1 === 1) {
-
-            g01Element.textContent =
-                "UP";
-
+            g01Element.textContent = "UP";
+        } else if (port1 === 0) {
+            g01Element.textContent = "DOWN";
+        } else {
+            g01Element.textContent = "--";
         }
 
-        else if (port1 === 0) {
-
-            g01Element.textContent =
-                "DOWN";
-
-        }
-
-        else {
-
-            g01Element.textContent =
-                "--";
-
-        }
     }
 
-
-    // ==================================================
-    // NETWORK SWITCH
-    // ==================================================
-
+    // Network Switch
     if (switchStatusElement) {
 
-        if (
-            port0 === 1 ||
-            port1 === 1
-        ) {
-
-            switchStatusElement.textContent =
-                "ON";
-
+        if (port0 === 1 || port1 === 1) {
+            switchStatusElement.textContent = "ON";
+        } else if (port0 === 0 && port1 === 0) {
+            switchStatusElement.textContent = "OFF";
+        } else {
+            switchStatusElement.textContent = "--";
         }
 
-        else if (
-            port0 === 0 &&
-            port1 === 0
-        ) {
-
-            switchStatusElement.textContent =
-                "OFF";
-
-        }
-
-        else {
-
-            switchStatusElement.textContent =
-                "--";
-
-        }
     }
 
-
-    // ==================================================
-    // OPTIONAL ETHERNET E0
-    // ==================================================
-
+    // Optional Ethernet E0
     if (ethernetE0) {
 
         if (port0 === 1) {
-
-            ethernetE0.textContent =
-                "ON";
-
+            ethernetE0.textContent = "ON";
+        } else if (port0 === 0) {
+            ethernetE0.textContent = "OFF";
+        } else {
+            ethernetE0.textContent = "--";
         }
 
-        else if (port0 === 0) {
-
-            ethernetE0.textContent =
-                "OFF";
-
-        }
-
-        else {
-
-            ethernetE0.textContent =
-                "--";
-
-        }
     }
 
-
-    // ==================================================
-    // OPTIONAL ETHERNET E1
-    // ==================================================
-
+    // Optional Ethernet E1
     if (ethernetE1) {
 
         if (port1 === 1) {
-
-            ethernetE1.textContent =
-                "ON";
-
+            ethernetE1.textContent = "ON";
+        } else if (port1 === 0) {
+            ethernetE1.textContent = "OFF";
+        } else {
+            ethernetE1.textContent = "--";
         }
 
-        else if (port1 === 0) {
-
-            ethernetE1.textContent =
-                "OFF";
-
-        }
-
-        else {
-
-            ethernetE1.textContent =
-                "--";
-
-        }
     }
 }
-
 
 // ======================================================
 // UPDATE MONITORING CARDS
