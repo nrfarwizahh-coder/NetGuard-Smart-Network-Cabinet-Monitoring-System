@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
 
-const admin = require("firebase-admin/app");
+const admin = require("firebase-admin");
 const { getDatabase } = require("firebase-admin/database");
 
 dotenv.config();
@@ -38,17 +38,15 @@ try {
 
     }
 
-
     const serviceAccount =
         JSON.parse(
             process.env.FIREBASE_SERVICE_ACCOUNT
         );
 
-
     admin.initializeApp({
 
         credential:
-            admin.cert(
+            admin.credential.cert(
                 serviceAccount
             ),
 
@@ -57,19 +55,15 @@ try {
 
     });
 
-
     database =
         getDatabase();
-
 
     firebaseReady =
         true;
 
-
     console.log(
         "Firebase: READY"
     );
-
 
 } catch (error) {
 
@@ -121,10 +115,8 @@ async function getBlynkValue(pin) {
             BLYNK_AUTH_TOKEN
         )}&${pin}`;
 
-
     const response =
         await fetch(url);
-
 
     if (!response.ok) {
 
@@ -133,7 +125,6 @@ async function getBlynkValue(pin) {
         );
 
     }
-
 
     return await response.text();
 
@@ -195,29 +186,6 @@ app.get(
             ]);
 
 
-            // --- SAVE TO FIREBASE HISTORY ---
-            if (firebaseReady && database) {
-                try {
-                    await database.ref("history").push({
-                        timestamp: Date.now(),
-                        temperature: temperature || 0,
-                        humidity: humidity || 0,
-                        doorStatus: doorStatus || "UNKNOWN",
-                        rfidAccess: rfidAccess || "NONE",
-                        unauthorizedAccess: unauthorizedAccess || 0,
-                        securityAccess: securityAccess || "SAFE",
-                        switchStatus: switchStatus || 0,
-                        g0_0: g0 || 0,
-                        g0_1: g01 || 0
-                    });
-                    console.log("✅ History saved to Firebase");
-                } catch (fbError) {
-                    console.error("❌ Failed to save history:", fbError.message);
-                }
-            }
-            // ---------------------------------
-
-
             res.json({
 
                 success: true,
@@ -256,7 +224,6 @@ app.get(
                 "Blynk Error:",
                 error.message
             );
-
 
             res.status(500).json({
 
@@ -302,16 +269,13 @@ app.get(
 
             }
 
-
             const snapshot =
                 await database
                     .ref("current")
                     .once("value");
 
-
             const data =
                 snapshot.val();
-
 
             res.json({
 
@@ -325,14 +289,12 @@ app.get(
 
             });
 
-
         } catch (error) {
 
             console.error(
                 "Firebase Test Error:",
                 error.message
             );
-
 
             res.status(500).json({
 
@@ -384,16 +346,13 @@ app.get(
 
             }
 
-
             const snapshot =
                 await database
                     .ref("current")
                     .once("value");
 
-
             const data =
                 snapshot.val();
-
 
             if (data === null) {
 
@@ -410,7 +369,6 @@ app.get(
 
             }
 
-
             res.json({
 
                 success: true,
@@ -419,14 +377,12 @@ app.get(
 
             });
 
-
         } catch (error) {
 
             console.error(
                 "Firebase Current Error:",
                 error.message
             );
-
 
             res.status(500).json({
 
@@ -476,16 +432,13 @@ app.get(
 
             }
 
-
             const snapshot =
                 await database
                     .ref("history")
                     .once("value");
 
-
             const data =
                 snapshot.val() || {};
-
 
             const records =
                 Object.entries(data)
@@ -529,7 +482,6 @@ app.get(
                                     value?.timestamp ??
                                     key,
 
-                                // Support old records
                                 date:
                                     value?.date ??
                                     "--",
@@ -563,7 +515,6 @@ app.get(
                                     b.timestamp
                                 );
 
-
                             if (
                                 !isNaN(timestampA) &&
                                 !isNaN(timestampB)
@@ -576,7 +527,6 @@ app.get(
 
                             }
 
-
                             return 0;
 
                         }
@@ -585,7 +535,6 @@ app.get(
                         0,
                         50
                     );
-
 
             res.json({
 
@@ -596,14 +545,12 @@ app.get(
 
             });
 
-
         } catch (error) {
 
             console.error(
                 "Firebase History Error:",
                 error.message
             );
-
 
             res.status(500).json({
 
@@ -649,16 +596,13 @@ app.get(
 
             }
 
-
             const snapshot =
                 await database
                     .ref("accessLogs")
                     .once("value");
 
-
             const data =
                 snapshot.val() || {};
-
 
             const records =
                 Object.entries(data)
@@ -697,12 +641,10 @@ app.get(
                                     `${a.date} ${a.time}`
                                 ).getTime();
 
-
                             const bTime =
                                 new Date(
                                     `${b.date} ${b.time}`
                                 ).getTime();
-
 
                             return bTime - aTime;
 
@@ -713,7 +655,6 @@ app.get(
                         50
                     );
 
-
             res.json({
 
                 success: true,
@@ -723,14 +664,12 @@ app.get(
 
             });
 
-
         } catch (error) {
 
             console.error(
                 "Access Logs Error:",
                 error.message
             );
-
 
             res.status(500).json({
 
@@ -776,16 +715,13 @@ app.get(
 
             }
 
-
             const snapshot =
                 await database
                     .ref("alerts")
                     .once("value");
 
-
             const data =
                 snapshot.val() || {};
-
 
             const records =
                 Object.entries(data)
@@ -818,7 +754,6 @@ app.get(
                     )
                     .reverse();
 
-
             res.json({
 
                 success: true,
@@ -828,14 +763,12 @@ app.get(
 
             });
 
-
         } catch (error) {
 
             console.error(
                 "Alerts Error:",
                 error.message
             );
-
 
             res.status(500).json({
 
