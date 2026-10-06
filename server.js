@@ -7,14 +7,13 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 
 const { initializeApp, cert } = require("firebase-admin/app");
 const {
     getDatabase,
     ref,
-    get,
-    push,
-    set
+    get
 } = require("firebase-admin/database");
 
 const app = express();
@@ -37,6 +36,7 @@ const BLYNK_AUTH_TOKEN = process.env.BLYNK_AUTH_TOKEN;
 
 async function getBlynk(pin) {
     try {
+
         const response = await axios.get(
             `https://blynk.cloud/external/api/get?token=${BLYNK_AUTH_TOKEN}&${pin}`
         );
@@ -44,6 +44,7 @@ async function getBlynk(pin) {
         return response.data;
 
     } catch (error) {
+
         console.error(
             `Blynk API error ${pin}:`,
             error.response?.data || error.message
@@ -65,22 +66,60 @@ let firebaseReady = false;
 
 try {
 
-    if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-        throw new Error(
-            "FIREBASE_SERVICE_ACCOUNT tidak dijumpai dalam environment variables."
+    let serviceAccount;
+
+    // --------------------------------------------------
+    // RENDER
+    // --------------------------------------------------
+
+    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+
+        serviceAccount = JSON.parse(
+            process.env.FIREBASE_SERVICE_ACCOUNT
         );
+
     }
 
-    const serviceAccount = JSON.parse(
-        process.env.FIREBASE_SERVICE_ACCOUNT
-    );
+    // --------------------------------------------------
+    // LOCAL COMPUTER
+    // --------------------------------------------------
+
+    else {
+
+        const localFile = path.join(
+            __dirname,
+            "firebase-service-account.json"
+        );
+
+        if (fs.existsSync(localFile)) {
+
+            serviceAccount =
+                require(localFile);
+
+        } else {
+
+            throw new Error(
+                "firebase-service-account.json tidak dijumpai."
+            );
+        }
+    }
+
+    // --------------------------------------------------
+    // INITIALIZE FIREBASE
+    // --------------------------------------------------
 
     const firebaseApp = initializeApp({
-        credential: cert(serviceAccount),
-        databaseURL: FIREBASE_DATABASE_URL
+
+        credential:
+            cert(serviceAccount),
+
+        databaseURL:
+            FIREBASE_DATABASE_URL
+
     });
 
-    database = getDatabase(firebaseApp);
+    database =
+        getDatabase(firebaseApp);
 
     firebaseReady = true;
 
@@ -134,26 +173,15 @@ app.get("/api/data", async (req, res) => {
 
             data: {
 
-                temperature: temperature,
-                humidity: humidity,
-
-                doorStatus: doorStatus,
-                rfidAccess: rfidAccess,
-
-                unauthorizedAccess:
-                    unauthorizedAccess,
-
-                securityAccess:
-                    securityAccess,
-
-                switchStatus:
-                    switchStatus,
-
-                port0:
-                    port0,
-
-                port1:
-                    port1
+                temperature,
+                humidity,
+                doorStatus,
+                rfidAccess,
+                unauthorizedAccess,
+                securityAccess,
+                switchStatus,
+                port0,
+                port1
 
             }
 
@@ -180,7 +208,7 @@ app.get("/api/data", async (req, res) => {
 });
 
 // ======================================================
-// FIREBASE CURRENT DATA
+// FIREBASE CURRENT
 // ======================================================
 
 app.get("/api/firebase", async (req, res) => {
@@ -205,23 +233,14 @@ app.get("/api/firebase", async (req, res) => {
                 ref(database, "current")
             );
 
-        if (!snapshot.exists()) {
-
-            return res.json({
-
-                success: true,
-
-                data: {}
-
-            });
-
-        }
-
         res.json({
 
             success: true,
 
-            data: snapshot.val()
+            data:
+                snapshot.exists()
+                    ? snapshot.val()
+                    : {}
 
         });
 
@@ -329,8 +348,7 @@ app.get("/api/history", async (req, res) => {
                     "",
 
                 unauthorizedAccess:
-                    item.unauthorizedAccess ??
-                    0,
+                    item.unauthorizedAccess ?? 0,
 
                 securityAccess:
                     item.securityAccess ||
@@ -349,13 +367,10 @@ app.get("/api/history", async (req, res) => {
 
         history.sort((a, b) => {
 
-            const timeA =
-                Number(a.timestamp) || 0;
-
-            const timeB =
-                Number(b.timestamp) || 0;
-
-            return timeB - timeA;
+            return (
+                Number(b.timestamp || 0) -
+                Number(a.timestamp || 0)
+            );
 
         });
 
@@ -562,7 +577,7 @@ app.get("/api/alerts", async (req, res) => {
 });
 
 // ======================================================
-// SERVER STATUS
+// STATUS
 // ======================================================
 
 app.get("/api/status", (req, res) => {
@@ -589,7 +604,7 @@ app.get("/api/status", (req, res) => {
 // FRONTEND
 // ======================================================
 
-app.get("*", (req, res) => {
+app.use((req, res) => {
 
     res.sendFile(
         path.join(
@@ -608,7 +623,11 @@ app.get("*", (req, res) => {
 app.listen(PORT, () => {
 
     console.log("======================================");
-    console.log("      NETGUARD DASHBOARD");
+
+    console.log(
+        "      NETGUARD DASHBOARD"
+    );
+
     console.log("======================================");
 
     console.log(
