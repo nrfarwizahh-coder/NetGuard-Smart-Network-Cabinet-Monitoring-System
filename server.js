@@ -1,73 +1,90 @@
+// ======================================================
+// NETGUARD DASHBOARD
+// BLYNK + FIREBASE
+// ======================================================
+
 const express = require("express");
-const dotenv = require("dotenv");
+const axios = require("axios");
+const cors = require("cors");
 const path = require("path");
 
-const admin = require("firebase-admin");
+const { initializeApp, cert } = require("firebase-admin/app");
 const {
     getDatabase,
     ref,
-    get
+    get,
+    push,
+    set
 } = require("firebase-admin/database");
-
-dotenv.config();
 
 const app = express();
 
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+// ======================================================
+// PORT
+// ======================================================
+
 const PORT = process.env.PORT || 3000;
+
+// ======================================================
+// BLYNK
+// ======================================================
+
 const BLYNK_AUTH_TOKEN = process.env.BLYNK_AUTH_TOKEN;
 
+async function getBlynk(pin) {
+    try {
+        const response = await axios.get(
+            `https://blynk.cloud/external/api/get?token=${BLYNK_AUTH_TOKEN}&${pin}`
+        );
 
-// ==================================================
-// FIREBASE CONFIGURATION
-// ==================================================
+        return response.data;
+
+    } catch (error) {
+        console.error(
+            `Blynk API error ${pin}:`,
+            error.response?.data || error.message
+        );
+
+        return null;
+    }
+}
+
+// ======================================================
+// FIREBASE
+// ======================================================
 
 const FIREBASE_DATABASE_URL =
     "https://netguard-814d7-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-let firebaseReady = false;
 let database = null;
-
-
-// ==================================================
-// INITIALIZE FIREBASE
-// ==================================================
+let firebaseReady = false;
 
 try {
 
     if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-
         throw new Error(
             "FIREBASE_SERVICE_ACCOUNT tidak dijumpai dalam environment variables."
         );
-
     }
 
-    const serviceAccount =
-        JSON.parse(
-            process.env.FIREBASE_SERVICE_ACCOUNT
-        );
+    const serviceAccount = JSON.parse(
+        process.env.FIREBASE_SERVICE_ACCOUNT
+    );
 
-    admin.initializeApp({
-
-        credential:
-            admin.credential.cert(
-                serviceAccount
-            ),
-
-        databaseURL:
-            FIREBASE_DATABASE_URL
-
+    const firebaseApp = initializeApp({
+        credential: cert(serviceAccount),
+        databaseURL: FIREBASE_DATABASE_URL
     });
 
-    database =
-        getDatabase();
+    database = getDatabase(firebaseApp);
 
-    firebaseReady =
-        true;
+    firebaseReady = true;
 
-    console.log(
-        "Firebase: READY"
-    );
+    console.log("Firebase: READY");
 
 } catch (error) {
 
@@ -76,1032 +93,544 @@ try {
         error.message
     );
 
+    firebaseReady = false;
 }
 
-
-// ==================================================
-// CHECK BLYNK TOKEN
-// ==================================================
-
-if (!BLYNK_AUTH_TOKEN) {
-
-    console.error(
-        "ERROR: BLYNK_AUTH_TOKEN tidak dijumpai dalam environment variables."
-    );
-
-    process.exit(1);
-
-}
-
-
-// ==================================================
-// SERVE WEBSITE
-// ==================================================
-
-app.use(
-    express.static(
-        path.join(
-            __dirname,
-            "public"
-        )
-    )
-);
-
-
-// ==================================================
-// BLYNK FUNCTION
-// ==================================================
-
-async function getBlynkValue(pin) {
-
-    const url =
-        `https://blynk.cloud/external/api/get?token=${encodeURIComponent(
-            BLYNK_AUTH_TOKEN
-        )}&${pin}`;
-
-    const response =
-        await fetch(url);
-
-    if (!response.ok) {
-
-        throw new Error(
-            `Blynk API error ${pin}: ${response.status}`
-        );
-
-    }
-
-    return await response.text();
-
-}
-
-
-// ==================================================
+// ======================================================
 // BLYNK DATA
-//
-// V0 = Temperature
-// V1 = Humidity
-// V2 = Door Status
-// V3 = RFID Access
-// V4 = Unauthorized Access
-// V5 = Security Access
-// V6 = Switch Status
-// V7 = G0/0
-// V8 = G0/1
-// ==================================================
-
-app.get(
-    "/api/data",
-    async (req, res) => {
-
-        try {
-
-            const [
-
-                temperature,
-                humidity,
-                doorStatus,
-                rfidAccess,
-                unauthorizedAccess,
-                securityAccess,
-                switchStatus,
-                g0,
-                g01
-
-            ] = await Promise.all([
-
-                getBlynkValue("V0"),
-
-                getBlynkValue("V1"),
-
-                getBlynkValue("V2"),
-
-                getBlynkValue("V3"),
-
-                getBlynkValue("V4"),
-
-                getBlynkValue("V5"),
-
-                getBlynkValue("V6"),
-
-                getBlynkValue("V7"),
-
-                getBlynkValue("V8")
-
-            ]);
-
-
-            // ==================================================
-            // SAVE TO FIREBASE HISTORY
-            // ==================================================
-
-            if (
-                firebaseReady &&
-                database
-            ) {
-
-                try {
-
-                    await get(
-                        ref(
-                            database,
-                            "history"
-                        )
-                    );
-
-
-                    const historyRef =
-                        ref(
-                            database,
-                            "history"
-                        );
-
-
-                    const historyData = {
-
-                        timestamp:
-                            Date.now(),
-
-                        temperature:
-                            temperature || 0,
-
-                        humidity:
-                            humidity || 0,
-
-                        doorStatus:
-                            doorStatus || "UNKNOWN",
-
-                        rfidAccess:
-                            rfidAccess || "NONE",
-
-                        unauthorizedAccess:
-                            unauthorizedAccess || 0,
-
-                        securityAccess:
-                            securityAccess || "SAFE",
-
-                        switchStatus:
-                            switchStatus || 0,
-
-                        g0_0:
-                            g0 || 0,
-
-                        g0_1:
-                            g01 || 0
-
-                    };
-
-
-                    const { push } =
-                        require("firebase-admin/database");
-
-
-                    const newHistoryRef =
-                        push(
-                            historyRef
-                        );
-
-
-                    const {
-                        set
-                    } =
-                        require("firebase-admin/database");
-
-
-                    await set(
-                        newHistoryRef,
-                        historyData
-                    );
-
-
-                    console.log(
-                        "History saved to Firebase"
-                    );
-
-                } catch (fbError) {
-
-                    console.error(
-                        "Failed to save history:",
-                        fbError.message
-                    );
-
-                }
-
-            }
-
-
-            res.json({
-
-                success: true,
-
-                data: {
-
-                    temperature,
-
-                    humidity,
-
-                    doorStatus,
-
-                    rfidAccess,
-
-                    unauthorizedAccess,
-
-                    securityAccess,
-
-                    switchStatus,
-
-                    g0,
-
-                    g01
-
-                },
-
-                updatedAt:
-                    new Date().toISOString()
-
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "Blynk Error:",
-                error.message
-            );
-
-
-            res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Gagal mendapatkan data daripada Blynk.",
-
-                error:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-
-// ==================================================
-// FIREBASE TEST
-// ==================================================
-
-app.get(
-    "/api/firebase-test",
-    async (req, res) => {
-
-        try {
-
-            if (
-                !firebaseReady ||
-                !database
-            ) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "Firebase belum berjaya initialize."
-
-                });
-
-            }
-
-
-            const snapshot =
-                await get(
-                    ref(
-                        database,
-                        "current"
-                    )
-                );
-
-
-            const data =
-                snapshot.exists()
-                    ? snapshot.val()
-                    : null;
-
-
-            res.json({
-
-                success: true,
-
-                message:
-                    "Firebase connection berjaya",
-
-                data:
-                    data
-
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "Firebase Test Error:",
-                error.message
-            );
-
-
-            res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Firebase error",
-
-                error:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-
-// ==================================================
-// FIREBASE CURRENT DATA
-//
-// Reads:
-//
-// /current
-// ==================================================
-
-app.get(
-    "/api/firebase",
-    async (req, res) => {
-
-        try {
-
-            if (
-                !firebaseReady ||
-                !database
-            ) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "Firebase belum berjaya initialize."
-
-                });
-
-            }
-
-
-            const snapshot =
-                await get(
-                    ref(
-                        database,
-                        "current"
-                    )
-                );
-
-
-            const data =
-                snapshot.exists()
-                    ? snapshot.val()
-                    : null;
-
-
-            if (data === null) {
-
-                return res.json({
-
-                    success: true,
-
-                    data: null,
-
-                    message:
-                        "Tiada data di Firebase/current."
-
-                });
-
-            }
-
-
-            res.json({
-
-                success: true,
-
-                data:
-                    data
-
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "Firebase Current Error:",
-                error.message
-            );
-
-
-            res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Gagal mendapatkan data Firebase.",
-
-                error:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-
-// ==================================================
-// FIREBASE HISTORY
-//
-// Reads:
-//
-// /history
-// ==================================================
-
-app.get(
-    "/api/history",
-    async (req, res) => {
-
-        try {
-
-            if (
-                !firebaseReady ||
-                !database
-            ) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "Firebase belum berjaya initialize."
-
-                });
-
-            }
-
-
-            const snapshot =
-                await get(
-                    ref(
-                        database,
-                        "history"
-                    )
-                );
-
-
-            const data =
-                snapshot.exists()
-                    ? snapshot.val()
-                    : {};
-
-
-            const records =
-                Object.entries(data)
-                    .map(
-                        ([key, value]) => {
-
-                            let timestamp =
-                                value?.timestamp;
-
-
-                            /*
-                             * If timestamp exists,
-                             * convert it to Malaysia date/time.
-                             */
-
-                            let date =
-                                value?.date ||
-                                "--";
-
-
-                            let time =
-                                value?.time ||
-                                "--";
-
-
-                            if (
-                                timestamp &&
-                                !isNaN(
-                                    Number(timestamp)
-                                )
-                            ) {
-
-                                const historyDate =
-                                    new Date(
-                                        Number(timestamp)
-                                    );
-
-
-                                date =
-                                    new Intl.DateTimeFormat(
-                                        "en-GB",
-                                        {
-                                            timeZone:
-                                                "Asia/Kuala_Lumpur",
-
-                                            year:
-                                                "numeric",
-
-                                            month:
-                                                "2-digit",
-
-                                            day:
-                                                "2-digit"
-                                        }
-                                    )
-                                    .format(
-                                        historyDate
-                                    );
-
-
-                                time =
-                                    new Intl.DateTimeFormat(
-                                        "en-GB",
-                                        {
-                                            timeZone:
-                                                "Asia/Kuala_Lumpur",
-
-                                            hour:
-                                                "2-digit",
-
-                                            minute:
-                                                "2-digit",
-
-                                            second:
-                                                "2-digit",
-
-                                            hour12:
-                                                false
-                                        }
-                                    )
-                                    .format(
-                                        historyDate
-                                    );
-
-                            }
-
-
-                            return {
-
-                                key,
-
-                                temperature:
-                                    value?.temperature ??
-                                    "--",
-
-                                humidity:
-                                    value?.humidity ??
-                                    "--",
-
-                                rfidAccess:
-                                    value?.rfidAccess ??
-                                    "--",
-
-                                unauthorized:
-                                    value?.unauthorizedAccess ??
-                                    value?.unauthorized ??
-                                    "--",
-
-                                currentUser:
-                                    value?.currentUser ??
-                                    "--",
-
-                                securityAccess:
-                                    value?.securityAccess ??
-                                    "--",
-
-                                doorStatus:
-                                    value?.doorStatus ??
-                                    "--",
-
-                                timestamp:
-                                    timestamp ??
-                                    key,
-
-                                date,
-
-                                time,
-
-                                event:
-                                    value?.event ??
-                                    "--",
-
-                                message:
-                                    value?.message ??
-                                    "--"
-
-                            };
-
-                        }
-                    )
-                    .sort(
-                        (a, b) => {
-
-                            const timestampA =
-                                Number(
-                                    a.timestamp
-                                );
-
-                            const timestampB =
-                                Number(
-                                    b.timestamp
-                                );
-
-
-                            if (
-                                !isNaN(timestampA) &&
-                                !isNaN(timestampB)
-                            ) {
-
-                                return (
-                                    timestampB -
-                                    timestampA
-                                );
-
-                            }
-
-
-                            return 0;
-
-                        }
-                    )
-                    .slice(
-                        0,
-                        50
-                    );
-
-
-            res.json({
-
-                success: true,
-
-                data:
-                    records
-
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "Firebase History Error:",
-                error.message
-            );
-
-
-            res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Gagal mendapatkan Firebase history.",
-
-                error:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-
-// ==================================================
-// FIREBASE ACCESS LOGS
-// ==================================================
-
-app.get(
-    "/api/access-logs",
-    async (req, res) => {
-
-        try {
-
-            if (
-                !firebaseReady ||
-                !database
-            ) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "Firebase belum berjaya initialize."
-
-                });
-
-            }
-
-
-            const snapshot =
-                await get(
-                    ref(
-                        database,
-                        "accessLogs"
-                    )
-                );
-
-
-            const data =
-                snapshot.exists()
-                    ? snapshot.val()
-                    : {};
-
-
-            const records =
-                Object.entries(data)
-                    .map(
-                        ([key, value]) => ({
-
-                            key,
-
-                            date:
-                                value?.date ||
-                                "--",
-
-                            time:
-                                value?.time ||
-                                "--",
-
-                            uid:
-                                value?.uid ||
-                                "--",
-
-                            userName:
-                                value?.userName ||
-                                "--",
-
-                            status:
-                                value?.status ||
-                                "--"
-
-                        })
-                    )
-                    .sort(
-                        (a, b) => {
-
-                            const aTime =
-                                new Date(
-                                    `${a.date} ${a.time}`
-                                ).getTime();
-
-
-                            const bTime =
-                                new Date(
-                                    `${b.date} ${b.time}`
-                                ).getTime();
-
-
-                            return bTime - aTime;
-
-                        }
-                    )
-                    .slice(
-                        0,
-                        50
-                    );
-
-
-            res.json({
-
-                success: true,
-
-                data:
-                    records
-
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "Access Logs Error:",
-                error.message
-            );
-
-
-            res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Gagal mendapatkan access logs.",
-
-                error:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-
-// ==================================================
-// FIREBASE ALERTS
-// ==================================================
-
-app.get(
-    "/api/alerts",
-    async (req, res) => {
-
-        try {
-
-            if (
-                !firebaseReady ||
-                !database
-            ) {
-
-                return res.status(500).json({
-
-                    success: false,
-
-                    message:
-                        "Firebase belum berjaya initialize."
-
-                });
-
-            }
-
-
-            const snapshot =
-                await get(
-                    ref(
-                        database,
-                        "alerts"
-                    )
-                );
-
-
-            const data =
-                snapshot.exists()
-                    ? snapshot.val()
-                    : {};
-
-
-            const records =
-                Object.entries(data)
-                    .map(
-                        ([key, value]) => ({
-
-                            key,
-
-                            date:
-                                value?.date ||
-                                "--",
-
-                            time:
-                                value?.time ||
-                                "--",
-
-                            type:
-                                value?.type ||
-                                value?.event ||
-                                "--",
-
-                            message:
-                                value?.message ||
-                                "--"
-
-                        })
-                    )
-                    .slice(
-                        -50
-                    )
-                    .reverse();
-
-
-            res.json({
-
-                success: true,
-
-                data:
-                    records
-
-            });
-
-
-        } catch (error) {
-
-            console.error(
-                "Alerts Error:",
-                error.message
-            );
-
-
-            res.status(500).json({
-
-                success: false,
-
-                message:
-                    "Gagal mendapatkan alerts.",
-
-                error:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-
-// ==================================================
-// SERVER STATUS
-// ==================================================
-
-app.get(
-    "/api/status",
-    (req, res) => {
+// ======================================================
+
+app.get("/api/data", async (req, res) => {
+
+    try {
+
+        const [
+            temperature,
+            humidity,
+            doorStatus,
+            rfidAccess,
+            unauthorizedAccess,
+            securityAccess,
+            switchStatus,
+            port0,
+            port1
+        ] = await Promise.all([
+
+            getBlynk("V0"),
+            getBlynk("V1"),
+            getBlynk("V2"),
+            getBlynk("V3"),
+            getBlynk("V4"),
+            getBlynk("V5"),
+            getBlynk("V6"),
+            getBlynk("V7"),
+            getBlynk("V8")
+
+        ]);
 
         res.json({
 
             success: true,
 
-            blynk:
-                !!BLYNK_AUTH_TOKEN,
+            data: {
 
-            firebase:
-                firebaseReady,
+                temperature: temperature,
+                humidity: humidity,
 
-            database:
-                firebaseReady
-                    ? "Connected"
-                    : "Disconnected",
+                doorStatus: doorStatus,
+                rfidAccess: rfidAccess,
 
-            time:
-                new Date().toISOString()
+                unauthorizedAccess:
+                    unauthorizedAccess,
+
+                securityAccess:
+                    securityAccess,
+
+                switchStatus:
+                    switchStatus,
+
+                port0:
+                    port0,
+
+                port1:
+                    port1
+
+            }
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Blynk data error:",
+            error.message
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                "Gagal mendapatkan data Blynk."
 
         });
 
     }
-);
 
+});
 
-// ==================================================
-// START SERVER
-// ==================================================
+// ======================================================
+// FIREBASE CURRENT DATA
+// ======================================================
 
-app.listen(
-    PORT,
-    "0.0.0.0",
-    () => {
+app.get("/api/firebase", async (req, res) => {
 
-        console.log("");
+    if (!firebaseReady || !database) {
 
-        console.log(
-            "======================================"
-        );
+        return res.json({
 
-        console.log(
-            "      NETGUARD DASHBOARD"
-        );
+            success: false,
 
-        console.log(
-            "======================================"
-        );
+            message:
+                "Firebase belum berjaya initialize."
 
-        console.log(
-            `Website: http://localhost:${PORT}`
-        );
-
-        console.log(
-            "Blynk: READY"
-        );
-
-        console.log(
-            `Firebase: ${
-                firebaseReady
-                    ? "READY"
-                    : "ERROR"
-            }`
-        );
-
-        console.log(
-            "======================================"
-        );
-
-        console.log("");
+        });
 
     }
-);
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(database, "current")
+            );
+
+        if (!snapshot.exists()) {
+
+            return res.json({
+
+                success: true,
+
+                data: {}
+
+            });
+
+        }
+
+        res.json({
+
+            success: true,
+
+            data: snapshot.val()
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Firebase current error:",
+            error.message
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                error.message
+
+        });
+
+    }
+
+});
+
+// ======================================================
+// FIREBASE HISTORY
+// ======================================================
+
+app.get("/api/history", async (req, res) => {
+
+    if (!firebaseReady || !database) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Firebase belum berjaya initialize."
+
+        });
+
+    }
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(database, "history")
+            );
+
+        if (!snapshot.exists()) {
+
+            return res.json({
+
+                success: true,
+
+                data: []
+
+            });
+
+        }
+
+        const firebaseData =
+            snapshot.val();
+
+        const history = [];
+
+        Object.keys(firebaseData).forEach(key => {
+
+            const item =
+                firebaseData[key];
+
+            history.push({
+
+                id: key,
+
+                date:
+                    item.date || "",
+
+                time:
+                    item.time || "",
+
+                timestamp:
+                    item.timestamp || null,
+
+                temperature:
+                    item.temperature ?? null,
+
+                humidity:
+                    item.humidity ?? null,
+
+                doorStatus:
+                    item.doorStatus ||
+                    item.accessStatus ||
+                    item.door ||
+                    "",
+
+                rfidAccess:
+                    item.rfidAccess ||
+                    item.uid ||
+                    "",
+
+                currentUser:
+                    item.currentUser ||
+                    item.userName ||
+                    "",
+
+                unauthorizedAccess:
+                    item.unauthorizedAccess ??
+                    0,
+
+                securityAccess:
+                    item.securityAccess ||
+                    item.security ||
+                    "",
+
+                event:
+                    item.event || "",
+
+                message:
+                    item.message || ""
+
+            });
+
+        });
+
+        history.sort((a, b) => {
+
+            const timeA =
+                Number(a.timestamp) || 0;
+
+            const timeB =
+                Number(b.timestamp) || 0;
+
+            return timeB - timeA;
+
+        });
+
+        res.json({
+
+            success: true,
+
+            data: history
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Firebase history error:",
+            error.message
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                error.message
+
+        });
+
+    }
+
+});
+
+// ======================================================
+// ACCESS LOGS
+// ======================================================
+
+app.get("/api/access-logs", async (req, res) => {
+
+    if (!firebaseReady || !database) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Firebase belum berjaya initialize."
+
+        });
+
+    }
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(database, "access_logs")
+            );
+
+        if (!snapshot.exists()) {
+
+            return res.json({
+
+                success: true,
+
+                data: []
+
+            });
+
+        }
+
+        const data =
+            snapshot.val();
+
+        const logs =
+            Object.keys(data).map(key => ({
+
+                id: key,
+
+                ...data[key]
+
+            }));
+
+        logs.sort((a, b) => {
+
+            return (
+                Number(b.timestamp || 0) -
+                Number(a.timestamp || 0)
+            );
+
+        });
+
+        res.json({
+
+            success: true,
+
+            data: logs
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Access logs error:",
+            error.message
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                error.message
+
+        });
+
+    }
+
+});
+
+// ======================================================
+// ALERTS
+// ======================================================
+
+app.get("/api/alerts", async (req, res) => {
+
+    if (!firebaseReady || !database) {
+
+        return res.json({
+
+            success: false,
+
+            message:
+                "Firebase belum berjaya initialize."
+
+        });
+
+    }
+
+    try {
+
+        const snapshot =
+            await get(
+                ref(database, "alerts")
+            );
+
+        if (!snapshot.exists()) {
+
+            return res.json({
+
+                success: true,
+
+                data: []
+
+            });
+
+        }
+
+        const data =
+            snapshot.val();
+
+        const alerts =
+            Object.keys(data).map(key => ({
+
+                id: key,
+
+                ...data[key]
+
+            }));
+
+        alerts.sort((a, b) => {
+
+            return (
+                Number(b.timestamp || 0) -
+                Number(a.timestamp || 0)
+            );
+
+        });
+
+        res.json({
+
+            success: true,
+
+            data: alerts
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Alerts error:",
+            error.message
+        );
+
+        res.status(500).json({
+
+            success: false,
+
+            message:
+                error.message
+
+        });
+
+    }
+
+});
+
+// ======================================================
+// SERVER STATUS
+// ======================================================
+
+app.get("/api/status", (req, res) => {
+
+    res.json({
+
+        success: true,
+
+        blynk:
+            BLYNK_AUTH_TOKEN
+                ? "READY"
+                : "ERROR",
+
+        firebase:
+            firebaseReady
+                ? "READY"
+                : "ERROR"
+
+    });
+
+});
+
+// ======================================================
+// FRONTEND
+// ======================================================
+
+app.get("*", (req, res) => {
+
+    res.sendFile(
+        path.join(
+            __dirname,
+            "public",
+            "index.html"
+        )
+    );
+
+});
+
+// ======================================================
+// START SERVER
+// ======================================================
+
+app.listen(PORT, () => {
+
+    console.log("======================================");
+    console.log("      NETGUARD DASHBOARD");
+    console.log("======================================");
+
+    console.log(
+        `Website: http://localhost:${PORT}`
+    );
+
+    console.log(
+        `Blynk: ${
+            BLYNK_AUTH_TOKEN
+                ? "READY"
+                : "ERROR"
+        }`
+    );
+
+    console.log(
+        `Firebase: ${
+            firebaseReady
+                ? "READY"
+                : "ERROR"
+        }`
+    );
+
+    console.log("======================================");
+
+});
